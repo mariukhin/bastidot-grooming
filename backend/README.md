@@ -1,26 +1,3 @@
-## Credits
-This project is a fork of https://github.com/amitshekhariitbhu/go-backend-clean-architecture
-
-What I (https://github.com/stefanwuthrich) have done is:
-- Migrated from Gin to Chi (https://github.com/go-chi/chi). Reason: Chi is more lightweight and based on standard net/http library.
-- Updated Go modules to latest versions.
-
-# Go Backend Clean Architecture - Chi/Standard net/http
-
-A Go (Golang) Backend Clean Architecture project with Chi, MongoDB, JWT Authentication Middleware, Test, and Docker.
-
-
-**You can use this project as a template to build your Backend project in the Go language on top of this project.**
-
-
-Learn about this project architecture in detail from the blogs mentioned below:
-
-- [Go Backend Clean Architecture](https://outcomeschool.com/blog/go-backend-clean-architecture)
-- [Go JWT Authentication Middleware](https://outcomeschool.com/blog/go-jwt-authentication-middleware)
-- [Configuration with Viper in Go](https://outcomeschool.com/blog/configuration-with-viper-in-go)
-- [Test with Testify and Mockery in Go](https://outcomeschool.com/blog/test-with-testify-and-mockery-in-go)
-- [Database Normalization vs Denormalization](https://outcomeschool.com/blog/database-normalization-vs-denormalization)
-
 ## Architecture Layers of the project
 
 - Router
@@ -30,27 +7,6 @@ Learn about this project architecture in detail from the blogs mentioned below:
 - Domain
 
 ![Go Backend Clean Architecture Diagram](https://github.com/altafino/go-backend-clean-architecture-chi/blob/main/assets/go-backend-arch-diagram.png?raw=true)
-
-### About original author
-
-
-Hi, I am Amit Shekhar, Co-Founder @ [Outcome School](https://outcomeschool.com) • IIT 2010-14 • I have taught and mentored many developers, and their efforts landed them high-paying tech jobs, helped many tech companies in solving their unique problems, and created many open-source libraries being used by top companies. I am passionate about sharing knowledge through open-source, blogs, and videos.
-
-You can connect with me on:
-
-- [Twitter](https://twitter.com/amitiitbhu)
-- [YouTube](https://www.youtube.com/@amitshekhar)
-- [LinkedIn](https://www.linkedin.com/in/amit-shekhar-iitbhu)
-- [GitHub](https://github.com/amitshekhariitbhu)
-
-## System Design Playlist on YouTube
-
-- [What is System Design?](https://www.youtube.com/watch?v=i4YWRY3hsdA)
-- [Twitter Timeline Design with Fanout Approach - System Design](https://www.youtube.com/watch?v=_7qHGfwgPz0)
-- [HTTP Request vs HTTP Long-Polling vs WebSocket vs Server-Sent Events](https://www.youtube.com/watch?v=8ksWRX4xV-s)
-- [YouTube Video Upload Service - System Design](https://www.youtube.com/watch?v=N0vvJTkokZc)
-- [What is Consistent Hashing?](https://www.youtube.com/watch?v=dV5cIm9T3ss)
-- [Capacity Estimation: Back-of-the-envelope calculation - Twitter](https://www.youtube.com/watch?v=yrbKxzXm6_Q)
 
 ## Major Packages used in this project
 
@@ -72,23 +28,6 @@ You can connect with me on:
 > JWT Authentication Middleware for Access Token Validation.
 
 ![Private API Request Flow](https://github.com/altafino/go-backend-clean-architecture-chi/blob/main/assets/go-arch-private-api-request-flow.png?raw=true)
-
-### How to run this project?
-
-We can run this Go Backend Clean Architecture project with or without Docker. Here, I am providing both ways to run this project.
-
-- Clone this project
-
-```bash
-# Move to your workspace
-cd your-workspace
-
-# Clone this project into your workspace
-git clone https://github.com/altafino/go-backend-clean-architecture-chi.git
-
-# Move to the project root directory
-cd go-backend-clean-architecture
-```
 
 #### Run without Docker
 
@@ -328,34 +267,3 @@ Whenever you make changes in the interfaces of these use-cases, repositories, or
     "refreshToken": "refresh_token"
   }
   ```
-
-
-### TODO
-
-- Improvement based on feedback.
-- Add more test cases.
-- Always try to update with the latest version of the packages used.
-
-## If this project helps you in anyway, show your love ❤️ by putting a ⭐ on this project ✌️
-
-### License
-
-```
-   Copyright (C) 2024 Amit Shekhar
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-```
-
-### Contributing to Go Backend Clean Architecture
-
-All pull requests are welcome.
