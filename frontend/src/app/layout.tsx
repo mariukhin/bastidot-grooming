@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Montserrat } from 'next/font/google';
 
 import 'normalize.css';
@@ -24,7 +25,19 @@ type RootLayoutProps = {
 const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
   return (
     <html lang="ua">
-      <body className={montserrat.variable}>{children}</body>
+      <body className={montserrat.variable}>
+        <nav>
+          <ul>
+            <li>
+              <Link href="/">Dashboard</Link>
+            </li>
+            <li>
+              <Link href="/academy">Academy</Link>
+            </li>
+          </ul>
+        </nav>
+        {children}
+      </body>
     </html>
   );
 };
