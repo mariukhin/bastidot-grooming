@@ -1,0 +1,69 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  border: 1px solid;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @include breakpoints.lg {
+    &:active:not(:disabled) {
+      box-shadow: var(--shadow-froly);
+      transform: scale(0.98);
+    }
+  }
+
+  @include breakpoints.lg {
+    &:hover:not(:disabled) {
+      box-shadow: var(--shadow-froly);
+      transform: scale(0.98);
+    }
+  }
+}
+
+.primary {
+  color: var(--color-white);
+
+  &.red {
+    background-color: var(--color-dark-burgundy);
+    border-color: var(--color-dark-burgundy);
+  }
+
+  &.blue {
+    background-color: var(--color-blue-bayoux);
+    border-color: var(--color-blue-bayoux);
+  }
+}
+
+.secondary {
+  &.red {
+    background-color: transparent;
+    border-color: var(--color-dark-burgundy);
+    color: var(--color-dark-burgundy);
+  }
+
+  &.blue {
+    background-color: transparent;
+    border-color: var(--color-blue-bayoux);
+    color: var(--color-blue-bayoux);
+  }
+}
+
+.medium {
+  padding: 9px 20px;
+}
+
+.large {
+  padding: 14px 28px;
+}

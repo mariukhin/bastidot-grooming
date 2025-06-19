@@ -1,0 +1,93 @@
+$screen-xs-min: 0px;
+$screen-sm-min: 600px;
+$screen-md-min: 960px;
+$screen-lg-min: 1280px;
+$screen-xl-min: 1920px;
+
+// min width
+
+// Extra small
+@mixin xs {
+  @media (min-width: #{$screen-xs-min}) {
+    @content;
+  }
+}
+
+// Small
+@mixin sm {
+  @media (min-width: #{$screen-sm-min}) {
+    @content;
+  }
+}
+
+// Medium
+@mixin md {
+  @media (min-width: #{$screen-md-min}) {
+    @content;
+  }
+}
+
+// Large
+@mixin lg {
+  @media (min-width: #{$screen-lg-min}) {
+    @content;
+  }
+}
+
+// Extra large
+@mixin xl {
+  @media (min-width: #{$screen-xl-min}) {
+    @content;
+  }
+}
+
+// Custom size
+@mixin rwd($screen) {
+  @media (min-width: $screen) {
+    @content;
+  }
+}
+
+// max-width
+
+// Extra small
+@mixin xs_r {
+  @media (max-width: #{$screen-xs-min - 1}) {
+    @content;
+  }
+}
+
+// Small
+@mixin sm_r {
+  @media (max-width: #{$screen-sm-min - 1}) {
+    @content;
+  }
+}
+
+// Medium
+@mixin md_r {
+  @media (max-width: #{$screen-md-min - 1}) {
+    @content;
+  }
+}
+
+// Large
+@mixin lg_r {
+  @media (max-width: #{$screen-lg-min - 1}) {
+    @content;
+  }
+}
+
+// Extra large
+@mixin xl_r {
+  @media (max-width: #{$screen-xl-min - 1}) {
+    @content;
+  }
+}
+
+// Custom size
+@mixin rwd_r($screen) {
+  @media (max-width: #{$screen - 1}) {
+    @content;
+  }
+}

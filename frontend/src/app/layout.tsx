@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Montserrat } from 'next/font/google';
 
+import { FormExample } from '@/components/form-example';
+
 import 'normalize.css';
 import './globals.scss';
 
@@ -36,6 +38,8 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
             </li>
           </ul>
         </nav>
+        <div style={{ height: 100 }} />
+        <FormExample />
         {children}
       </body>
     </html>
