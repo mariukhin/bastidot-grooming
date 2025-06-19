@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Montserrat } from 'next/font/google';
 
-import { FormExample } from '@/components/form-example';
+import {Header} from '@/components/header'
 
 import 'normalize.css';
 import './globals.scss';
@@ -28,18 +28,15 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
   return (
     <html lang="ua">
       <body className={montserrat.variable}>
+        <Header />
         <nav>
           <ul>
             <li>
-              <Link href="/">Dashboard</Link>
-            </li>
-            <li>
-              <Link href="/academy">Academy</Link>
+              <Link href="/form-example">Form Example</Link>
             </li>
           </ul>
         </nav>
         <div style={{ height: 100 }} />
-        <FormExample />
         {children}
       </body>
     </html>

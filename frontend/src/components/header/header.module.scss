@@ -1,0 +1,133 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.wrapper {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  justify-content: space-between;
+  width: 100%;
+  background-color: var(--color-white);
+
+  @include breakpoints.xs {
+    padding: 8px 10px;
+  }
+
+  @include breakpoints.md {
+    padding: 12px 130px;
+  }
+
+  @include breakpoints.xl {
+    padding: 12px 200px;
+  }
+}
+
+.navbar {
+  display: flex;
+
+  @include breakpoints.lg_r {
+    display: none;
+  }
+}
+
+.navbarContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.linkText {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.linkActive {
+  color: var(--color-milano-red);
+}
+
+.phoneNumber {
+  text-decoration: underline;
+  padding-left: 10px;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.signInButton {
+  @include breakpoints.sm_r {
+   display: none;
+  }
+}
+
+.button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  border: 1px solid;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @include breakpoints.lg {
+    &:active:not(:disabled) {
+      box-shadow: var(--shadow-froly);
+      transform: scale(0.98);
+    }
+  }
+
+  @include breakpoints.lg {
+    &:hover:not(:disabled) {
+      box-shadow: var(--shadow-froly);
+      transform: scale(0.98);
+    }
+  }
+}
+
+.primary {
+  color: var(--color-white);
+
+  &.red {
+    background-color: var(--color-dark-burgundy);
+    border-color: var(--color-dark-burgundy);
+  }
+
+  &.blue {
+    background-color: var(--color-blue-bayoux);
+    border-color: var(--color-blue-bayoux);
+  }
+}
+
+.secondary {
+  &.red {
+    background-color: transparent;
+    border-color: var(--color-dark-burgundy);
+    color: var(--color-dark-burgundy);
+  }
+
+  &.blue {
+    background-color: transparent;
+    border-color: var(--color-blue-bayoux);
+    color: var(--color-blue-bayoux);
+  }
+}
+
+.medium {
+  padding: 9px 20px;
+}
+
+.large {
+  padding: 14px 28px;
+}
