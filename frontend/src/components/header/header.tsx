@@ -1,33 +1,20 @@
 'use client';
 
 import { Button } from '@/components/button';
-import { Logo } from '@/components/logo';
+import { MainLogo } from '@/components/logo';
+import { links } from '@/utils/const';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import classNames from 'classnames';
 
 import styles from './header.module.scss';
 
-type LinkProps = {
-  href: string;
-  label: string;
-};
-
-const links: LinkProps[] = [
-  { href: '/', label: 'Головна' },
-  { href: '/services', label: 'Послуги' },
-  { href: '/academy', label: 'Курси' },
-  { href: '/reviews', label: 'Відгуки' },
-  { href: '/about', label: 'Про нас' },
-  { href: '/contacts', label: 'Контакти' },
-];
-
 const Header = () => {
   const pathname = usePathname();
 
   return (
-    <div className={styles.wrapper}>
-      <Logo />
+    <header className={styles.wrapper}>
+      <MainLogo />
       <nav className={styles.navbar}>
         <ul className={styles.navbarContainer}>
           {links.map(({ href, label }) => (
@@ -52,7 +39,7 @@ const Header = () => {
           variant={'secondary'}
         />
       </div>
-    </div>
+    </header>
   );
 };
 

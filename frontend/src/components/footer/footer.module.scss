@@ -1,0 +1,116 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.container {
+  width: 100%;
+  bottom: 0;
+  z-index: 1000;
+  background-color: var(--color-ebb);
+}
+
+.wrapper {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 30px;
+
+  @include breakpoints.xs {
+    padding: 40px 16px 20px;
+  }
+
+  @include breakpoints.md {
+    padding: 30px 111px;
+  }
+
+  @include breakpoints.xl {
+    padding: 30px 150px;
+  }
+}
+
+.navbar {
+  display: flex;
+}
+
+.navbarContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 32px;
+
+  @include breakpoints.lg_r {
+    justify-content: center;
+  }
+}
+
+.linkText {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-pickled-bluewood-dark);
+}
+
+.linkActive {
+  color: var(--color-milano-red);
+}
+
+.phoneNumber {
+  text-decoration: underline;
+  padding-left: 10px;
+}
+
+.linksContainer {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+
+  @include breakpoints.lg_r {
+    flex-direction: column;
+    gap: 32px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--color-thatch);
+  }
+}
+
+.socialContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+}
+
+.logoContainer {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+
+  @include breakpoints.md_r {
+    flex-direction: column;
+    gap: 24px;
+  }
+}
+
+.footerText {
+  font-size: 14px;
+  color: var(--color-pickled-bluewood);
+  font-weight: 500;
+
+  @include breakpoints.md_r {
+    font-size: 10px;
+  }
+}
+
+.mainLogo {
+  @include breakpoints.md_r {
+    display: none;
+  }
+}
+
+.footerLogo {
+  @include breakpoints.md {
+    display: none;
+  }
+}
