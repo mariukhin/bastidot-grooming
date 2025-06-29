@@ -1,0 +1,36 @@
+/*
+  Here we place icon ids from sprite
+*/
+
+export enum IconTypes {
+  facebook = 'facebook',
+  instagram = 'instagram',
+  telegram = 'telegram',
+  tiktok = 'tiktok',
+  viber = 'viber',
+  whatsapp = 'whatsapp',
+  youtube = 'youtube',
+  userCircle = 'user-circle',
+  rocketLaunch = 'rocket-launch',
+  quotes = 'quotes',
+  point = 'point',
+  phone = 'phone',
+  money = 'money',
+  info = 'info',
+  heart = 'heart',
+  hamburger = 'hamburger',
+  eye = 'eye',
+  edit = 'edit',
+  close = 'close',
+  clock = 'clock',
+  circleCheck = 'circle-check',
+  chevroneRight = 'chevrone-right',
+  chevronUp = 'chevron-up',
+  chevronLeft = 'chevron-left',
+  chevronDown = 'chevron-down',
+  check = 'check',
+  calendarCheck = 'calendar-check',
+  calendarAdd = 'calendar-add',
+  bag = 'bag',
+  arrowDown = 'arrow-down',
+}
