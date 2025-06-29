@@ -2,6 +2,7 @@ import Image from 'next/image';
 import styles from './page.module.scss';
 import { Button } from '@/components/button';
 import bastiPhoto from './basti.png';
+import { ServicesBlock } from '@/components/services-block';
 
 const Dashboard = () => {
   return (
@@ -24,6 +25,7 @@ const Dashboard = () => {
           <Image className={styles.photo} src={bastiPhoto} alt="basti photo" />
         </div>
       </div>
+      <ServicesBlock />
     </div>
   );
 };

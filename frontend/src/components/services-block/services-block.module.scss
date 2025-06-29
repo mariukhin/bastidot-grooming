@@ -1,0 +1,79 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.container {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  flex-basis: auto;
+  flex-shrink: 0;
+  flex-grow: 0;
+  padding: 60px 130px;
+  gap: 24px;
+  height: 100%;
+
+  @include breakpoints.md_r {
+    padding: 10px 16px;
+  }
+
+  @include breakpoints.xl {
+    padding: 20px 200px;
+  }
+}
+
+.title {
+  font-size: 40px;
+  line-height: 54px;
+  font-weight: 800;
+  color: var(--color-dark-burgundy);
+
+  @include breakpoints.md_r {
+    width: 100%;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 46px;
+    text-align: center;
+  }
+}
+
+.selectBlock {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: var(--color-white);
+
+  align-self: flex-start;
+}
+
+.selectBlockText {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 800;
+  color: var(--color-diesel);
+}
+
+.select {
+  width: 440px;
+}
+
+.serviceContainer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: flex-start;
+  align-self: flex-start;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.serviceItemContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-radius: 12px;
+  background-color: var(--color-white);
+  gap: 16px;
+  max-width: 380px;
+}

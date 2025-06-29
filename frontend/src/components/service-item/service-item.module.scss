@@ -1,0 +1,73 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.container {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.firstRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.secondRow {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+}
+
+.thirdRow {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 7px;
+}
+
+.title {
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 800;
+  color: var(--color-woodsmoke);
+
+  //@include breakpoints.md_r {
+  //  width: 100%;
+  //  font-size: 38px;
+  //  font-weight: 800;
+  //  line-height: 46px;
+  //  text-align: center;
+  //}
+}
+
+.groomerText {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-gray);
+}
+
+.selectBlock {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: var(--color-white);
+
+  align-self: flex-start;
+}
+
+.selectBlockText {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 800;
+  color: var(--color-diesel);
+}
+
+.select {
+  width: 440px;
+}
