@@ -1,15 +1,10 @@
 'use client';
 
-import {
-  LogoFooter,
-  MainLogo,
-  FacebookLogo,
-  YouTubeLogo,
-  TiktokLogo,
-  InstagramLogo,
-} from '@/components/logo';
-import { links } from '@/utils/const';
+import Image from 'next/image';
 import Link from 'next/link';
+
+import { FacebookLogo, YouTubeLogo, TiktokLogo, InstagramLogo } from '@/components/logo';
+import { links } from '@/utils/const';
 
 import styles from './footer.module.scss';
 
@@ -59,8 +54,22 @@ const Footer = () => {
           </div>
         </div>
         <div className={styles.logoContainer}>
-          <MainLogo className={styles.mainLogo} />
-          <LogoFooter className={styles.footerLogo} />
+          <Image
+            className={styles.bigLogo}
+            src={'/big-logo.svg'}
+            alt="Logo"
+            width={169}
+            height={37}
+            priority
+          />
+          <Image
+            className={styles.smallLogo}
+            src={'/small-logo.svg'}
+            alt="Logo"
+            width={75}
+            height={57}
+            priority
+          />
           <span className={styles.footerText}>© 2025 Bastidot. All rights reserved.</span>
         </div>
       </div>

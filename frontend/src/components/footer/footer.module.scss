@@ -103,13 +103,13 @@
   }
 }
 
-.mainLogo {
+.bigLogo {
   @include breakpoints.md_r {
     display: none;
   }
 }
 
-.footerLogo {
+.smallLogo {
   @include breakpoints.md {
     display: none;
   }

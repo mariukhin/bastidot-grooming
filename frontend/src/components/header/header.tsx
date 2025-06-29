@@ -1,11 +1,12 @@
 'use client';
 
-import { Button } from '@/components/button';
-import { MainLogo } from '@/components/logo';
-import { links } from '@/utils/const';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import classNames from 'classnames';
+
+import { Button } from '@/components/button';
+import { links } from '@/utils/const';
 
 import styles from './header.module.scss';
 
@@ -14,7 +15,7 @@ const Header = () => {
 
   return (
     <header className={styles.wrapper}>
-      <MainLogo />
+      <Image src={'/big-logo.svg'} alt="Logo" width={169} height={37} priority />
       <nav className={styles.navbar}>
         <ul className={styles.navbarContainer}>
           {links.map(({ href, label }) => (

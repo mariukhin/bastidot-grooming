@@ -60,6 +60,6 @@
 
 .signInButton {
   @include breakpoints.sm_r {
-   display: none !important;
+    display: none !important;
   }
 }
