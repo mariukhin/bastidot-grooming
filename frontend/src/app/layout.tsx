@@ -33,14 +33,14 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
     <html lang="ua">
       <body className={montserrat.variable}>
         <Header />
-        <nav>
-          <ul>
-            <li>
-              <Link href="/form-example">Form Example</Link>
-            </li>
-          </ul>
-        </nav>
-        <div style={{ height: 100 }} />
+        {/*<nav>*/}
+        {/*  <ul>*/}
+        {/*    <li>*/}
+        {/*      <Link href="/form-example">Form Example</Link>*/}
+        {/*    </li>*/}
+        {/*  </ul>*/}
+        {/*</nav>*/}
+        {/*<div style={{ height: 100 }} />*/}
         {children}
         <Footer />
       </body>

@@ -1,12 +1,31 @@
-'use client';
-
+import Image from 'next/image';
 import styles from './page.module.scss';
-import useCounterStore from '@/store/useCounterStore';
+import { Button } from '@/components/button';
+import bastiPhoto from './basti.png';
 
 const Dashboard = () => {
-  const { count } = useCounterStore();
-
-  return <div className={styles.wrapper}>Головна {count}</div>;
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.container}>
+        <div className={styles.descriptionBlock}>
+          <p className={styles.title}>
+            Привіт, Я - Басті. <tr />
+            Мій салон відкритий до ваших послуг
+          </p>
+          <p className={styles.subtitle}>
+            Ваші особливості, причини обрати вас або опис салону, цінностей і тд
+          </p>
+          <div className={styles.buttonBlock}>
+            <Button type={'submit'} text={'Записатися'} />
+            <Button type={'submit'} text={'Перейти до курсу'} variant={'secondary'} />
+          </div>
+        </div>
+        <div className={styles.photoBlock}>
+          <Image className={styles.photo} src={bastiPhoto} alt="basti photo" />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;
