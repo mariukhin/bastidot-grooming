@@ -16,6 +16,7 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, r *chi.
 		NewSignupRouter(env, timeout, db, r)
 		NewLoginRouter(env, timeout, db, r)
 		NewRefreshTokenRouter(env, timeout, db, r)
+		NewBreedRouter(env, timeout, db, r)
 	})
 
 	// Protected routes

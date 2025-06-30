@@ -46,8 +46,6 @@ func (sc *SignupController) Signup(w http.ResponseWriter, r *http.Request) {
 		ID:       primitive.NewObjectID(),
 		Name:     request.Name,
 		Email:    request.Email,
-		Phone:    request.Phone,
-		PetName:  request.PetName,
 		Password: request.Password,
 	}
 
