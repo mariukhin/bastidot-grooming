@@ -49,9 +49,11 @@
   padding: 12px 14px;
   border-radius: 12px;
   background-color: var(--color-white);
+  width: fit-content;
 
   @include breakpoints.sm_r {
     flex-direction: column;
+    width: 100%;
   }
 }
 
