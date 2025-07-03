@@ -72,15 +72,6 @@ const ServicesBlock = () => {
       durationHour: 3,
       durationMin: 30,
     },
-    {
-      id: 6,
-      serviceType: 'Преміум комплекс',
-      breedName: 'Мальтіпу',
-      defaultPrice: 1000,
-      vipPrice: 1500,
-      durationHour: 3,
-      durationMin: 30,
-    },
   ];
 
   return (

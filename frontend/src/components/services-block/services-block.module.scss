@@ -10,9 +10,15 @@
   padding: 60px 130px;
   gap: 24px;
   height: 100%;
+  background-image: url('./dog-paw.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: 25% center;
 
   @include breakpoints.md_r {
     padding: 10px 16px;
+    background-position: center top;
+    background-size: cover;
   }
 
   @include breakpoints.xl {
@@ -44,7 +50,9 @@
   border-radius: 12px;
   background-color: var(--color-white);
 
-  align-self: flex-start;
+  @include breakpoints.sm_r {
+    flex-direction: column;
+  }
 }
 
 .selectBlockText {
@@ -56,6 +64,10 @@
 
 .select {
   width: 440px;
+
+  @include breakpoints.sm_r {
+    width: 333px;
+  }
 }
 
 .serviceContainer {
@@ -63,7 +75,6 @@
   justify-content: flex-start;
   align-items: center;
   align-content: flex-start;
-  align-self: flex-start;
   flex-wrap: wrap;
   gap: 20px;
 }
@@ -71,9 +82,22 @@
 .serviceItemContainer {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 1;
   padding: 16px;
   border-radius: 12px;
   background-color: var(--color-white);
   gap: 16px;
-  max-width: 380px;
+  flex-basis: 100%;
+  max-width: 100%;
+
+  @include breakpoints.sm {
+    flex-basis: calc(50% - 10px);
+    max-width: calc(50% - 10px);
+  }
+
+  @include breakpoints.lg {
+    flex-basis: calc(33.33% - (2 * 20px / 3));
+    max-width: calc(33.33% - (2 * 20px / 3));
+  }
 }
