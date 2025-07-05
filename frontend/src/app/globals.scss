@@ -1,5 +1,5 @@
 @use 'src/styles/breakpoints' as breakpoints;
-@import '../styles/variables.scss';
+@use 'src/styles/variables' as *;
 
 body {
   font-family: var(--font-montserrat), sans-serif;

@@ -1,0 +1,53 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: var(--modal-backdrop);
+  z-index: 1001;
+  padding: 16px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+
+  @include breakpoints.md {
+    padding: 22px;
+  }
+}
+
+.modal {
+  background-color: var(--color-white);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  margin: auto;
+}
+
+.content {
+  padding: 40px 20px 20px;
+
+  @include breakpoints.md {
+    padding: 40px;
+  }
+}
+
+.close {
+  display: flex;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+
+  &:hover,
+  &:active {
+    transform: scale(1.1);
+  }
+}

@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { Montserrat } from 'next/font/google';
 
 import { Header } from '@/components/header';
@@ -33,15 +32,8 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
     <html lang="ua">
       <body className={montserrat.variable}>
         <Header />
-        {/*<nav>*/}
-        {/*  <ul>*/}
-        {/*    <li>*/}
-        {/*      <Link href="/form-example">Form Example</Link>*/}
-        {/*    </li>*/}
-        {/*  </ul>*/}
-        {/*</nav>*/}
-        {/*<div style={{ height: 100 }} />*/}
         {children}
+        <div id="modal-root" />
         <Footer />
       </body>
     </html>
