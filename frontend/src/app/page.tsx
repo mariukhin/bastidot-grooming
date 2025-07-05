@@ -3,6 +3,7 @@ import styles from './page.module.scss';
 import { Button } from '@/components/button';
 import bastiPhoto from './basti.png';
 import { ServicesBlock } from '@/components/services-block';
+import { PublicationsBlock } from '@/components/publications-block';
 
 const Dashboard = () => {
   return (
@@ -26,6 +27,12 @@ const Dashboard = () => {
         </div>
       </div>
       <ServicesBlock />
+      <PublicationsBlock />
+      <div className={styles.teamContainer}>
+        <div className={styles.teamWrapper}>
+          <p className={styles.title}>Команда</p>
+        </div>
+      </div>
     </div>
   );
 };

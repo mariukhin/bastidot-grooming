@@ -92,6 +92,7 @@
   gap: 16px;
   flex-basis: 100%;
   max-width: 100%;
+  filter: drop-shadow(0px 4px 4px rgb(0, 0, 0, 0.25));
 
   @include breakpoints.sm {
     flex-basis: calc(50% - 10px);
