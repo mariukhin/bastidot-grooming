@@ -11,11 +11,14 @@ import { Select } from '@/components/select';
 import { Button } from '@/components/button';
 import { Modal } from '@/components/modal';
 
+import { useConfirmModal } from '@/hooks/use-confirm-modal';
+
 import type { FormExampleFormData } from './validation';
 import { formExampleValidationSchema } from './validation';
 
 const FormExample = () => {
-  const [modal, setModal] = useState(false);
+  const [isModal, setIsModal] = useState(false);
+  const { confirm, modal } = useConfirmModal();
 
   const {
     control,
@@ -33,6 +36,26 @@ const FormExample = () => {
 
   const onSubmit = (data: FormExampleFormData) => {
     console.log('data', data);
+  };
+
+  const handleOpenModal = () => {
+    setIsModal(true);
+  };
+
+  const handleProceed = async () => {
+    const isConfirmed = await confirm({
+      title: 'Ви впевнені, що хочете скасувати запис?',
+      text: 'Його не можна буде відновити. Ви зможете зробити новий запис',
+      cancelButtonText: 'Не скасовувати',
+      confirmButtonText: 'Скасувати',
+    });
+
+    if (isConfirmed) {
+      setIsModal(false);
+      console.log('Confirmed');
+    } else {
+      console.log('Canceled');
+    }
   };
 
   return (
@@ -109,8 +132,8 @@ const FormExample = () => {
             />
           )}
         />
-        <Button type={'button'} text={'Open modal'} onClick={() => setModal(true)} />
-        <Button type={'submit'} text={'Primary Red Large'} size={'large'} />
+        <Button type={'button'} text={'Open modal'} onClick={handleOpenModal} />
+        <Button type={'submit'} text={'Large'} size={'large'} />
         <Button type={'submit'} text={'Secondary Red Medium'} variant={'secondary'} />
         <Button type={'submit'} text={'Secondary Red Large'} variant={'secondary'} size={'large'} />
         <Button type={'submit'} text={'Primary Blue Medium'} color={'blue'} />
@@ -121,18 +144,19 @@ const FormExample = () => {
           variant={'secondary'}
           color={'blue'}
         />
+      </form>
+      <Modal isOpen={isModal} onClose={() => setIsModal(false)}>
+        <h2>Оберіть послугу</h2>
+        <div style={{ height: 2000, backgroundColor: 'pink' }}>Content</div>
         <Button
-          type={'submit'}
-          text={'Secondary Blue Large'}
+          text={'Proceed'}
           variant={'secondary'}
           size={'large'}
           color={'blue'}
+          onClick={handleProceed}
         />
-      </form>
-      <Modal isOpen={modal} onClose={() => setModal(false)}>
-        <h2>Оберіть послугу</h2>
-        <div style={{ height: 2000, backgroundColor: 'pink' }}>Content</div>
       </Modal>
+      {modal}
     </>
   );
 };

@@ -1,0 +1,64 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: var(--modal-backdrop);
+  z-index: 1001;
+  padding: 16px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+
+  @include breakpoints.md {
+    padding: 22px;
+  }
+}
+
+.modal {
+  background-color: var(--color-white);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+
+.content {
+  padding: 24px;
+  text-align: center;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--color-woodsmoke);
+  margin-bottom: 8px;
+}
+
+.text {
+  font-weight: 500;
+  line-height: 26px;
+  color: var(--color-gray);
+  margin-bottom: 24px;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+
+  @include breakpoints.sm_r {
+    flex-direction: column;
+  }
+}
+
+.button {
+  @include breakpoints.sm {
+    width: 50%;
+
+    &:first-child {
+      order: 1;
+    }
+  }
+}

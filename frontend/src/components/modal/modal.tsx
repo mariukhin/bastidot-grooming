@@ -3,6 +3,9 @@ import { FC, ReactNode, MouseEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { Icon, IconTypes } from '@/components/icon';
+
+import { useFocusTrapping } from '@/hooks/use-focus-trapping';
+
 import styles from './modal.module.scss';
 
 type ModalProps = {
@@ -22,19 +25,11 @@ const Modal: FC<ModalProps> = ({
 }) => {
   const backdropRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-  const previouslyFocusedElement = useRef<HTMLElement | null>(null);
+
+  useFocusTrapping({ ref: modalRef, open: isOpen, onEscape: onClose });
 
   const [mounted, setMounted] = useState(false);
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
-
-  const getFocusableElements = (): HTMLElement[] => {
-    if (!modalRef.current) return [];
-    return Array.from(
-      modalRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter((el) => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
-  };
 
   useEffect(() => {
     setMounted(true);
@@ -49,63 +44,20 @@ const Modal: FC<ModalProps> = ({
       backdropRef.current?.scrollTo({ top: 0 });
     });
 
-    previouslyFocusedElement.current = document.activeElement as HTMLElement;
-
-    const focusFirstElement = () => {
-      const focusable = getFocusableElements();
-      if (focusable.length > 0) {
-        focusable[0].focus();
-      } else {
-        modalRef.current?.focus();
-      }
-    };
-
-    focusFirstElement();
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
         return;
       }
-
-      if (e.key === 'Tab') {
-        const focusable = getFocusableElements();
-        if (focusable.length === 0) {
-          e.preventDefault();
-          modalRef.current?.focus();
-          return;
-        }
-
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-
-    const handleFocusIn = (e: FocusEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        const focusable = getFocusableElements();
-        (focusable[0] || modalRef.current)?.focus();
-      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('focusin', handleFocusIn);
     document.body.style.overflow = 'hidden';
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('focusin', handleFocusIn);
       document.body.style.overflow = '';
-      previouslyFocusedElement.current?.focus();
     };
   }, [isOpen, onClose, mounted]);
 
