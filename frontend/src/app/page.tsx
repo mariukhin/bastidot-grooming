@@ -4,6 +4,7 @@ import { Button } from '@/components/button';
 import bastiPhoto from './basti.png';
 import { ServicesBlock } from '@/components/services-block';
 import { PublicationsBlock } from '@/components/publications-block';
+import { TeamBlock } from '@/components/team-block';
 
 const Dashboard = () => {
   return (
@@ -28,11 +29,7 @@ const Dashboard = () => {
       </div>
       <ServicesBlock />
       <PublicationsBlock />
-      <div className={styles.teamContainer}>
-        <div className={styles.teamWrapper}>
-          <p className={styles.title}>Команда</p>
-        </div>
-      </div>
+      <TeamBlock />
     </div>
   );
 };

@@ -8,6 +8,11 @@ import { Footer } from '@/components/footer';
 import 'normalize.css';
 import './globals.scss';
 
+import dayjs from 'dayjs';
+import 'dayjs/locale/uk';
+
+dayjs.locale('uk');
+
 const montserrat = Montserrat({
   variable: '--font-montserrat',
   subsets: ['latin', 'cyrillic'],
