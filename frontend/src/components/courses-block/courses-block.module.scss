@@ -1,0 +1,145 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.coursesContainer {
+  width: 100%;
+  background-color: var(--color-white);
+}
+
+.coursesWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 12px 60px;
+
+  @include breakpoints.md {
+    padding: 60px 130px 120px;
+  }
+}
+
+.coursesTitle {
+  font-size: 40px;
+  margin-bottom: 12px;
+  line-height: 47px;
+  font-weight: 800;
+  z-index: 2;
+  color: var(--color-dark-burgundy);
+
+  @include breakpoints.md_r {
+    width: 100%;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 46px;
+    text-align: center;
+  }
+}
+
+.coursesSubtitle {
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 500;
+  color: var(--color-submarine-blue);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.coursesBlock {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 20px;
+
+  @include breakpoints.md {
+    flex-direction: row;
+  }
+}
+
+.courseItem {
+  display: flex;
+  border-radius: 12px;
+  background-color: var(--color-white);
+  filter: drop-shadow(0px 2px 8px rgb(19, 2, 2, 0.08));
+  flex-direction: column;
+
+  @include breakpoints.md {
+    flex-basis: calc(50% - 10px);
+    max-width: calc(50% - 10px);
+    flex-direction: row;
+  }
+}
+
+.courseItemWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.coursePreviewPhotoContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+
+  &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+}
+
+.coursePreviewPhoto {
+  display: block;
+  width: 580px;
+  height: 264px;
+  border-radius: 12px;
+}
+
+.blurredPhoto {
+  filter: blur(12px);
+}
+
+.courseInfoWrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 20px;
+}
+
+.courseTitle {
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 800;
+  color: var(--color-woodsmoke);
+  margin-bottom: 4px;
+}
+
+.courseDurationBlock {
+  display: flex;
+  gap: 4px;
+}
+
+.courseDurationText {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--color-gray);
+  white-space: nowrap;
+}
+
+.courseDuration {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+  color: var(--color-gray);
+  white-space: nowrap;
+}
+
+.courseButtonBlock {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.button {
+  width: 49%;
+}

@@ -43,6 +43,13 @@
   &.blue {
     background-color: var(--color-blue-bayoux);
     border-color: var(--color-blue-bayoux);
+
+    &:disabled {
+      opacity: 1;
+      background-color: var(--color-cloud-whisper);
+      color: var(--color-gray-chateau);
+      border-color: var(--color-cloud-whisper);
+    }
   }
 }
 
@@ -57,6 +64,14 @@
     background-color: transparent;
     border-color: var(--color-blue-bayoux);
     color: var(--color-blue-bayoux);
+
+    &:disabled {
+      opacity: 1;
+      font-weight: 600;
+      background-color: var(--color-white);
+      color: var(--color-gray-chateau);
+      border: 2px solid var(--color-cloud-whisper);
+    }
   }
 }
 

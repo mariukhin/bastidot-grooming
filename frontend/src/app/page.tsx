@@ -5,6 +5,8 @@ import bastiPhoto from './basti.png';
 import { ServicesBlock } from '@/components/services-block';
 import { PublicationsBlock } from '@/components/publications-block';
 import { TeamBlock } from '@/components/team-block';
+import { IconTypes } from '@/components/icon';
+import { CoursesBlock } from '@/components/courses-block';
 
 const Dashboard = () => {
   return (
@@ -20,7 +22,12 @@ const Dashboard = () => {
           </p>
           <div className={styles.buttonBlock}>
             <Button type={'submit'} text={'Записатися'} />
-            <Button type={'submit'} text={'Перейти до курсу'} variant={'secondary'} />
+            <Button
+              type={'submit'}
+              text={'Перейти до курсу'}
+              variant={'secondary'}
+              icon={IconTypes.arrowDown}
+            />
           </div>
         </div>
         <div className={styles.photoBlock}>
@@ -30,6 +37,7 @@ const Dashboard = () => {
       <ServicesBlock />
       <PublicationsBlock />
       <TeamBlock />
+      <CoursesBlock />
     </div>
   );
 };
