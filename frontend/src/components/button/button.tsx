@@ -3,6 +3,8 @@
 import { ButtonHTMLAttributes, FC } from 'react';
 import classNames from 'classnames';
 
+import { Icon, IconTypes } from '@/components/icon';
+
 import styles from './button.module.scss';
 
 type ButtonVariant = 'primary' | 'secondary';
@@ -14,7 +16,7 @@ type ButtonProps = {
   variant?: ButtonVariant;
   color?: ButtonColor;
   size?: ButtonSize;
-  loading?: boolean;
+  icon?: IconTypes;
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
 const Button: FC<ButtonProps> = ({
@@ -23,6 +25,7 @@ const Button: FC<ButtonProps> = ({
   color = 'red',
   size = 'medium',
   className,
+  icon,
   ...rest
 }) => {
   return (
@@ -31,6 +34,14 @@ const Button: FC<ButtonProps> = ({
       {...rest}
     >
       {text}
+      {!!icon && (
+        <Icon
+          className={styles.icon}
+          id={icon}
+          width={size === 'large' ? 20 : 16}
+          height={size === 'large' ? 20 : 16}
+        />
+      )}
     </button>
   );
 };

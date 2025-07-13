@@ -4,6 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { IconTypes } from '@/components/icon';
 import { TextInput } from '@/components/text-input';
 import { TextArea } from '@/components/text-area';
 import { PhoneInput } from '@/components/phone-input';
@@ -132,10 +133,21 @@ const FormExample = () => {
             />
           )}
         />
-        <Button type={'button'} text={'Open modal'} onClick={handleOpenModal} />
+        <Button
+          type={'button'}
+          text={'Open modal'}
+          onClick={handleOpenModal}
+          icon={IconTypes.arrowDown}
+        />
         <Button type={'submit'} text={'Large'} size={'large'} />
         <Button type={'submit'} text={'Secondary Red Medium'} variant={'secondary'} />
-        <Button type={'submit'} text={'Secondary Red Large'} variant={'secondary'} size={'large'} />
+        <Button
+          type={'submit'}
+          text={'Secondary Red Large'}
+          variant={'secondary'}
+          size={'large'}
+          icon={IconTypes.calendarAdd}
+        />
         <Button type={'submit'} text={'Primary Blue Medium'} color={'blue'} />
         <Button type={'submit'} text={'Primary Blue Large'} size={'large'} color={'blue'} />
         <Button
