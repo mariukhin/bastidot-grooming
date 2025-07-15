@@ -6,7 +6,7 @@ import styles from './courses-block.module.scss';
 import coursePreview from './vipGroomerPreview.png';
 
 const CoursesBlock = () => (
-  <div className={styles.coursesContainer}>
+  <div className={styles.coursesContainer} id={'academy'}>
     <div className={styles.coursesWrapper}>
       <p className={styles.coursesTitle}>Курси</p>
       <p className={styles.coursesSubtitle}>Бажаєш навчитися?</p>

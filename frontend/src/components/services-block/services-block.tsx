@@ -75,7 +75,7 @@ const ServicesBlock = () => {
   ];
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} id={'services'}>
       <p className={styles.title}>Послуги</p>
       <div className={styles.selectBlock}>
         <p className={styles.selectBlockText}>Оберіть вашого улюбленця</p>

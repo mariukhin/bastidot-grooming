@@ -3,14 +3,15 @@ import { IconTypes } from '@/components/icon';
 type LinkProps = {
   href: string;
   label: string;
+  anchorId?: string;
 };
 
 export const links: LinkProps[] = [
   { href: '/', label: 'Головна' },
-  { href: '/services', label: 'Послуги' },
-  { href: '/academy', label: 'Курси' },
-  { href: '/reviews', label: 'Відгуки' },
-  { href: '/about', label: 'Про нас' },
+  { href: '/#services', label: 'Послуги', anchorId: 'services' },
+  { href: '/#academy', label: 'Курси', anchorId: 'academy' },
+  { href: '/#reviews', label: 'Відгуки', anchorId: 'reviews' },
+  { href: '/#about', label: 'Про нас', anchorId: 'about' },
   { href: '/contacts', label: 'Контакти' },
 ];
 

@@ -13,17 +13,26 @@ import styles from './header.module.scss';
 const Header = () => {
   const pathname = usePathname();
 
+  const handleScroll = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className={styles.wrapper}>
       <Image src={'/big-logo.svg'} alt="Logo" width={169} height={37} priority />
       <nav className={styles.navbar}>
         <ul className={styles.navbarContainer}>
-          {links.map(({ href, label }) => (
+          {links.map(({ href, label, anchorId }) => (
             <li
               key={label}
               className={classNames(styles.linkText, pathname === href && styles.linkActive)}
             >
-              <Link href={href}>{label}</Link>
+              <Link href={href} onClick={() => anchorId && handleScroll(anchorId)}>
+                {label}
+              </Link>
             </li>
           ))}
           <li className={classNames(styles.linkText, styles.phoneNumber)}>

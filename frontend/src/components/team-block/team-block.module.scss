@@ -29,6 +29,10 @@
   @include breakpoints.md {
     padding: 60px 130px 120px;
   }
+
+  @include breakpoints.xl {
+    padding: 60px 200px 120px;
+  }
 }
 
 .title {
