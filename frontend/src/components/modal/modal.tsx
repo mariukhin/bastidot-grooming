@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import { FC, ReactNode, MouseEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import SimpleBar from 'simplebar-react';
 
 import { Icon, IconTypes } from '@/components/icon';
 
@@ -82,10 +83,12 @@ const Modal: FC<ModalProps> = ({
         aria-modal="true"
         tabIndex={-1}
       >
-        <button type="button" className={styles.close} onClick={onClose} aria-label="Close modal">
-          <Icon id={IconTypes.close} width={16} height={16} />
-        </button>
-        <div className={styles.content}>{children}</div>
+        <SimpleBar autoHide={false} style={{ height: '100%' }}>
+          <button type="button" className={styles.close} onClick={onClose} aria-label="Close modal">
+            <Icon id={IconTypes.close} width={16} height={16} />
+          </button>
+          <div className={styles.content}>{children}</div>
+        </SimpleBar>
       </div>
     </div>,
     modalRoot

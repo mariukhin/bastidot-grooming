@@ -1,5 +1,6 @@
 @use 'src/styles/breakpoints' as breakpoints;
 @use 'src/styles/variables' as *;
+@use 'src/styles/custom-scrollbar';
 
 body {
   font-family: var(--font-montserrat), sans-serif;

@@ -6,6 +6,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
 import 'normalize.css';
+import 'simplebar-react/dist/simplebar.min.css';
 import './globals.scss';
 
 import dayjs from 'dayjs';

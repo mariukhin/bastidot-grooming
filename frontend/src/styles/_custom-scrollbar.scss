@@ -1,0 +1,15 @@
+.simplebar-track.simplebar-vertical {
+  width: 12px;
+}
+
+.simplebar-track.simplebar-horizontal {
+  height: 12px;
+}
+
+.simplebar-scrollbar::before {
+  content: '';
+  display: block;
+  background-color: var(--color-dark-burgundy);
+  border-radius: 12px;
+  opacity: 0.7 !important;
+}
