@@ -137,7 +137,7 @@ const FormExample = () => {
           type={'button'}
           text={'Open modal'}
           onClick={handleOpenModal}
-          icon={IconTypes.arrowDown}
+          icon={IconTypes.googleLogo}
         />
         <Button type={'submit'} text={'Large'} size={'large'} />
         <Button type={'submit'} text={'Secondary Red Medium'} variant={'secondary'} />
