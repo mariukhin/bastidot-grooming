@@ -7,18 +7,12 @@ import classNames from 'classnames';
 
 import { Button } from '@/components/button';
 import { links } from '@/utils/const';
+import { handleScroll } from '@/utils/function';
 
 import styles from './header.module.scss';
 
 const Header = () => {
   const pathname = usePathname();
-
-  const handleScroll = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   return (
     <header className={styles.wrapper}>

@@ -1,0 +1,131 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.aboutContainer {
+  width: 100%;
+  background-color: var(--color-white);
+  scroll-margin-top: 60px;
+
+  @include breakpoints.lg {
+    scroll-margin-top: 90px;
+  }
+}
+
+.aboutWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 16px;
+
+  @include breakpoints.sm {
+    padding: 60px 100px;
+  }
+
+  @include breakpoints.md {
+    padding: 60px 130px;
+  }
+
+  @include breakpoints.lg {
+    padding: 120px 130px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 60px;
+  }
+}
+
+.aboutPhoto {
+  height: 402px;
+  max-width: 400px;
+  margin-bottom: 32px;
+
+  @include breakpoints.md {
+    max-width: 580px;
+    height: 646px;
+  }
+
+  @include breakpoints.lg {
+    margin-bottom: 0;
+  }
+}
+
+.aboutInfoContainer {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.aboutTitle {
+  display: none;
+  font-size: 40px;
+  margin-bottom: 12px;
+  line-height: 47px;
+  font-weight: 800;
+  z-index: 2;
+  color: var(--color-dark-burgundy);
+
+  @include breakpoints.lg {
+    display: block;
+  }
+}
+
+.aboutTitleMobile {
+  font-size: 32px;
+  margin-bottom: 32px;
+  line-height: 40px;
+  font-weight: 800;
+  z-index: 2;
+  color: var(--color-dark-burgundy);
+
+  @include breakpoints.lg {
+    display: none;
+  }
+}
+
+.aboutSubtitle {
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 500;
+  color: var(--color-pickled-bluewood-dark);
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+.aboutSubtitleBold {
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 700;
+  color: var(--color-pickled-bluewood-dark);
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.aboutOffersBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.aboutOfferItem {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+
+.aboutOfferItemText {
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 500;
+  color: var(--color-dark-burgundy);
+}
+
+.aboutButton {
+  margin-top: 20px;
+  width: 100%;
+
+  @include breakpoints.md {
+    width: 163px;
+  }
+}

@@ -33,3 +33,11 @@ export const footerSocials = [
     icon: IconTypes.tiktok,
   },
 ];
+
+export const offers = [
+  { id: 1, text: 'Стрижку та тримінг' },
+  { id: 2, text: 'Догляд за кігтями, вухами, лапками та шерстю' },
+  { id: 3, text: 'Гігієнічний комплекс' },
+  { id: 4, text: 'Вичісування котів' },
+  { id: 5, text: 'Експрес-линька' },
+];

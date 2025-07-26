@@ -21,6 +21,10 @@
     background-size: cover;
   }
 
+  @include breakpoints.md {
+    scroll-margin-top: 50px;
+  }
+
   @include breakpoints.xl {
     padding: 20px 200px;
   }

@@ -1,33 +1,41 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './reviews-block.module.scss';
-import groomerPreview from './groomerPreview.png';
 import quotePhoto from './quote.png';
 import smallQuotePhoto from './quote.svg';
+import { Icon, IconTypes } from '@/components/icon';
+import { normalizeReviews, ReviewProps } from '@/utils/function';
 
 const ReviewsBlock = () => {
-  const reviews = [
-    {
-      id: 1,
-      name: 'Коля Напуклий',
-      text: 'To quickly start my startup landing page design, I was looking for a landing page UI Kit. Landify is one of the best landing page UI kit I have come across. It’s so flexible, well organised and easily editable.',
-      photoSrc: groomerPreview,
-    },
-    {
-      id: 2,
-      name: 'Коля Напуклий',
-      text: 'I used landify and created a landing page for my startup within a week. The Landify UI Kit is simple and highly intuitive, so anyone can use it.',
-      photoSrc: groomerPreview,
-    },
-    {
-      id: 3,
-      name: 'Коля Напуклий',
-      text: 'Landify saved our time in designing my company page.',
-      photoSrc: groomerPreview,
-    },
-  ];
+  const [reviewsFetch, setReviews] = useState<ReviewProps[]>([]);
+
+  const API_KEY = 'AIzaSyBKILGzAiZ99aibLBE3zt0-NfF_DxJDTO4';
+  const PLACE_ID = 'ChIJb2bAn_v3kIcRBx8SZzY06J0';
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch(
+          `https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json?place_id=${PLACE_ID}&key=${API_KEY}`
+        );
+
+        const data = await response.json();
+
+        if (data.result && data.result.reviews) {
+          setReviews(normalizeReviews(data.result.reviews));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchReviews();
+  }, []);
 
   return (
-    <div className={styles.reviewsContainer}>
+    <div className={styles.reviewsContainer} id={'reviews'}>
       <div className={styles.reviewsWrapper}>
         <div className={styles.reviewsTitleWrapper}>
           <p className={styles.reviewsTitle}>Відгуки</p>
@@ -35,14 +43,19 @@ const ReviewsBlock = () => {
           <Image className={styles.reviewQuotePhoto} src={quotePhoto} alt="quote photo" />
         </div>
         <div className={styles.reviewsBlock}>
-          {reviews.map((item) => (
+          {reviewsFetch.map((item) => (
             <div className={styles.reviewItem} key={item.id}>
               <div className={styles.reviewItemWrapper}>
-                <Image
-                  className={styles.reviewItemPhoto}
-                  src={item.photoSrc}
-                  alt="review user photo"
-                />
+                <div className={styles.reviewsItemUserBlock}>
+                  <Image
+                    className={styles.reviewItemPhoto}
+                    width={60}
+                    height={60}
+                    src={item.photoSrc}
+                    alt="review user photo"
+                  />
+                  <Icon id={IconTypes.google} />
+                </div>
                 <div className={styles.reviewItemTextBlock}>
                   <Image
                     className={styles.smallQuote}
@@ -52,7 +65,7 @@ const ReviewsBlock = () => {
                   <div className={styles.reviewItemTextContainer}>
                     <p className={styles.reviewItemMainText}>{item.text}</p>
                     <p className={styles.reviewItemAuthorName}>{item.name}</p>
-                    <p className={styles.reviewItemPetName}>разом з коргі на ім’я Кенді</p>
+                    {/*<p className={styles.reviewItemPetName}>разом з коргі на ім’я Кенді</p>*/}
                   </div>
                 </div>
               </div>

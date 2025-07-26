@@ -2,7 +2,12 @@
 
 .coursesContainer {
   width: 100%;
+  scroll-margin-top: 32px;
   background-color: var(--color-white);
+
+  @include breakpoints.md {
+    scroll-margin-top: 60px;
+  }
 }
 
 .coursesWrapper {

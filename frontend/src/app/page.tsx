@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import styles from './page.module.scss';
 import { Button } from '@/components/button';
@@ -8,6 +10,8 @@ import { TeamBlock } from '@/components/team-block';
 import { IconTypes } from '@/components/icon';
 import { CoursesBlock } from '@/components/courses-block';
 import { ReviewsBlock } from '@/components/reviews-block';
+import { AboutBlock } from '@/components/about-block';
+import { handleScroll } from '@/utils/function';
 
 const Dashboard = () => {
   return (
@@ -27,6 +31,7 @@ const Dashboard = () => {
               type={'submit'}
               text={'Перейти до курсу'}
               variant={'secondary'}
+              onClick={() => handleScroll('academy')}
               icon={IconTypes.arrowDown}
             />
           </div>
@@ -40,6 +45,7 @@ const Dashboard = () => {
       <TeamBlock />
       <CoursesBlock />
       <ReviewsBlock />
+      <AboutBlock />
     </div>
   );
 };

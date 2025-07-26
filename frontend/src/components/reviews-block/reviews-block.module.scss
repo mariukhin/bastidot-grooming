@@ -3,6 +3,11 @@
 .reviewsContainer {
   width: 100%;
   background-color: var(--color-hint-of-red);
+  scroll-margin-top: 60px;
+
+  @include breakpoints.md {
+    scroll-margin-top: 60px;
+  }
 }
 
 .reviewsWrapper {
@@ -70,14 +75,16 @@
 
 .reviewsBlock {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-direction: column;
   gap: 16px;
 
   @include breakpoints.md {
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
-    gap: 0;
+    align-self: flex-start;
+    gap: 16px;
     margin: 0 20px;
   }
 }
@@ -99,6 +106,12 @@
   display: flex;
   flex-direction: column;
   padding: 32px;
+}
+
+.reviewsItemUserBlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .reviewItemPhoto {
