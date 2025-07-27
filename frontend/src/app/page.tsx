@@ -12,6 +12,7 @@ import { CoursesBlock } from '@/components/courses-block';
 import { ReviewsBlock } from '@/components/reviews-block';
 import { AboutBlock } from '@/components/about-block';
 import { handleScroll } from '@/utils/function';
+import { ContactsBlock } from '@/components/contacts-block';
 
 const Dashboard = () => {
   return (
@@ -46,6 +47,7 @@ const Dashboard = () => {
       <CoursesBlock />
       <ReviewsBlock />
       <AboutBlock />
+      <ContactsBlock />
     </div>
   );
 };
