@@ -7,20 +7,20 @@ import (
 )
 
 const (
-	CollectionTask = "service"
+	CollectionService = "service"
 )
 
 type Service struct {
 	ID           primitive.ObjectID `bson:"_id" json:"id"`
+	BreedId      primitive.ObjectID `bson:"breedId" json:"breedId"`
 	Type         string `bson:"type" binding:"required" json:"type"`
-    DefaultPrice number `bson:"defaultPrice" binding:"required" json:"defaultPrice"`
-    VipPrice     number `bson:"vipPrice" binding:"required" json:"vipPrice"`
-    DurationHour number `bson:"durationHour" json:"durationHour"`
-    DurationMin  number `bson:"durationMin" json:"durationMin"`
+    DefaultPrice int    `bson:"defaultPrice" binding:"required" json:"defaultPrice"`
+    VipPrice     int    `bson:"vipPrice" binding:"required" json:"vipPrice"`
+    DurationHour int    `bson:"durationHour" json:"durationHour"`
+    DurationMin  int    `bson:"durationMin" json:"durationMin"`
 }
 
 type ServiceRepository interface {
-	Create(c context.Context, service *Service) error
-	FetchByBreedID(c context.Context, userID string) ([]Service, error)
+	FetchByBreedID(c context.Context, breedID string) ([]Service, error)
 }
 

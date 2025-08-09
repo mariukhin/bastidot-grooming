@@ -1,4 +1,5 @@
 'use client';
+import { useEffect, useState } from 'react';
 
 import styles from './services-block.module.scss';
 import { Select } from '@/components/select';
@@ -9,9 +10,12 @@ import {
 } from '@/components/form-example/validation';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ServiceItem from '@/components/service-item/service-item';
-import {Button} from "@/components/button";
+import { Button } from '@/components/button';
+import { BreedProps, normalizeBreedList } from '@/utils/function';
+import { getBreedList } from '@/api/breed';
 
 const ServicesBlock = () => {
+  const [breedList, setBreedList] = useState<BreedProps[]>([]);
   const {
     control,
     handleSubmit,
@@ -74,6 +78,13 @@ const ServicesBlock = () => {
     },
   ];
 
+  useEffect(() => {
+    (async () => {
+      const result = await getBreedList();
+      setBreedList(normalizeBreedList(result));
+    })();
+  }, []);
+
   return (
     <div className={styles.container} id={'services'}>
       <p className={styles.title}>Послуги</p>
@@ -85,17 +96,7 @@ const ServicesBlock = () => {
           render={({ field }) => (
             <Select
               className={styles.select}
-              options={[
-                { label: 'Type 1', value: '1' },
-                {
-                  label: 'Type 2',
-                  value: '2',
-                },
-                {
-                  label: 'Type 3',
-                  value: '3',
-                },
-              ]}
+              options={breedList}
               required
               defaultValue={field.value}
               onChange={field.onChange}

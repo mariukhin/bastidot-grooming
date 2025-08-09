@@ -5,6 +5,17 @@ export type ReviewProps = {
   photoSrc: string;
 };
 
+export type BreedDbProps = {
+  id: string;
+  name: string;
+};
+
+export type BreedProps = {
+  id: string;
+  label: string;
+  value: string;
+};
+
 export const normalizeReviews = (reviewsData: never[]): ReviewProps[] => {
   return reviewsData
     .filter((review: any) => review.rating >= 4)
@@ -14,6 +25,14 @@ export const normalizeReviews = (reviewsData: never[]): ReviewProps[] => {
       text: review.text,
       photoSrc: review['profile_photo_url'],
     }));
+};
+
+export const normalizeBreedList = (breedList: BreedDbProps[]): BreedProps[] => {
+  return breedList.map((breed: BreedDbProps) => ({
+    id: breed.id,
+    label: breed.name,
+    value: breed.name,
+  }));
 };
 
 export const handleScroll = (id: string) => {
