@@ -18,7 +18,7 @@ const ReviewsBlock = () => {
     const fetchReviews = async () => {
       try {
         const response = await fetch(
-          `https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json?place_id=${PLACE_ID}&key=${API_KEY}`
+          `https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json?fields=reviews&place_id=${PLACE_ID}&key=${API_KEY}`
         );
 
         const data = await response.json();
