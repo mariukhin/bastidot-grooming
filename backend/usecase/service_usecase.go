@@ -20,8 +20,8 @@ func NewServiceUsecase(serviceRepository domain.ServiceRepository, timeout time.
 }
 
 
-func (s *serviceUsecase) FetchByBreedID(c context.Context, breedId string) ([]domain.Task, error) {
-	ctx, cancel := context.WithTimeout(c, tu.contextTimeout)
+func (s *serviceUsecase) FetchByBreedID(c context.Context, breedId string) ([]domain.Service, error) {
+	ctx, cancel := context.WithTimeout(c, s.contextTimeout)
 	defer cancel()
-	return tu.taskRepository.FetchByUserID(ctx, userID)
+	return s.serviceRepository.FetchByBreedID(ctx, breedId)
 }

@@ -13,11 +13,10 @@ import (
 	"github.com/altafino/go-backend-clean-architecture-chi/usecase"
 )
 
-func NewTaskRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database, router chi.Router) {
-	tr := repository.NewTaskRepository(db, domain.CollectionTask)
-	tc := &controller.TaskController{
-		TaskUsecase: usecase.NewTaskUsecase(tr, timeout),
+func NewServiceRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database, router chi.Router) {
+	rep := repository.NewServiceRepository(db, domain.CollectionService)
+	tc := &controller.ServiceController{
+	    ServiceRepository: usecase.NewServiceUsecase(rep, timeout),
 	}
-	router.Get("/protected/task", tc.Fetch)
-	router.Post("/protected/task", tc.Create)
+	router.Post("/service", tc.Fetch)
 }

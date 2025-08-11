@@ -16,6 +16,16 @@ export type BreedProps = {
   value: string;
 };
 
+export type ServiceProps = {
+  id: string;
+  breedId: string;
+  defaultPrice: number;
+  durationHour: number;
+  durationMin: number;
+  type: string;
+  vipPrice: number;
+};
+
 export const normalizeReviews = (reviewsData: never[]): ReviewProps[] => {
   return reviewsData
     .filter((review: any) => review.rating >= 4)

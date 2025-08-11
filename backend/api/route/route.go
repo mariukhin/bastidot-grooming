@@ -17,12 +17,12 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, r *chi.
 		NewLoginRouter(env, timeout, db, r)
 		NewRefreshTokenRouter(env, timeout, db, r)
 		NewBreedRouter(env, timeout, db, r)
+		NewServiceRouter(env, timeout, db, r)
 	})
 
 	// Protected routes
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
-		NewTaskRouter(env, timeout, db, r)
 		NewProfileRouter(env, timeout, db, r)
 	})
 }

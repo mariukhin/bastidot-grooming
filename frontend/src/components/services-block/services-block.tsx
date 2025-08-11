@@ -11,72 +11,23 @@ import {
 import { yupResolver } from '@hookform/resolvers/yup';
 import ServiceItem from '@/components/service-item/service-item';
 import { Button } from '@/components/button';
-import { BreedProps, normalizeBreedList } from '@/utils/function';
+import { BreedProps, normalizeBreedList, ServiceProps } from '@/utils/function';
 import { getBreedList } from '@/api/breed';
+import { getServiceList } from '@/api/service';
 
 const ServicesBlock = () => {
   const [breedList, setBreedList] = useState<BreedProps[]>([]);
+  const [serviceList, setServiceList] = useState<ServiceProps[]>([]);
   const {
     control,
-    handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<FormExampleFormData>({
     resolver: yupResolver(formExampleValidationSchema),
     defaultValues: {
-      name: '',
-      description: undefined,
-      phoneNumber: '',
       type: '',
     },
   });
-
-  const services = [
-    {
-      id: 1,
-      serviceType: 'Повний комплекс',
-      breedName: 'Мальтіпу',
-      defaultPrice: 1000,
-      vipPrice: 1500,
-      durationHour: 3,
-      durationMin: 30,
-    },
-    {
-      id: 2,
-      serviceType: 'Гігієнічний догляд',
-      breedName: 'Мальтіпу',
-      defaultPrice: 1000,
-      vipPrice: 1500,
-      durationHour: 3,
-      durationMin: 30,
-    },
-    {
-      id: 3,
-      serviceType: 'Преміум комплекс',
-      breedName: 'Мальтіпу',
-      defaultPrice: 1000,
-      vipPrice: 1500,
-      durationHour: 3,
-      durationMin: 30,
-    },
-    {
-      id: 4,
-      serviceType: 'Повний комплекс',
-      breedName: 'Мальтіпу',
-      defaultPrice: 1000,
-      vipPrice: 1500,
-      durationHour: 3,
-      durationMin: 30,
-    },
-    {
-      id: 5,
-      serviceType: 'Гігієнічний догляд',
-      breedName: 'Мальтіпу',
-      defaultPrice: 1000,
-      vipPrice: 1500,
-      durationHour: 3,
-      durationMin: 30,
-    },
-  ];
 
   useEffect(() => {
     (async () => {
@@ -84,6 +35,12 @@ const ServicesBlock = () => {
       setBreedList(normalizeBreedList(result));
     })();
   }, []);
+
+  const onChange = async (value: string) => {
+    const currentBreed = breedList.find((item) => item.value === value);
+    const res = currentBreed && (await getServiceList(currentBreed.id));
+    setServiceList(res);
+  };
 
   return (
     <div className={styles.container} id={'services'}>
@@ -99,16 +56,19 @@ const ServicesBlock = () => {
               options={breedList}
               required
               defaultValue={field.value}
-              onChange={field.onChange}
+              onChange={(value) => {
+                field.onChange(value);
+                onChange(value);
+              }}
               error={errors?.type?.message}
             />
           )}
         />
       </div>
       <div className={styles.serviceContainer}>
-        {services.map((item) => (
-          <div className={styles.serviceItemContainer}>
-            <ServiceItem key={item.id} item={item} />
+        {serviceList.map((item) => (
+          <div className={styles.serviceItemContainer} key={item.id}>
+            <ServiceItem item={item} breedName={getValues('type')} />
             <Button type={'submit'} text={'Записатись'} color={'blue'} />
           </div>
         ))}

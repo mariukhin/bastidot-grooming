@@ -1,27 +1,20 @@
 'use client';
 
+import { ServiceProps } from '@/utils/function';
 import styles from './service-item.module.scss';
 import { Icon, IconTypes } from '@/components/icon';
 
-type ServiceProps = {
-  serviceType: string;
-  breedName: string;
-  defaultPrice: number;
-  vipPrice: number;
-  durationHour: number;
-  durationMin: number;
-};
-
 type ServiceItemProps = {
   item: ServiceProps;
+  breedName: string;
 };
 
-const ServiceItem = ({ item }: ServiceItemProps) => {
+const ServiceItem = ({ item, breedName }: ServiceItemProps) => {
   return (
     <div className={styles.container}>
       <div className={styles.firstRow}>
         <p className={styles.title}>
-          {item.serviceType} - {item.breedName}
+          {item.type} - {breedName}
         </p>
         <Icon id={IconTypes.info} color={'var(--color-gray)'} width={16} height={16} />
       </div>
@@ -34,8 +27,8 @@ const ServiceItem = ({ item }: ServiceItemProps) => {
       <div className={styles.thirdRow}>
         <Icon id={IconTypes.clock} color={'var(--color-gray)'} width={16} height={16} />
         <p className={styles.groomerText}>
-          {item.durationHour && `${item.durationHour} год`}{' '}
-          {item.durationMin && `${item.durationMin} хв`}
+          {item.durationHour ? `${item.durationHour} год` : ''}{' '}
+          {item.durationMin ? `${item.durationMin} хв` : ''}
         </p>
       </div>
     </div>
