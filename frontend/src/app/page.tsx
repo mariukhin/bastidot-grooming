@@ -9,7 +9,7 @@ import { PublicationsBlock } from '@/components/publications-block';
 import { TeamBlock } from '@/components/team-block';
 import { IconTypes } from '@/components/icon';
 import { CoursesBlock } from '@/components/courses-block';
-import { ReviewsBlock } from '@/components/reviews-block';
+// import { ReviewsBlock } from '@/components/reviews-block';
 import { AboutBlock } from '@/components/about-block';
 import { handleScroll } from '@/utils/function';
 import { ContactsBlock } from '@/components/contacts-block';
@@ -45,7 +45,7 @@ const Dashboard = () => {
       <PublicationsBlock />
       <TeamBlock />
       <CoursesBlock />
-      <ReviewsBlock />
+      {/*<ReviewsBlock />  повернути пізніше*/}
       <AboutBlock />
       <ContactsBlock />
     </div>

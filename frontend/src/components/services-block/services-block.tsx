@@ -21,6 +21,7 @@ const ServicesBlock = () => {
   const {
     control,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm<FormExampleFormData>({
     resolver: yupResolver(formExampleValidationSchema),
@@ -32,9 +33,15 @@ const ServicesBlock = () => {
   useEffect(() => {
     (async () => {
       const result = await getBreedList();
-      setBreedList(normalizeBreedList(result));
+      const normalizedBreedList = normalizeBreedList(result);
+      setBreedList(normalizedBreedList);
+
+      const currentBreed = normalizedBreedList.find((item) => item.value === 'Мальтіпу');
+      setValue('type', 'Мальтіпу');
+      const res = currentBreed && (await getServiceList(currentBreed.id));
+      setServiceList(res);
     })();
-  }, []);
+  }, [setValue]);
 
   const onChange = async (value: string) => {
     const currentBreed = breedList.find((item) => item.value === value);

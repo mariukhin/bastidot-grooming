@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -10,9 +11,15 @@ import { links } from '@/utils/const';
 import { handleScroll } from '@/utils/function';
 
 import styles from './header.module.scss';
+import { LoginModal } from '@/components/login-modal';
 
 const Header = () => {
   const pathname = usePathname();
+  const [isLoginModal, setIsLoginModal] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsLoginModal(true);
+  };
 
   return (
     <header className={styles.wrapper}>
@@ -38,11 +45,17 @@ const Header = () => {
         <Button type={'submit'} text={'Записатися'} />
         <Button
           className={styles.signInButton}
+          onClick={handleOpenModal}
           type={'submit'}
           text={'Увійти'}
           variant={'secondary'}
         />
       </div>
+      <LoginModal
+        isOpen={isLoginModal}
+        onClose={() => setIsLoginModal(false)}
+        onSubmit={() => null}
+      />
     </header>
   );
 };

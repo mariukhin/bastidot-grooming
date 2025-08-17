@@ -75,6 +75,23 @@
   }
 }
 
+.link {
+  background-color: transparent;
+  border: 0;
+
+  &.red {
+    color: var(--color-dark-burgundy);
+  }
+
+  &.blue {
+    color: var(--color-blue-bayoux);
+  }
+
+  &:hover, &:active {
+    box-shadow: none !important;
+  }
+}
+
 .medium {
   padding: 9px 20px;
 }
@@ -83,6 +100,10 @@
   padding: 14px 28px;
 }
 
-.icon {
+.iconStart {
+  margin-right: 10px;
+}
+
+.iconEnd {
   margin-left: 10px;
 }

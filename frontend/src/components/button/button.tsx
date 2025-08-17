@@ -7,9 +7,10 @@ import { Icon, IconTypes } from '@/components/icon';
 
 import styles from './button.module.scss';
 
-type ButtonVariant = 'primary' | 'secondary';
+type ButtonVariant = 'primary' | 'secondary' | 'link';
 type ButtonColor = 'red' | 'blue';
 type ButtonSize = 'medium' | 'large';
+type ButtonIconPosition = 'start' | 'end';
 
 type ButtonProps = {
   text: string;
@@ -17,6 +18,7 @@ type ButtonProps = {
   color?: ButtonColor;
   size?: ButtonSize;
   icon?: IconTypes;
+  iconPosition?: ButtonIconPosition;
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
 const Button: FC<ButtonProps> = ({
@@ -26,6 +28,7 @@ const Button: FC<ButtonProps> = ({
   size = 'medium',
   className,
   icon,
+  iconPosition = 'end',
   ...rest
 }) => {
   return (
@@ -33,10 +36,18 @@ const Button: FC<ButtonProps> = ({
       className={classNames(styles.button, styles[variant], styles[size], styles[color], className)}
       {...rest}
     >
-      {text}
-      {!!icon && (
+      {!!icon && iconPosition === 'start' && (
         <Icon
-          className={styles.icon}
+          className={styles.iconStart}
+          id={icon}
+          width={size === 'large' ? 20 : 16}
+          height={size === 'large' ? 20 : 16}
+        />
+      )}
+      {text}
+      {!!icon && iconPosition === 'end' && (
+        <Icon
+          className={styles.iconEnd}
           id={icon}
           width={size === 'large' ? 20 : 16}
           height={size === 'large' ? 20 : 16}

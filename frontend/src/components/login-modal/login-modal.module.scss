@@ -1,0 +1,66 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: var(--modal-backdrop);
+  z-index: 1001;
+  padding: 16px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  @include breakpoints.md {
+    padding: 22px;
+  }
+}
+
+.modal {
+  background-color: var(--color-white);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+
+.content {
+  width: 100%;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--color-woodsmoke);
+  margin-bottom: 8px;
+}
+
+.form {
+  margin-top: 24px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 12px;
+}
+
+.text {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+  color: var(--color-gray);
+  margin-bottom: 12px;
+}
+
+.loginGoogleButton {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.actionButton {
+  margin: 0 auto;
+}
