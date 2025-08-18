@@ -9,6 +9,10 @@ type LoginRequest struct {
 	Password string `form:"password" binding:"required"`
 }
 
+type LoginGoogleRequest struct {
+	Token string `json:"token"`
+}
+
 type LoginResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`

@@ -15,6 +15,7 @@ type User struct {
 	Name     string             `bson:"name"`
 	Email    string             `bson:"email"`
 	Phone    string             `bson:"phone"`
+	PhotoUrl string             `bson:"photoUrl"`
 	Password string             `bson:"password"`
 }
 

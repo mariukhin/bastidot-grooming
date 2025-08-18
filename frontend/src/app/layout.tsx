@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
@@ -34,13 +35,16 @@ type RootLayoutProps = {
 };
 
 const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
+  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
   return (
     <html lang="ua">
       <body className={montserrat.variable}>
-        <Header />
-        {children}
-        <div id="modal-root" />
-        <Footer />
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          <Header />
+          {children}
+          <div id="modal-root" />
+          <Footer />
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

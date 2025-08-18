@@ -1,8 +1,8 @@
 import { FC, MouseEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 
 import { Button } from '@/components/button';
-
 import { useFocusTrapping } from '@/hooks/use-focus-trapping';
 
 import styles from './login-modal.module.scss';
@@ -11,6 +11,8 @@ import { TextInput } from '@/components/text-input';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { object, ObjectSchema, string } from 'yup';
 import { IconTypes } from '@/components/icon';
+import { authClient } from '@/api/auth';
+import useUserStore from '@/store/useUserStore';
 
 type LoginModalProps = {
   isOpen: boolean;
@@ -30,6 +32,8 @@ export const loginValidationSchema: ObjectSchema<LoginFormData> = object({
 
 const LoginModal: FC<LoginModalProps> = ({ onClose, onSubmit, isOpen }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+
+  const { login } = useUserStore();
 
   const [mounted, setMounted] = useState(false);
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
@@ -82,6 +86,15 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, onSubmit, isOpen }) => {
     }
   };
 
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const userData = await authClient(tokenResponse.access_token);
+      login(userData);
+      closeModal();
+    },
+    onError: (errorResponse) => console.log('Помилка авторизації:', errorResponse),
+  });
+
   if (!isOpen || !mounted || !modalRoot) return null;
 
   return createPortal(
@@ -128,6 +141,7 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, onSubmit, isOpen }) => {
             icon={IconTypes.google}
             size={'large'}
             iconPosition={'start'}
+            onClick={() => googleLogin()}
           />
           <p className={styles.text}>{subtitle}</p>
           <Button
