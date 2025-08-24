@@ -27,9 +27,15 @@ func (sc *SignupController) Signup(w http.ResponseWriter, r *http.Request) {
 
 	_, err = sc.SignupUsecase.GetUserByEmail(r.Context(), request.Email)
 	if err == nil {
-		http.Error(w, jsonError("User already exists with the given email"), http.StatusConflict)
+		http.Error(w, jsonError("Хвостик з такою поштою вже існує"), http.StatusConflict)
 		return
 	}
+
+    _, err = sc.SignupUsecase.GetUserByPhone(r.Context(), request.Phone)
+    if err == nil {
+    	http.Error(w, jsonError("Хвостик з таким номером вже існує"), http.StatusConflict)
+    	return
+    }
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(request.Password),
@@ -46,6 +52,7 @@ func (sc *SignupController) Signup(w http.ResponseWriter, r *http.Request) {
 		ID:       primitive.NewObjectID(),
 		Name:     request.Name,
 		Email:    request.Email,
+		Phone:    request.Phone,
 		Password: request.Password,
 	}
 

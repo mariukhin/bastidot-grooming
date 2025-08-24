@@ -11,33 +11,53 @@ import { TextInput } from '@/components/text-input';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { object, ObjectSchema, string } from 'yup';
 import { IconTypes } from '@/components/icon';
-import { authClient } from '@/api/auth';
+import { authClient, authClientGoogle, signUp } from '@/api/auth';
 import useUserStore from '@/store/useUserStore';
+import { PhoneInput } from '@/components/phone-input';
 
 type LoginModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: () => void;
 };
 
-type LoginFormData = {
+export type LoginFormData = {
   email: string;
   password: string;
+  phoneNumber?: string;
+  username?: string;
 };
 
-export const loginValidationSchema: ObjectSchema<LoginFormData> = object({
-  email: string().email().required('Required'),
-  password: string().required('Required'),
-});
+const loginValidationSchema = (isSignup: boolean): ObjectSchema<LoginFormData> => {
+  let schema = object({
+    email: string().email('Invalid email format').required('Email is required'),
+    password: string().required('Password is required'),
+  });
 
-const LoginModal: FC<LoginModalProps> = ({ onClose, onSubmit, isOpen }) => {
+  if (isSignup) {
+    schema = schema.shape({
+      username: string().required('Username is required for signup'),
+      phoneNumber: string().required('Phone number is required for signup'),
+    });
+  } else {
+    schema = schema.shape({
+      username: string().optional(),
+      phoneNumber: string().optional(),
+    });
+  }
+
+  return schema;
+};
+
+const LoginModal: FC<LoginModalProps> = ({ onClose, isOpen }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const { login } = useUserStore();
+  const { login, setAccessToken } = useUserStore();
 
   const [mounted, setMounted] = useState(false);
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
+
+  const validationSchema = loginValidationSchema(isSignUp);
 
   const {
     control,
@@ -45,10 +65,12 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, onSubmit, isOpen }) => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({
-    resolver: yupResolver(loginValidationSchema),
+    resolver: yupResolver(validationSchema),
     defaultValues: {
       email: '',
       password: '',
+      phoneNumber: '',
+      username: '',
     },
   });
 
@@ -88,12 +110,24 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, onSubmit, isOpen }) => {
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      const userData = await authClient(tokenResponse.access_token);
+      const userData = await authClientGoogle(tokenResponse.access_token);
       login(userData);
       closeModal();
     },
     onError: (errorResponse) => console.log('Помилка авторизації:', errorResponse),
   });
+
+  const handleSubmitLoginModal = async (values: LoginFormData) => {
+    console.log('here', values);
+    const result = isSignUp ? await signUp(values) : await authClient(values);
+    if (result.error) {
+      console.log('error', result.error);
+    } else {
+      login(values);
+      setAccessToken(result.accessToken);
+      closeModal();
+    }
+  };
 
   if (!isOpen || !mounted || !modalRoot) return null;
 
@@ -102,7 +136,38 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, onSubmit, isOpen }) => {
       <div className={styles.modal} ref={modalRef} role="dialog" aria-modal="true" tabIndex={-1}>
         <div className={styles.content}>
           <h2 className={styles.title}>{getTitle(isSignUp)}</h2>
-          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+          <form className={styles.form} onSubmit={handleSubmit(handleSubmitLoginModal)}>
+            {isSignUp && (
+              <>
+                <Controller
+                  control={control}
+                  name={'username'}
+                  render={({ field }) => (
+                    <TextInput
+                      label={"Ваше ім'я"}
+                      required={isSignUp}
+                      defaultValue={field.value}
+                      placeholder={"Ваше ім'я"}
+                      onChange={field.onChange}
+                      error={errors?.username?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name={'phoneNumber'}
+                  render={({ field }) => (
+                    <PhoneInput
+                      label={'Ваш номер телефону'}
+                      required={isSignUp}
+                      defaultValue={field.value}
+                      onChange={field.onChange}
+                      error={errors?.phoneNumber?.message}
+                    />
+                  )}
+                />
+              </>
+            )}
             <Controller
               control={control}
               name={'email'}
@@ -110,6 +175,7 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, onSubmit, isOpen }) => {
                 <TextInput
                   label={'Ваша електронна пошта'}
                   defaultValue={field.value}
+                  required
                   placeholder={'Наприклад: anna@gmail.com'}
                   onChange={field.onChange}
                   error={errors?.email?.message}
@@ -124,6 +190,7 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, onSubmit, isOpen }) => {
                   label={'Пароль'}
                   defaultValue={field.value}
                   type={'password'}
+                  required
                   placeholder={'********'}
                   onChange={field.onChange}
                   error={errors?.password?.message}

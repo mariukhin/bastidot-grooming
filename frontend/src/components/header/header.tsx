@@ -62,7 +62,6 @@ const Header = () => {
       <LoginModal
         isOpen={isLoginModal}
         onClose={() => setIsLoginModal(false)}
-        onSubmit={() => null}
       />
     </header>
   );

@@ -70,3 +70,10 @@ func (ur *userRepository) GetByID(c context.Context, id string) (domain.User, er
 	err = collection.FindOne(c, bson.M{"_id": idHex}).Decode(&user)
 	return user, err
 }
+
+func (ur *userRepository) GetByPhone(c context.Context, phone string) (domain.User, error) {
+	collection := ur.database.Collection(ur.collection)
+	var user domain.User
+	err := collection.FindOne(c, bson.M{"phoneNumber": phone}).Decode(&user)
+	return user, err
+}

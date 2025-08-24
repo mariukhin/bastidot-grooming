@@ -32,12 +32,12 @@ func (lc *LoginController) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := lc.LoginUsecase.GetUserByEmail(r.Context(), request.Email)
 	if err != nil {
-		http.Error(w, jsonError("User not found with the given email"), http.StatusNotFound)
+		http.Error(w, jsonError("Хвостика з такою поштою не знайдено"), http.StatusNotFound)
 		return
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)) != nil {
-		http.Error(w, jsonError("Invalid credentials"), http.StatusUnauthorized)
+		http.Error(w, jsonError("Невірний логін чи пароль"), http.StatusUnauthorized)
 		return
 	}
 
@@ -78,7 +78,6 @@ func (lc *LoginController) LoginWithGoogle(w http.ResponseWriter, r *http.Reques
     	return
     }
 
-    // Створення клієнта для Google OAuth2 API
     ctx := r.Context()
     oauth2Service, err := oauth2v2.NewService(ctx, option.WithHTTPClient(getGoogleClient(ctx, request.Token)))
     if err != nil {
