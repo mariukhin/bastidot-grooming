@@ -14,10 +14,14 @@ import { Button } from '@/components/button';
 import { BreedProps, normalizeBreedList, ServiceProps } from '@/utils/function';
 import { getBreedList } from '@/api/breed';
 import { getServiceList } from '@/api/service';
+import { BookingModal } from '@/components/booking-modal';
 
 const ServicesBlock = () => {
   const [breedList, setBreedList] = useState<BreedProps[]>([]);
   const [serviceList, setServiceList] = useState<ServiceProps[]>([]);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingInitialService, setBookingInitialService] = useState<ServiceProps | undefined>();
+
   const {
     control,
     getValues,
@@ -49,6 +53,11 @@ const ServicesBlock = () => {
     setServiceList(res);
   };
 
+  const handleBookClick = (service: ServiceProps) => {
+    setBookingInitialService(service);
+    setBookingOpen(true);
+  };
+
   return (
     <div className={styles.container} id={'services'}>
       <p className={styles.title}>Послуги</p>
@@ -76,10 +85,22 @@ const ServicesBlock = () => {
         {serviceList.map((item) => (
           <div className={styles.serviceItemContainer} key={item.id}>
             <ServiceItem item={item} breedName={getValues('type')} />
-            <Button type={'submit'} text={'Записатись'} color={'blue'} />
+            <Button
+              type={'button'}
+              text={'Записатись'}
+              color={'blue'}
+              onClick={() => handleBookClick(item)}
+            />
           </div>
         ))}
       </div>
+
+      <BookingModal
+        isOpen={bookingOpen}
+        onClose={() => setBookingOpen(false)}
+        initialBreed={getValues('type')}
+        initialService={bookingInitialService}
+      />
     </div>
   );
 };

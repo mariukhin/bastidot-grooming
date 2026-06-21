@@ -11,20 +11,14 @@ import { normalizeReviews, ReviewProps } from '@/utils/function';
 const ReviewsBlock = () => {
   const [reviewsFetch, setReviews] = useState<ReviewProps[]>([]);
 
-  const API_KEY = 'AIzaSyBKILGzAiZ99aibLBE3zt0-NfF_DxJDTO4';
-  const PLACE_ID = 'ChIJb2bAn_v3kIcRBx8SZzY06J0';
-
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch(
-          `https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json?fields=reviews&place_id=${PLACE_ID}&key=${API_KEY}`
-        );
-
+        const response = await fetch('/api/reviews');
         const data = await response.json();
 
-        if (data.result && data.result.reviews) {
-          setReviews(normalizeReviews(data.result.reviews));
+        if (Array.isArray(data)) {
+          setReviews(normalizeReviews(data));
         }
       } catch (err) {
         console.error(err);

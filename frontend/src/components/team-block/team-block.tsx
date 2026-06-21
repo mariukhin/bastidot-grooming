@@ -6,18 +6,22 @@ import vipGroomerPreview from './vipGroomerPreview.png';
 import groomerPreview from './groomerPreview.png';
 import dayjs from 'dayjs';
 
-const TeamBlock = () => {
+type TeamBlockProps = {
+  onOpenBooking?: () => void;
+};
+
+const TeamBlock = ({ onOpenBooking }: TeamBlockProps) => {
   const team = [
     {
       id: 1,
-      name: 'Наталія',
-      isVip: true,
+      name: 'Ольга',
+      isVip: false,
       nearestDate: new Date(),
-      photoSrc: vipGroomerPreview,
+      photoSrc: groomerPreview,
     },
     {
       id: 2,
-      name: 'Ольга',
+      name: 'Юлія',
       isVip: false,
       nearestDate: new Date(),
       photoSrc: groomerPreview,
@@ -54,7 +58,7 @@ const TeamBlock = () => {
                     {dayjs(item.nearestDate).format('DD MMMM HH:mm')}
                   </p>
                 </div>
-                <Button className={styles.teamMemberButton} type={'submit'} text={'Записатися'} />
+                <Button className={styles.teamMemberButton} type={'button'} text={'Записатися'} onClick={onOpenBooking} />
               </div>
             </div>
           ))}

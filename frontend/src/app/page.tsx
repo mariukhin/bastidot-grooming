@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import styles from './page.module.scss';
 import { Button } from '@/components/button';
@@ -9,12 +10,15 @@ import { PublicationsBlock } from '@/components/publications-block';
 import { TeamBlock } from '@/components/team-block';
 import { IconTypes } from '@/components/icon';
 import { CoursesBlock } from '@/components/courses-block';
-// import { ReviewsBlock } from '@/components/reviews-block';
+import { ReviewsBlock } from '@/components/reviews-block';
 import { AboutBlock } from '@/components/about-block';
 import { handleScroll } from '@/utils/function';
 import { ContactsBlock } from '@/components/contacts-block';
+import { BookingModal } from '@/components/booking-modal';
 
 const Dashboard = () => {
+  const [bookingOpen, setBookingOpen] = useState(false);
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>
@@ -27,9 +31,9 @@ const Dashboard = () => {
             Ваші особливості, причини обрати вас або опис салону, цінностей і тд
           </p>
           <div className={styles.buttonBlock}>
-            <Button type={'submit'} text={'Записатися'} />
+            <Button type={'button'} text={'Записатися'} onClick={() => setBookingOpen(true)} />
             <Button
-              type={'submit'}
+              type={'button'}
               text={'Перейти до курсу'}
               variant={'secondary'}
               onClick={() => handleScroll('academy')}
@@ -43,11 +47,13 @@ const Dashboard = () => {
       </div>
       <ServicesBlock />
       <PublicationsBlock />
-      <TeamBlock />
+      <TeamBlock onOpenBooking={() => setBookingOpen(true)} />
       <CoursesBlock />
-      {/*<ReviewsBlock />  повернути пізніше*/}
-      <AboutBlock />
+      <ReviewsBlock />
+      <AboutBlock onOpenBooking={() => setBookingOpen(true)} />
       <ContactsBlock />
+
+      <BookingModal isOpen={bookingOpen} onClose={() => setBookingOpen(false)} />
     </div>
   );
 };
