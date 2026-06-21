@@ -1,0 +1,307 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.bookingModal {
+  height: auto !important;
+  max-height: 85vh;
+  max-width: 550px;
+}
+
+.stepContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 30px;
+  color: var(--color-milano-red);
+  text-align: center;
+  padding-top: 4px;
+}
+
+.backButton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--color-woodsmoke);
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.6;
+  }
+}
+
+// ── Section ──────────────────────────────────────────────────────────────
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionLabel {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: var(--color-woodsmoke);
+}
+
+// ── Service list ──────────────────────────────────────────────────────────
+
+.serviceList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.serviceItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-ebb);
+  background-color: var(--color-white);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-cold-turkey);
+  }
+}
+
+.serviceItemSelected {
+  border-color: var(--color-milano-red);
+}
+
+.checkbox {
+  flex-shrink: 0;
+  margin-top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 1.5px solid var(--color-cold-turkey);
+  background-color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.checkboxChecked {
+  background-color: var(--color-milano-red);
+  border-color: var(--color-milano-red);
+}
+
+.serviceItemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.serviceItemFirstRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.serviceItemTitle {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--color-woodsmoke);
+}
+
+.serviceItemRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.serviceItemMeta {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-gray);
+}
+
+// ── Footer step 1 ────────────────────────────────────────────────────────
+
+.footer {
+  padding-top: 8px;
+
+  button {
+    width: 100%;
+  }
+}
+
+// ── Groomer list ──────────────────────────────────────────────────────────
+
+.groomerList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.groomerItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-ebb);
+  background-color: var(--color-white);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-cold-turkey);
+  }
+}
+
+.groomerItemSelected {
+  border-color: var(--color-milano-red);
+}
+
+.radio {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-cold-turkey);
+  background-color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease;
+
+  &::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+  }
+}
+
+.radioSelected {
+  border-color: var(--color-milano-red);
+
+  &::after {
+    background-color: var(--color-milano-red);
+  }
+}
+
+.groomerPhoto {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.groomerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.groomerName {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--color-woodsmoke);
+}
+
+.groomerBadges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vipBadge {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--color-white);
+  background-color: var(--color-milano-red);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.groomerRole {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-gray);
+}
+
+.groomerTime {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.groomerTimeMeta {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--color-gray);
+}
+
+.groomerPrice {
+  flex-shrink: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--color-woodsmoke);
+  margin-left: auto;
+}
+
+// ── Footer step 2 ────────────────────────────────────────────────────────
+
+.groomerFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+
+  button {
+    width: 100%;
+  }
+}
+
+.groomerSummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background-color: var(--color-hint-of-red);
+}
+
+.groomerSummaryText {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-woodsmoke);
+}

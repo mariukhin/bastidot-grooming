@@ -12,12 +12,14 @@ import { handleScroll } from '@/utils/function';
 
 import styles from './header.module.scss';
 import { LoginModal } from '@/components/login-modal';
+import { BookingModal } from '@/components/booking-modal';
 import useUserStore from '@/store/useUserStore';
 import { Icon, IconTypes } from '@/components/icon';
 
 const Header = () => {
   const pathname = usePathname();
   const [isLoginModal, setIsLoginModal] = useState(false);
+  const [isBookingModal, setIsBookingModal] = useState(false);
 
   const { user } = useUserStore();
 
@@ -46,7 +48,7 @@ const Header = () => {
         </ul>
       </nav>
       <div className={styles.buttonContainer}>
-        <Button type={'submit'} text={'Записатися'} />
+        <Button type={'button'} text={'Записатися'} onClick={() => setIsBookingModal(true)} />
         {user ? (
           <Icon className={styles.userButton} id={IconTypes.userCircle} />
         ) : (
@@ -59,10 +61,8 @@ const Header = () => {
           />
         )}
       </div>
-      <LoginModal
-        isOpen={isLoginModal}
-        onClose={() => setIsLoginModal(false)}
-      />
+      <LoginModal isOpen={isLoginModal} onClose={() => setIsLoginModal(false)} />
+      <BookingModal isOpen={isBookingModal} onClose={() => setIsBookingModal(false)} />
     </header>
   );
 };

@@ -6,7 +6,11 @@ import aboutPhoto from './about.png';
 import { Icon, IconTypes } from '@/components/icon';
 import { offers } from '@/utils/const';
 
-const AboutBlock = () => (
+type AboutBlockProps = {
+  onOpenBooking?: () => void;
+};
+
+const AboutBlock = ({ onOpenBooking }: AboutBlockProps) => (
   <div className={styles.aboutContainer} id={'about'}>
     <div className={styles.aboutWrapper}>
       <p className={styles.aboutTitleMobile}>Про нас</p>
@@ -35,7 +39,7 @@ const AboutBlock = () => (
         <p className={styles.aboutSubtitle}>
           Це місце, де ваші улюбленці отримають найкращий догляд та виглядатимуть бездоганно!
         </p>
-        <Button className={styles.aboutButton} type={'submit'} text={'Записатися'} />
+        <Button className={styles.aboutButton} type={'button'} text={'Записатися'} onClick={onOpenBooking} />
       </div>
     </div>
   </div>

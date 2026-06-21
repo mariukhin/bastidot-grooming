@@ -7,9 +7,10 @@ import { Icon, IconTypes } from '@/components/icon';
 type ServiceItemProps = {
   item: ServiceProps;
   breedName: string;
+  onBook?: () => void;
 };
 
-const ServiceItem = ({ item, breedName }: ServiceItemProps) => {
+const ServiceItem = ({ item, breedName, onBook }: ServiceItemProps) => {
   return (
     <div className={styles.container}>
       <div className={styles.firstRow}>
