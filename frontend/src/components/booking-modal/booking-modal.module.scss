@@ -14,19 +14,24 @@
   min-height: 0;
 }
 
+.stepHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+}
+
 .title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
-  line-height: 30px;
-  color: var(--color-milano-red);
+  line-height: 28px;
+  color: #870908;
   text-align: center;
-  padding-top: 4px;
 }
 
 .backButton {
-  position: absolute;
-  top: 0;
-  left: 0;
+  flex-shrink: 0;
+  width: 28px;
   background: none;
   border: none;
   padding: 0;
@@ -39,6 +44,11 @@
   &:hover {
     opacity: 0.6;
   }
+}
+
+.backButtonSpacer {
+  flex-shrink: 0;
+  width: 28px;
 }
 
 // ── Section ──────────────────────────────────────────────────────────────
@@ -346,6 +356,12 @@
   }
 }
 
+.dayCardDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .dayCardSelected {
   border-color: var(--color-milano-red);
   background-color: var(--color-milano-red);
@@ -454,6 +470,10 @@
   padding: 12px;
   border-radius: 12px;
   background-color: var(--color-hint-of-red);
+
+  button[class] {
+    width: 100%;
+  }
 }
 
 .summaryHeader {
@@ -512,4 +532,378 @@
   font-weight: 500;
   line-height: 20px;
   color: var(--color-woodsmoke);
+}
+
+// alias used in new steps
+.summaryText {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-woodsmoke);
+  flex: 1;
+}
+
+// ── Extra services step ───────────────────────────────────────────────────
+
+.subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-gray);
+  margin-top: -12px;
+}
+
+.extraServiceItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-ebb);
+  background-color: var(--color-white);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-cold-turkey);
+  }
+}
+
+.extraServiceName {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--color-woodsmoke);
+}
+
+.extraServicePrice {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--color-woodsmoke);
+}
+
+.emptyText {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-gray);
+  text-align: center;
+  padding: 20px 0;
+}
+
+// ── Form step ─────────────────────────────────────────────────────────────
+
+.formSection {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.bookingSummarySection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.bookingSummaryList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-ebb);
+  overflow: hidden;
+}
+
+.bookingSummaryRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-ebb);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.bookingSummaryInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.bookingSummaryText {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--color-woodsmoke);
+  flex: 1;
+}
+
+.extraPriceHint {
+  color: var(--color-gray);
+  font-weight: 500;
+}
+
+// ── Success step ─────────────────────────────────────────────────────────
+
+.successContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 2px;
+  position: relative;
+}
+
+.successIllustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.successTitle {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 32px;
+  color: #870908;
+  text-align: center;
+  margin-top: -4px;
+}
+
+.successSubtitle {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-gray);
+  text-align: center;
+  margin-top: -8px;
+}
+
+.successSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-ebb);
+}
+
+.successSummaryRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.successSummaryMain {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--color-woodsmoke);
+  flex: 1;
+}
+
+.successSummaryPrice {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--color-woodsmoke);
+  flex-shrink: 0;
+}
+
+.successSummaryDate {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--color-milano-red);
+}
+
+.successGroomerRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.successGroomerPhoto {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.successGroomerName {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--color-woodsmoke);
+}
+
+.successGroomerRole {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  color: var(--color-gray);
+}
+
+.successActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.successActionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-ebb);
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--color-woodsmoke);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-cold-turkey);
+  }
+}
+
+.successContacts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.successContactsTitle {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--color-woodsmoke);
+}
+
+.successContactRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.successContactText {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-woodsmoke);
+}
+
+.successMap {
+  margin-top: 4px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cancelOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  z-index: 10;
+  padding: 20px;
+}
+
+.cancelPopup {
+  background: var(--color-white);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.cancelTitle {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: var(--color-woodsmoke);
+  text-align: center;
+}
+
+.cancelSubtitle {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-gray);
+  text-align: center;
+}
+
+.cancelActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.cancelConfirmBtn {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-ebb);
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-woodsmoke);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-cold-turkey);
+  }
+}
+
+.cancelDenyBtn {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-milano-red);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-white);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.88;
+  }
+}
+
+.editButton {
+  flex-shrink: 0;
+  background: none;
+  border: 1.5px solid var(--color-milano-red);
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-hint-of-red);
+  }
 }

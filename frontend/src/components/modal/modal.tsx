@@ -17,6 +17,7 @@ type ModalProps = {
   backdropClassName?: string;
   modalClassName?: string;
   disableScrollbar?: boolean;
+  backButton?: ReactNode;
 };
 
 const Modal: FC<ModalProps> = ({
@@ -25,6 +26,7 @@ const Modal: FC<ModalProps> = ({
   backdropClassName,
   modalClassName,
   disableScrollbar,
+  backButton,
   children,
 }) => {
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -101,6 +103,7 @@ const Modal: FC<ModalProps> = ({
       >
         {disableScrollbar ? (
           <>
+            {backButton && <div className={styles.back}>{backButton}</div>}
             <button type="button" className={styles.close} onClick={onClose} aria-label="Close modal">
               <Icon id={IconTypes.close} width={16} height={16} />
             </button>
@@ -108,6 +111,7 @@ const Modal: FC<ModalProps> = ({
           </>
         ) : (
           <SimpleBar ref={simpleBarRef} autoHide={false} style={{ height: '100%' }}>
+            {backButton && <div className={styles.back}>{backButton}</div>}
             <button type="button" className={styles.close} onClick={onClose} aria-label="Close modal">
               <Icon id={IconTypes.close} width={16} height={16} />
             </button>
