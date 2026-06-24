@@ -39,7 +39,12 @@ const AboutBlock = ({ onOpenBooking }: AboutBlockProps) => (
         <p className={styles.aboutSubtitle}>
           Це місце, де ваші улюбленці отримають найкращий догляд та виглядатимуть бездоганно!
         </p>
-        <Button className={styles.aboutButton} type={'button'} text={'Записатися'} onClick={onOpenBooking} />
+        <Button
+          className={styles.aboutButton}
+          type={'button'}
+          text={'Записатися'}
+          onClick={onOpenBooking}
+        />
       </div>
     </div>
   </div>

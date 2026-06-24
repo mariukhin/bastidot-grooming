@@ -2,7 +2,6 @@ import { Button } from '@/components/button';
 import Image from 'next/image';
 import { Icon, IconTypes } from '@/components/icon';
 import styles from './team-block.module.scss';
-import vipGroomerPreview from './vipGroomerPreview.png';
 import groomerPreview from './groomerPreview.png';
 import dayjs from 'dayjs';
 
@@ -58,7 +57,12 @@ const TeamBlock = ({ onOpenBooking }: TeamBlockProps) => {
                     {dayjs(item.nearestDate).format('DD MMMM HH:mm')}
                   </p>
                 </div>
-                <Button className={styles.teamMemberButton} type={'button'} text={'Записатися'} onClick={onOpenBooking} />
+                <Button
+                  className={styles.teamMemberButton}
+                  type={'button'}
+                  text={'Записатися'}
+                  onClick={onOpenBooking}
+                />
               </div>
             </div>
           ))}

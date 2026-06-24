@@ -106,9 +106,7 @@ const StepSuccess = ({
       <div className={styles.successSummary}>
         <div className={styles.successSummaryRow}>
           <p className={styles.successSummaryMain}>{serviceNames}</p>
-          {totalPrice !== null && (
-            <p className={styles.successSummaryPrice}>{totalPrice} грн</p>
-          )}
+          {totalPrice !== null && <p className={styles.successSummaryPrice}>{totalPrice} грн</p>}
         </div>
         {formattedDateTimeRange && (
           <p className={styles.successSummaryDate}>{formattedDateTimeRange}</p>

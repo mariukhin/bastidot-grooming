@@ -74,7 +74,6 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
 
   const timeSlots = useMemo(() => generateTimeSlots(selectedDate, now), [selectedDate, now]);
 
-
   const formattedDateTime = selectedSlot
     ? `${selectedDate.format('dddd D MMMM')}, ${selectedSlot}`
     : null;
@@ -198,7 +197,15 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
   const backButton = backHandler ? (
     <button
       type="button"
-      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--color-woodsmoke)' }}
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        color: 'var(--color-woodsmoke)',
+      }}
       onClick={backHandler}
       aria-label="Назад"
     >
@@ -217,7 +224,13 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} modalClassName={styles.bookingModal} disableScrollbar backButton={backButton}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      modalClassName={styles.bookingModal}
+      disableScrollbar
+      backButton={backButton}
+    >
       {step === 'services' && (
         <StepServices
           breedList={breedList}

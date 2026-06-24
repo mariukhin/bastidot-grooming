@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Icon, IconTypes } from '@/components/icon';
-import { BreedProps, ServiceProps } from '@/utils/function';
+import { ServiceProps } from '@/utils/function';
 import { Groomer } from './types';
 import { getGroomerPrice } from './utils';
 

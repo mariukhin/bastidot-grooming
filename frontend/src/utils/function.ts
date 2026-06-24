@@ -28,8 +28,8 @@ export type ServiceProps = {
 
 export const normalizeReviews = (reviewsData: never[]): ReviewProps[] => {
   return reviewsData
-    .filter((review: any) => review.rating >= 4)
-    .map((review: any) => ({
+    .filter((review) => review.rating >= 4)
+    .map((review) => ({
       id: review.time,
       name: review['author_name'],
       text: review.text,
