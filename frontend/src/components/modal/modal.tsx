@@ -104,18 +104,32 @@ const Modal: FC<ModalProps> = ({
         {disableScrollbar ? (
           <>
             {backButton && <div className={styles.back}>{backButton}</div>}
-            <button type="button" className={styles.close} onClick={onClose} aria-label="Close modal">
+            <button
+              type="button"
+              className={styles.close}
+              onClick={onClose}
+              aria-label="Close modal"
+            >
               <Icon id={IconTypes.close} width={16} height={16} />
             </button>
-            <div ref={contentRef} className={classNames(styles.content, styles.contentFill)}>{children}</div>
+            <div ref={contentRef} className={classNames(styles.content, styles.contentFill)}>
+              {children}
+            </div>
           </>
         ) : (
           <SimpleBar ref={simpleBarRef} autoHide={false} style={{ height: '100%' }}>
             {backButton && <div className={styles.back}>{backButton}</div>}
-            <button type="button" className={styles.close} onClick={onClose} aria-label="Close modal">
+            <button
+              type="button"
+              className={styles.close}
+              onClick={onClose}
+              aria-label="Close modal"
+            >
               <Icon id={IconTypes.close} width={16} height={16} />
             </button>
-            <div ref={contentRef} className={styles.content}>{children}</div>
+            <div ref={contentRef} className={styles.content}>
+              {children}
+            </div>
           </SimpleBar>
         )}
       </div>

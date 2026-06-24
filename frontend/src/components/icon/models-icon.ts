@@ -33,5 +33,5 @@ export enum IconTypes {
   calendarAdd = 'calendar-add',
   bag = 'bag',
   arrowDown = 'arrow-down',
-  google = 'google'
+  google = 'google',
 }

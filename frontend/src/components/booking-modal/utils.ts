@@ -42,7 +42,10 @@ export const formSchema = object({
   comment: string().optional(),
 });
 
-export const getGroomerPrice = (groomer: Groomer, services: { vipPrice: number; defaultPrice: number }[]): number | null => {
+export const getGroomerPrice = (
+  groomer: Groomer,
+  services: { vipPrice: number; defaultPrice: number }[]
+): number | null => {
   if (services.length === 0) return null;
   return groomer.isVip ? services[0].vipPrice : services[0].defaultPrice;
 };

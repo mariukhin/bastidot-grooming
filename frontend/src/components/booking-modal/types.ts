@@ -2,7 +2,13 @@ import { StaticImageData } from 'next/image';
 import { Dayjs } from 'dayjs';
 import { BreedProps, ServiceProps } from '@/utils/function';
 
-export type BookingStep = 'services' | 'groomer' | 'datetime' | 'extra-services' | 'form' | 'success';
+export type BookingStep =
+  | 'services'
+  | 'groomer'
+  | 'datetime'
+  | 'extra-services'
+  | 'form'
+  | 'success';
 
 export type TimeSlotPeriod = {
   period: string;

@@ -10,7 +10,7 @@ type ServiceItemProps = {
   onBook?: () => void;
 };
 
-const ServiceItem = ({ item, breedName, onBook }: ServiceItemProps) => {
+const ServiceItem = ({ item, breedName }: ServiceItemProps) => {
   return (
     <div className={styles.container}>
       <div className={styles.firstRow}>

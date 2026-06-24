@@ -113,7 +113,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .checkboxChecked {
@@ -349,7 +351,9 @@
   border: 1.5px solid var(--color-ebb);
   background-color: var(--color-white);
   cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 
   &:hover {
     border-color: var(--color-cold-turkey);
@@ -442,7 +446,10 @@
   line-height: 18px;
   color: var(--color-woodsmoke);
   cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
 
   &:hover {
     border-color: var(--color-cold-turkey);

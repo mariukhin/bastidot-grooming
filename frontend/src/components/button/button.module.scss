@@ -87,7 +87,8 @@
     color: var(--color-blue-bayoux);
   }
 
-  &:hover, &:active {
+  &:hover,
+  &:active {
     box-shadow: none !important;
   }
 }
