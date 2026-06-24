@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import classNames from 'classnames';
+import dayjs, { Dayjs } from 'dayjs';
+import 'dayjs/locale/uk';
 
 import { Modal } from '@/components/modal';
 import { Select } from '@/components/select';
@@ -17,7 +19,36 @@ import groomerPreview from '@/components/team-block/groomerPreview.png';
 
 import styles from './booking-modal.module.scss';
 
-type BookingStep = 'services' | 'groomer';
+dayjs.locale('uk');
+
+type BookingStep = 'services' | 'groomer' | 'datetime';
+
+type TimeSlotPeriod = {
+  period: string;
+  slots: string[];
+};
+
+const generateWeekDates = (startOfWeek: Dayjs): Dayjs[] =>
+  Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, 'day'));
+
+const generateTimeSlots = (date: Dayjs): TimeSlotPeriod[] => {
+  const buildRange = (startHour: number, endHour: number) => {
+    const slots: string[] = [];
+    let cursor = date.hour(startHour).minute(0);
+    const end = date.hour(endHour).minute(0);
+    while (cursor.isBefore(end)) {
+      slots.push(cursor.format('HH:mm'));
+      cursor = cursor.add(15, 'minute');
+    }
+    return slots;
+  };
+
+  return [
+    { period: 'Ранок', slots: buildRange(9, 12) },
+    { period: 'День', slots: buildRange(12, 18) },
+    { period: 'Вечір', slots: buildRange(18, 20) },
+  ];
+};
 
 type Groomer = {
   id: number;
@@ -61,6 +92,16 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
     initialService ? [initialService] : []
   );
   const [selectedGroomer, setSelectedGroomer] = useState<Groomer | null>(null);
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<Dayjs>(() => dayjs());
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
+
+  const weekDates = useMemo(
+    () => generateWeekDates(dayjs().startOf('day').add(weekOffset * 7, 'day')),
+    [weekOffset]
+  );
+  const timeSlots = useMemo(() => generateTimeSlots(selectedDate), [selectedDate]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -68,6 +109,9 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
     setStep('services');
     setSelectedServices(initialService ? [initialService] : []);
     setSelectedGroomer(null);
+    setWeekOffset(0);
+    setSelectedDate(dayjs().startOf('day'));
+    setSelectedSlot(null);
 
     (async () => {
       const result = await getBreedList();
@@ -114,7 +158,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} modalClassName={styles.bookingModal}>
+    <Modal isOpen={isOpen} onClose={handleClose} modalClassName={styles.bookingModal} disableScrollbar>
       {step === 'services' && (
         <div className={styles.stepContainer}>
           <h2 className={styles.title}>Оберіть послугу</h2>
@@ -128,7 +172,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
             />
           </div>
 
-          <div className={styles.section}>
+          <div className={classNames(styles.section, styles.sectionGrow)}>
             <p className={styles.sectionLabel}>Послуга</p>
             <ul className={styles.serviceList}>
               {serviceList.map((service) => {
@@ -188,7 +232,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
 
           <h2 className={styles.title}>Оберіть майстра</h2>
 
-          <div className={styles.section}>
+          <div className={classNames(styles.section, styles.sectionGrow)}>
             <p className={styles.sectionLabel}>Майстер</p>
             <ul className={styles.groomerList}>
               {GROOMERS.map((groomer) => {
@@ -237,7 +281,119 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
               text="Обрати дату та час"
               size="large"
               disabled={!selectedGroomer}
+              onClick={() => setStep('datetime')}
             />
+          </div>
+        </div>
+      )}
+
+      {step === 'datetime' && (
+        <div className={styles.stepContainer}>
+          <button type="button" className={styles.backButton} onClick={() => setStep('groomer')}>
+            <Icon id={IconTypes.chevronLeft} width={20} height={20} />
+          </button>
+
+          <h2 className={styles.title}>Оберіть дату та час</h2>
+
+          <div className={classNames(styles.section, styles.sectionGrow)}>
+            <div className={styles.weekHeader}>
+              <button
+                type="button"
+                className={styles.weekNavButton}
+                onClick={() => setWeekOffset((prev) => prev - 1)}
+                aria-label="Попередній тиждень"
+              >
+                <Icon id={IconTypes.chevronLeft} width={18} height={18} />
+              </button>
+              <p className={styles.weekHeaderLabel}>{selectedDate.format('dddd, D MMMM')}</p>
+              <button
+                type="button"
+                className={styles.weekNavButton}
+                onClick={() => setWeekOffset((prev) => prev + 1)}
+                aria-label="Наступний тиждень"
+              >
+                <Icon id={IconTypes.chevroneRight} width={18} height={18} />
+              </button>
+            </div>
+
+            <ul className={styles.weekStrip}>
+              {weekDates.map((date) => {
+                const isSelected = date.isSame(selectedDate, 'day');
+                return (
+                  <li
+                    key={date.toISOString()}
+                    className={classNames(styles.dayCard, { [styles.dayCardSelected]: isSelected })}
+                    onClick={() => {
+                      setSelectedDate(date);
+                      setSelectedSlot(null);
+                    }}
+                  >
+                    <p className={styles.dayCardWeekday}>{date.format('dd')}</p>
+                    <p className={styles.dayCardDate}>{date.format('D')}</p>
+                    <p className={styles.dayCardMonth}>{date.format('MMM')}</p>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className={styles.slotsScroll}>
+              {timeSlots.map(({ period, slots }) => (
+                <div key={period} className={styles.slotsSection}>
+                  <p className={styles.periodLabel}>{period}</p>
+                  <ul className={styles.slotsGrid}>
+                    {slots.map((slot) => {
+                      const isSelected = selectedSlot === slot;
+                      return (
+                        <li
+                          key={slot}
+                          className={classNames(styles.slotButton, { [styles.slotButtonSelected]: isSelected })}
+                          onClick={() => setSelectedSlot(slot)}
+                        >
+                          {slot}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.datetimeFooter}>
+            <div className={styles.summaryCard}>
+              <div
+                className={styles.summaryHeader}
+                onClick={() => setIsSummaryExpanded((prev) => !prev)}
+              >
+                <Icon id={IconTypes.heart} color="var(--color-gray)" width={18} height={18} />
+                <p className={styles.groomerSummaryText}>
+                  {selectedServices[0]?.type} – {selectedBreed?.value}
+                </p>
+                <Icon
+                  id={isSummaryExpanded ? IconTypes.chevronUp : IconTypes.chevronDown}
+                  color="var(--color-gray)"
+                  width={16}
+                  height={16}
+                  className={styles.summaryChevron}
+                />
+              </div>
+
+              {isSummaryExpanded && selectedGroomer && (
+                <div className={styles.summaryRow}>
+                  <Icon id={IconTypes.money} color="var(--color-gray)" width={19} height={13} />
+                  <p className={styles.groomerSummaryText}>
+                    Грумер {selectedGroomer.isVip ? 'VIP' : ''}: {selectedGroomer.name} – {groomerPrice(selectedGroomer)} грн
+                  </p>
+                </div>
+              )}
+
+              <Button
+                text="Далі"
+                size="large"
+                disabled={!selectedSlot}
+                className={styles.summaryButton}
+              />
+            </div>
           </div>
         </div>
       )}

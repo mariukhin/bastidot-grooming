@@ -1,8 +1,7 @@
 @use 'src/styles/breakpoints' as breakpoints;
 
 .bookingModal {
-  height: auto !important;
-  max-height: 85vh;
+  height: 85vh !important;
   max-width: 550px;
 }
 
@@ -11,6 +10,8 @@
   flex-direction: column;
   gap: 20px;
   position: relative;
+  height: 100%;
+  min-height: 0;
 }
 
 .title {
@@ -55,13 +56,18 @@
   color: var(--color-woodsmoke);
 }
 
+.sectionGrow {
+  flex: 1;
+  min-height: 0;
+}
+
 // ── Service list ──────────────────────────────────────────────────────────
 
 .serviceList {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 340px;
+  height: 100%;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -143,7 +149,11 @@
 // ── Footer step 1 ────────────────────────────────────────────────────────
 
 .footer {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--color-white);
   padding-top: 8px;
+  margin-top: auto;
 
   button {
     width: 100%;
@@ -156,7 +166,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 340px;
+  height: 100%;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -277,13 +287,211 @@
   margin-left: auto;
 }
 
+// ── Date & time step ────────────────────────────────────────────────────
+
+.weekHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.weekHeaderLabel {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--color-woodsmoke);
+  text-transform: capitalize;
+  text-align: center;
+  flex: 1;
+}
+
+.weekNavButton {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--color-woodsmoke);
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.6;
+  }
+}
+
+.weekStrip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.dayCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-ebb);
+  background-color: var(--color-white);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-cold-turkey);
+  }
+}
+
+.dayCardSelected {
+  border-color: var(--color-milano-red);
+  background-color: var(--color-milano-red);
+
+  .dayCardWeekday,
+  .dayCardDate,
+  .dayCardMonth {
+    color: var(--color-white);
+  }
+}
+
+.dayCardWeekday {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--color-gray);
+  text-transform: capitalize;
+}
+
+.dayCardDate {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--color-woodsmoke);
+}
+
+.dayCardMonth {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 14px;
+  color: var(--color-gray);
+  text-transform: capitalize;
+}
+
+.slotsScroll {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.slotsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.periodLabel {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--color-gray);
+}
+
+.slotsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+
+  @include breakpoints.md {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.slotButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-ebb);
+  background-color: var(--color-white);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--color-woodsmoke);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-cold-turkey);
+  }
+}
+
+.slotButtonSelected {
+  border-color: var(--color-milano-red);
+  background-color: var(--color-milano-red);
+  color: var(--color-white);
+}
+
+.datetimeFooter {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--color-white);
+  padding-top: 8px;
+  margin-top: auto;
+}
+
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background-color: var(--color-hint-of-red);
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+
+  .groomerSummaryText {
+    flex: 1;
+  }
+}
+
+.summaryChevron {
+  flex-shrink: 0;
+}
+
+.summaryRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryButton {
+  width: 100%;
+}
+
 // ── Footer step 2 ────────────────────────────────────────────────────────
 
 .groomerFooter {
+  position: sticky;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  background-color: var(--color-white);
   padding-top: 8px;
+  margin-top: auto;
 
   button {
     width: 100%;

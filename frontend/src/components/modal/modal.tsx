@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import { FC, ReactNode, MouseEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import SimpleBar from 'simplebar-react';
+import type SimpleBarCore from 'simplebar-core';
 
 import { Icon, IconTypes } from '@/components/icon';
 
@@ -15,6 +16,7 @@ type ModalProps = {
   children: ReactNode;
   backdropClassName?: string;
   modalClassName?: string;
+  disableScrollbar?: boolean;
 };
 
 const Modal: FC<ModalProps> = ({
@@ -22,10 +24,13 @@ const Modal: FC<ModalProps> = ({
   onClose,
   backdropClassName,
   modalClassName,
+  disableScrollbar,
   children,
 }) => {
   const backdropRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const simpleBarRef = useRef<SimpleBarCore>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useFocusTrapping({ ref: modalRef, open: isOpen, onEscape: onClose });
 
@@ -36,6 +41,17 @@ const Modal: FC<ModalProps> = ({
     setMounted(true);
     setModalRoot(document.getElementById('modal-root'));
   }, []);
+
+  useEffect(() => {
+    if (!isOpen || disableScrollbar || !contentRef.current) return;
+
+    const observer = new ResizeObserver(() => {
+      simpleBarRef.current?.recalculate();
+    });
+    observer.observe(contentRef.current);
+
+    return () => observer.disconnect();
+  }, [isOpen, disableScrollbar]);
 
   useEffect(() => {
     if (!isOpen || !mounted) return;
@@ -83,12 +99,21 @@ const Modal: FC<ModalProps> = ({
         aria-modal="true"
         tabIndex={-1}
       >
-        <SimpleBar autoHide={false} style={{ height: '100%' }}>
-          <button type="button" className={styles.close} onClick={onClose} aria-label="Close modal">
-            <Icon id={IconTypes.close} width={16} height={16} />
-          </button>
-          <div className={styles.content}>{children}</div>
-        </SimpleBar>
+        {disableScrollbar ? (
+          <>
+            <button type="button" className={styles.close} onClick={onClose} aria-label="Close modal">
+              <Icon id={IconTypes.close} width={16} height={16} />
+            </button>
+            <div ref={contentRef} className={classNames(styles.content, styles.contentFill)}>{children}</div>
+          </>
+        ) : (
+          <SimpleBar ref={simpleBarRef} autoHide={false} style={{ height: '100%' }}>
+            <button type="button" className={styles.close} onClick={onClose} aria-label="Close modal">
+              <Icon id={IconTypes.close} width={16} height={16} />
+            </button>
+            <div ref={contentRef} className={styles.content}>{children}</div>
+          </SimpleBar>
+        )}
       </div>
     </div>,
     modalRoot
