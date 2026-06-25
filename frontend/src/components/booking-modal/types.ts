@@ -1,6 +1,6 @@
-import { StaticImageData } from 'next/image';
 import { Dayjs } from 'dayjs';
 import { BreedProps, ServiceProps } from '@/utils/function';
+import { StaticImageData } from 'next/image';
 
 export type BookingStep =
   | 'services'
@@ -15,12 +15,19 @@ export type TimeSlotPeriod = {
   slots: string[];
 };
 
-export type Groomer = {
-  id: number;
+export type GroomerDbProps = {
+  id: string;
   name: string;
   isVip: boolean;
-  photoSrc: StaticImageData;
-  nextTime: string;
+  photoUrl: string;
+};
+
+export type Groomer = {
+  id: string;
+  name: string;
+  isVip: boolean;
+  photoSrc: string | StaticImageData;
+  nearestDate: Dayjs;
 };
 
 export type BookingFormData = {
@@ -29,6 +36,33 @@ export type BookingFormData = {
   email: string;
   petName?: string;
   comment?: string;
+};
+
+export type OrderRequest = {
+  clientName: string;
+  clientPhone: string;
+  clientEmail: string;
+  petName: string;
+  petAge: number;
+  petWeight: number;
+  petPhotoUrl: string;
+  petComment: string;
+  groomerId: string;
+  scheduledAt: string;
+  comment: string;
+  serviceIds: string[];
+};
+
+export type OrderResponse = {
+  id: string;
+  clientId: string;
+  petId: string;
+  groomerId: string;
+  createdAt: string;
+  scheduledAt: string;
+  status: string;
+  comment: string;
+  serviceIds: string[];
 };
 
 export type BookingState = {

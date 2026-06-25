@@ -5,6 +5,11 @@
   max-width: 550px;
 }
 
+.bookingModalAuto {
+  height: auto !important;
+  max-height: 90vh;
+}
+
 .stepContainer {
   display: flex;
   flex-direction: column;
@@ -663,9 +668,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 100%;
-  overflow-y: auto;
-  padding-right: 2px;
   position: relative;
 }
 
@@ -700,7 +702,7 @@
   gap: 6px;
   padding: 14px 16px;
   border-radius: 12px;
-  border: 1.5px solid var(--color-ebb);
+  background-color: #f7f5f5;
 }
 
 .successSummaryRow {
@@ -711,9 +713,9 @@
 }
 
 .successSummaryMain {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 22px;
+  line-height: 20px;
   color: var(--color-woodsmoke);
   flex: 1;
 }
@@ -728,9 +730,9 @@
 
 .successSummaryDate {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 20px;
-  color: var(--color-milano-red);
+  color: var(--color-woodsmoke);
 }
 
 .successGroomerRow {
@@ -791,11 +793,15 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background-color: #f7f5f5;
 }
 
 .successContactsTitle {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 22px;
   color: var(--color-woodsmoke);
 }

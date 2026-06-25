@@ -32,13 +32,13 @@ const Dashboard = () => {
           </p>
           <div className={styles.buttonBlock}>
             <Button type={'button'} text={'Записатися'} onClick={() => setBookingOpen(true)} />
-            <Button
-              type={'button'}
-              text={'Перейти до курсу'}
-              variant={'secondary'}
-              onClick={() => handleScroll('academy')}
-              icon={IconTypes.arrowDown}
-            />
+            {/*<Button*/}
+            {/*  type={'button'}*/}
+            {/*  text={'Перейти до курсу'}*/}
+            {/*  variant={'secondary'}*/}
+            {/*  onClick={() => handleScroll('academy')}*/}
+            {/*  icon={IconTypes.arrowDown}*/}
+            {/*/>*/}
           </div>
         </div>
         <div className={styles.photoBlock}>

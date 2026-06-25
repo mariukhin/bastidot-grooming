@@ -20,6 +20,8 @@ func main() {
 	db := app.Mongo.Database(env.DBName)
 	defer app.CloseDBConnection()
 
+	bootstrap.EnsureIndexes(db)
+
 	timeout := time.Duration(env.ContextTimeout) * time.Second
 
 	r := chi.NewRouter()

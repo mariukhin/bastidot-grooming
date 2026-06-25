@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/uk';
+import classNames from 'classnames';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -13,7 +14,7 @@ import { getBreedList } from '@/api/breed';
 import { getServiceList } from '@/api/service';
 
 import { BookingStep, BookingFormData, Groomer } from './types';
-import { GROOMERS, generateWeekDates, generateTimeSlots, formSchema } from './utils';
+import { capitalize, generateWeekDates, generateTimeSlots, formSchema } from './utils';
 import StepServices from './step-services';
 import StepGroomer from './step-groomer';
 import StepDatetime from './step-datetime';
@@ -22,6 +23,8 @@ import StepForm from './step-form';
 import StepSuccess from './step-success';
 
 import styles from './booking-modal.module.scss';
+import useGroomerStore from '@/store/useGroomerStore';
+import useOrderStore from '@/store/useOrderStore';
 
 dayjs.locale('uk');
 
@@ -33,6 +36,8 @@ type BookingModalProps = {
 };
 
 const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: BookingModalProps) => {
+  const { groomerList } = useGroomerStore();
+  const { createOrder } = useOrderStore();
   const [step, setStep] = useState<BookingStep>('services');
 
   const [breedList, setBreedList] = useState<BreedProps[]>([]);
@@ -75,7 +80,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
   const timeSlots = useMemo(() => generateTimeSlots(selectedDate, now), [selectedDate, now]);
 
   const formattedDateTime = selectedSlot
-    ? `${selectedDate.format('dddd D MMMM')}, ${selectedSlot}`
+    ? `${capitalize(selectedDate.format('dddd D MMMM'))}, ${selectedSlot}`
     : null;
 
   const totalDurationMin = useMemo(() => {
@@ -93,7 +98,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
     const [h, m] = selectedSlot.split(':').map(Number);
     const start = selectedDate.hour(h).minute(m);
     const end = start.add(totalDurationMin, 'minute');
-    return `${selectedDate.format('dddd D MMMM')}, ${start.format('HH:mm')}–${end.format('HH:mm')}`;
+    return `${capitalize(selectedDate.format('dddd D MMMM'))}, ${start.format('HH:mm')}–${end.format('HH:mm')}`;
   }, [selectedSlot, selectedDate, totalDurationMin]);
 
   useEffect(() => {
@@ -158,16 +163,30 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
         : [...prev, service]
     );
 
-  const onSubmit = (data: BookingFormData) => {
-    console.log('Booking submitted:', {
-      ...data,
-      breed: selectedBreed,
-      services: selectedServices,
-      extraServices: selectedExtraServices,
-      groomer: selectedGroomer,
-      date: formattedDateTime,
+  const onSubmit = async (data: BookingFormData) => {
+    if (!selectedGroomer || !selectedSlot) return;
+
+    const [hour, minute] = selectedSlot.split(':').map(Number);
+    const scheduledAt = selectedDate.hour(hour).minute(minute).second(0).toISOString();
+
+    const order = await createOrder({
+      clientName: data.name,
+      clientPhone: data.phone,
+      clientEmail: data.email,
+      petName: data.petName?.trim() || 'Улюбленець',
+      petAge: 0,
+      petWeight: 0,
+      petPhotoUrl: '',
+      petComment: '',
+      groomerId: selectedGroomer.id,
+      scheduledAt,
+      comment: data.comment ?? '',
+      serviceIds: [...selectedServices, ...selectedExtraServices].map((s) => s.id),
     });
-    setStep('success');
+
+    if (order) {
+      setStep('success');
+    }
   };
 
   const handleBookAgain = () => {
@@ -227,8 +246,11 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      modalClassName={styles.bookingModal}
+      modalClassName={classNames(styles.bookingModal, {
+        [styles.bookingModalAuto]: step === 'success',
+      })}
       disableScrollbar
+      fitContent={step === 'success'}
       backButton={backButton}
     >
       {step === 'services' && (
@@ -245,7 +267,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
 
       {step === 'groomer' && (
         <StepGroomer
-          groomers={GROOMERS}
+          groomers={groomerList}
           selectedGroomer={selectedGroomer}
           selectedServices={selectedServices}
           onSelectGroomer={setSelectedGroomer}

@@ -29,6 +29,7 @@ type Collection interface {
 	Aggregate(context.Context, interface{}) (Cursor, error)
 	UpdateOne(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 	UpdateMany(context.Context, interface{}, interface{}, ...*options.UpdateOptions) (*mongo.UpdateResult, error)
+	EnsureIndexes(context.Context, []mongo.IndexModel) error
 }
 
 type SingleResult interface {
@@ -179,6 +180,11 @@ func (mc *mongoCollection) UpdateMany(ctx context.Context, filter interface{}, u
 
 func (mc *mongoCollection) CountDocuments(ctx context.Context, filter interface{}, opts ...*options.CountOptions) (int64, error) {
 	return mc.coll.CountDocuments(ctx, filter, opts...)
+}
+
+func (mc *mongoCollection) EnsureIndexes(ctx context.Context, models []mongo.IndexModel) error {
+	_, err := mc.coll.Indexes().CreateMany(ctx, models)
+	return err
 }
 
 func (sr *mongoSingleResult) Decode(v interface{}) error {

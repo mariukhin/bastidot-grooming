@@ -18,6 +18,8 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db mongo.Database, r *chi.
 		NewRefreshTokenRouter(env, timeout, db, r)
 		NewBreedRouter(env, timeout, db, r)
 		NewServiceRouter(env, timeout, db, r)
+		NewOrderRouter(env, timeout, db, r)
+		NewGroomerRouter(env, timeout, db, r)
 	})
 
 	// Protected routes

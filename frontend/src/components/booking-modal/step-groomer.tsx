@@ -55,10 +55,6 @@ const StepGroomer = ({
                   {groomer.isVip && <span className={styles.vipBadge}>VIP</span>}
                   <span className={styles.groomerRole}>Грумер</span>
                 </div>
-                <div className={styles.groomerTime}>
-                  <Icon id={IconTypes.clock} color="var(--color-gray)" width={14} height={14} />
-                  <p className={styles.groomerTimeMeta}>Наступний час: {groomer.nextTime}</p>
-                </div>
               </div>
               {price !== null && <p className={styles.groomerPrice}>{price} грн</p>}
             </li>

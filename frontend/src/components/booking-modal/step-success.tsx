@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/button';
 import { Icon, IconTypes } from '@/components/icon';
 import { ServiceProps } from '@/utils/function';
+import groomerPreview from '@/components/team-block/groomerPreview.png';
 import { Groomer } from './types';
 import { getGroomerPrice } from './utils';
 
@@ -114,7 +115,7 @@ const StepSuccess = ({
         {selectedGroomer && (
           <div className={styles.successGroomerRow}>
             <Image
-              src={selectedGroomer.photoSrc}
+              src={selectedGroomer.photoSrc || groomerPreview}
               width={36}
               height={36}
               alt={selectedGroomer.name}
@@ -130,7 +131,7 @@ const StepSuccess = ({
         )}
       </div>
 
-      <Button text="Записатися ще" size="large" onClick={onBookAgain} />
+      <Button text="Записатися ще" size="medium" onClick={onBookAgain} />
 
       <div className={styles.successActions}>
         <button type="button" className={styles.successActionBtn}>
