@@ -2,37 +2,27 @@ import { Button } from '@/components/button';
 import Image from 'next/image';
 import { Icon, IconTypes } from '@/components/icon';
 import styles from './team-block.module.scss';
-import groomerPreview from './groomerPreview.png';
 import dayjs from 'dayjs';
+import useGroomerStore from '@/store/useGroomerStore';
+import { useEffect } from 'react';
 
 type TeamBlockProps = {
   onOpenBooking?: () => void;
 };
 
 const TeamBlock = ({ onOpenBooking }: TeamBlockProps) => {
-  const team = [
-    {
-      id: 1,
-      name: 'Ольга',
-      isVip: false,
-      nearestDate: new Date(),
-      photoSrc: groomerPreview,
-    },
-    {
-      id: 2,
-      name: 'Юлія',
-      isVip: false,
-      nearestDate: new Date(),
-      photoSrc: groomerPreview,
-    },
-  ];
+  const { groomerList, fetchGroomers } = useGroomerStore();
+
+  useEffect(() => {
+    fetchGroomers();
+  }, [fetchGroomers]);
 
   return (
     <div className={styles.teamContainer}>
       <div className={styles.teamWrapper}>
         <p className={styles.title}>Команда</p>
         <div className={styles.teamBlock}>
-          {team.map((item) => (
+          {groomerList.map((item) => (
             <div className={styles.teamItem} key={item.id}>
               <div className={styles.teamItemWrapper}>
                 <Image

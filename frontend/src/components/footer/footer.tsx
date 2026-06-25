@@ -54,7 +54,7 @@ const Footer = () => {
             height={57}
             priority
           />
-          <span className={styles.footerText}>© 2025 Bastidot. All rights reserved.</span>
+          <span className={styles.footerText}>© 2026 Bastidot. All rights reserved.</span>
         </div>
       </div>
     </footer>

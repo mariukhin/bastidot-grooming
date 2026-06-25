@@ -18,6 +18,7 @@ type ModalProps = {
   modalClassName?: string;
   disableScrollbar?: boolean;
   backButton?: ReactNode;
+  fitContent?: boolean;
 };
 
 const Modal: FC<ModalProps> = ({
@@ -27,6 +28,7 @@ const Modal: FC<ModalProps> = ({
   modalClassName,
   disableScrollbar,
   backButton,
+  fitContent,
   children,
 }) => {
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -112,7 +114,10 @@ const Modal: FC<ModalProps> = ({
             >
               <Icon id={IconTypes.close} width={16} height={16} />
             </button>
-            <div ref={contentRef} className={classNames(styles.content, styles.contentFill)}>
+            <div
+              ref={contentRef}
+              className={classNames(styles.content, { [styles.contentFill]: !fitContent })}
+            >
               {children}
             </div>
           </>

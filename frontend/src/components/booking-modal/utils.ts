@@ -1,12 +1,18 @@
 import { Dayjs } from 'dayjs';
 import { object, string } from 'yup';
 import groomerPreview from '@/components/team-block/groomerPreview.png';
-import { Groomer, TimeSlotPeriod } from './types';
+import { Groomer, GroomerDbProps, TimeSlotPeriod } from './types';
 
-export const GROOMERS: Groomer[] = [
-  { id: 1, name: 'Ольга', isVip: false, photoSrc: groomerPreview, nextTime: '12 травня 12:00' },
-  { id: 2, name: 'Юлія', isVip: false, photoSrc: groomerPreview, nextTime: '12 травня 12:00' },
-];
+export const normalizeGroomerList = (groomerList: GroomerDbProps[]): Groomer[] =>
+  groomerList.map((groomer) => ({
+    id: groomer.id,
+    name: groomer.name,
+    isVip: groomer.isVip,
+    photoSrc: groomer.photoUrl || groomerPreview,
+    nearestDate: new Date(),
+  }));
+
+export const capitalize = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
 
 export const generateWeekDates = (startOfWeek: Dayjs): Dayjs[] =>
   Array.from({ length: 7 }, (_, i) => startOfWeek.add(i, 'day'));

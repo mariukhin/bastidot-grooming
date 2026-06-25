@@ -1,0 +1,22 @@
+[
+  {
+    "username": "Ольга",
+    "email": "olga.groomer@bastidot.com",
+    "phoneNumber": "+380501234561",
+    "photoUrl": "",
+    "password": "$2a$10$HTv4eitZhIo0mVaa5XLcRuUZyGog9ztl/FLcPwm28nwKIjvIbZR.e",
+    "createdAt": { "$date": "2026-06-25T00:00:00.000Z" },
+    "isAdmin": false,
+    "isGroomer": true
+  },
+  {
+    "username": "Юлія",
+    "email": "yulia.groomer@bastidot.com",
+    "phoneNumber": "+380501234562",
+    "photoUrl": "",
+    "password": "$2a$10$HTv4eitZhIo0mVaa5XLcRuUZyGog9ztl/FLcPwm28nwKIjvIbZR.e",
+    "createdAt": { "$date": "2026-06-25T00:00:00.000Z" },
+    "isAdmin": false,
+    "isGroomer": true
+  }
+]

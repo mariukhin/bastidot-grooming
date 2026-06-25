@@ -50,6 +50,26 @@ func (ur *userRepository) Fetch(c context.Context) ([]domain.User, error) {
 	return users, err
 }
 
+func (ur *userRepository) FetchGroomers(c context.Context) ([]domain.User, error) {
+	collection := ur.database.Collection(ur.collection)
+
+	opts := options.Find().SetProjection(bson.D{{Key: "password", Value: 0}})
+	cursor, err := collection.Find(c, bson.M{"isGroomer": true}, opts)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var groomers []domain.User
+
+	err = cursor.All(c, &groomers)
+	if groomers == nil {
+		return []domain.User{}, err
+	}
+
+	return groomers, err
+}
+
 func (ur *userRepository) GetByEmail(c context.Context, email string) (domain.User, error) {
 	collection := ur.database.Collection(ur.collection)
 	var user domain.User
