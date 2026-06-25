@@ -8,11 +8,9 @@ import bastiPhoto from './basti.png';
 import { ServicesBlock } from '@/components/services-block';
 import { PublicationsBlock } from '@/components/publications-block';
 import { TeamBlock } from '@/components/team-block';
-import { IconTypes } from '@/components/icon';
 // import { CoursesBlock } from '@/components/courses-block';
 import { ReviewsBlock } from '@/components/reviews-block';
 import { AboutBlock } from '@/components/about-block';
-import { handleScroll } from '@/utils/function';
 import { ContactsBlock } from '@/components/contacts-block';
 import { BookingModal } from '@/components/booking-modal';
 

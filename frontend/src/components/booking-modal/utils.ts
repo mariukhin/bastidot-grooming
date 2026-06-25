@@ -1,4 +1,4 @@
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { object, string } from 'yup';
 import groomerPreview from '@/components/team-block/groomerPreview.png';
 import { Groomer, GroomerDbProps, TimeSlotPeriod } from './types';
@@ -9,7 +9,7 @@ export const normalizeGroomerList = (groomerList: GroomerDbProps[]): Groomer[] =
     name: groomer.name,
     isVip: groomer.isVip,
     photoSrc: groomer.photoUrl || groomerPreview,
-    nearestDate: new Date(),
+    nearestDate: dayjs(),
   }));
 
 export const capitalize = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);

@@ -1,15 +1,16 @@
 import { create } from 'zustand';
 
 interface UserState {
-  user: null;
-  login: () => void;
+  user: unknown;
+  login: (userData: unknown) => void;
   setAccessToken: (token: string) => void;
   accessToken: string;
 }
 
 const useUserStore = create<UserState>((set) => ({
   user: null,
-  setAccessToken: (token: string) =>
+  accessToken: '',
+  setAccessToken: (token) =>
     set({
       accessToken: token,
     }),

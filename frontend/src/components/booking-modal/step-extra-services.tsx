@@ -2,7 +2,7 @@ import classNames from 'classnames';
 
 import { Button } from '@/components/button';
 import { Icon, IconTypes } from '@/components/icon';
-import { BreedProps, ServiceProps } from '@/utils/function';
+import { ServiceProps } from '@/utils/function';
 import { Groomer } from './types';
 import SummaryCard from './summary-card';
 
@@ -14,7 +14,6 @@ type StepExtraServicesProps = {
   onToggleExtraService: (service: ServiceProps) => void;
   onNext: () => void;
   selectedServices: ServiceProps[];
-  selectedBreed: BreedProps | null;
   selectedGroomer: Groomer | null;
   formattedDateTime: string | null;
   isSummaryExpanded: boolean;
@@ -27,7 +26,6 @@ const StepExtraServices = ({
   onToggleExtraService,
   onNext,
   selectedServices,
-  selectedBreed,
   selectedGroomer,
   formattedDateTime,
   isSummaryExpanded,
@@ -70,7 +68,6 @@ const StepExtraServices = ({
     <div className={styles.footer}>
       <SummaryCard
         selectedServices={selectedServices}
-        selectedBreed={selectedBreed}
         selectedGroomer={selectedGroomer}
         formattedDateTime={formattedDateTime}
         isSummaryExpanded={isSummaryExpanded}

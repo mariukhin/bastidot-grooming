@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/uk';
 import classNames from 'classnames';
-import { useForm } from 'react-hook-form';
+import { Resolver, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { Modal } from '@/components/modal';
@@ -60,7 +60,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
     reset,
     formState: { errors, isValid },
   } = useForm<BookingFormData>({
-    resolver: yupResolver(formSchema),
+    resolver: yupResolver(formSchema) as Resolver<BookingFormData>,
     mode: 'onChange',
     defaultValues: { phone: '', name: '', email: '', petName: '', comment: '' },
   });
@@ -296,7 +296,6 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
       {step === 'extra-services' && (
         <StepExtraServices
           extraServiceList={extraServiceList}
-          selectedExtraServices={selectedExtraServices}
           onToggleExtraService={toggleExtraService}
           onNext={() => setStep('form')}
           {...sharedSummaryProps}
@@ -312,7 +311,6 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
           onSubmit={onSubmit}
           selectedServices={selectedServices}
           selectedExtraServices={selectedExtraServices}
-          selectedBreed={selectedBreed}
           selectedGroomer={selectedGroomer}
           formattedDateTime={formattedDateTime}
           onGoToStep={setStep}
