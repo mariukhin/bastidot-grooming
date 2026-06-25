@@ -26,14 +26,22 @@ export type ServiceProps = {
   vipPrice: number;
 };
 
-export const normalizeReviews = (reviewsData: never[]): ReviewProps[] => {
+export type GoogleReviewProps = {
+  rating: number;
+  time: number;
+  author_name: string;
+  text: string;
+  profile_photo_url: string;
+};
+
+export const normalizeReviews = (reviewsData: GoogleReviewProps[]): ReviewProps[] => {
   return reviewsData
     .filter((review) => review.rating >= 4)
     .map((review) => ({
       id: review.time,
-      name: review['author_name'],
+      name: review.author_name,
       text: review.text,
-      photoSrc: review['profile_photo_url'],
+      photoSrc: review.profile_photo_url,
     }));
 };
 

@@ -34,8 +34,8 @@ export type BookingFormData = {
   phone: string;
   name: string;
   email: string;
-  petName?: string;
-  comment?: string;
+  petName: string | undefined;
+  comment: string | undefined;
 };
 
 export type OrderRequest = {

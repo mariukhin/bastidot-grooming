@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 import { Button } from '@/components/button';
 import { Icon, IconTypes } from '@/components/icon';
-import { BreedProps, ServiceProps } from '@/utils/function';
+import { ServiceProps } from '@/utils/function';
 import { Groomer, TimeSlotPeriod } from './types';
 import { generateTimeSlots } from './utils';
 import SummaryCard from './summary-card';
@@ -21,7 +21,6 @@ type StepDatetimeProps = {
   onWeekOffsetChange: (updater: (prev: number) => number) => void;
   onNext: () => void;
   selectedServices: ServiceProps[];
-  selectedBreed: BreedProps | null;
   selectedGroomer: Groomer | null;
   formattedDateTime: string | null;
   isSummaryExpanded: boolean;
@@ -39,7 +38,6 @@ const StepDatetime = ({
   onWeekOffsetChange,
   onNext,
   selectedServices,
-  selectedBreed,
   selectedGroomer,
   formattedDateTime,
   isSummaryExpanded,
@@ -121,7 +119,6 @@ const StepDatetime = ({
     <div className={styles.footer}>
       <SummaryCard
         selectedServices={selectedServices}
-        selectedBreed={selectedBreed}
         selectedGroomer={selectedGroomer}
         formattedDateTime={formattedDateTime}
         isSummaryExpanded={isSummaryExpanded}

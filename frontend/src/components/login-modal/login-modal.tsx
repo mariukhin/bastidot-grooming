@@ -27,26 +27,15 @@ export type LoginFormData = {
   username?: string;
 };
 
-const loginValidationSchema = (isSignup: boolean): ObjectSchema<LoginFormData> => {
-  let schema = object({
+const loginValidationSchema = (isSignup: boolean): ObjectSchema<LoginFormData> =>
+  object({
     email: string().email('Invalid email format').required('Email is required'),
     password: string().required('Password is required'),
-  });
-
-  if (isSignup) {
-    schema = schema.shape({
-      username: string().required('Username is required for signup'),
-      phoneNumber: string().required('Phone number is required for signup'),
-    });
-  } else {
-    schema = schema.shape({
-      username: string().optional(),
-      phoneNumber: string().optional(),
-    });
-  }
-
-  return schema;
-};
+    username: isSignup ? string().required('Username is required for signup') : string().optional(),
+    phoneNumber: isSignup
+      ? string().required('Phone number is required for signup')
+      : string().optional(),
+  }) as ObjectSchema<LoginFormData>;
 
 const LoginModal: FC<LoginModalProps> = ({ onClose, isOpen }) => {
   const modalRef = useRef<HTMLDivElement>(null);
