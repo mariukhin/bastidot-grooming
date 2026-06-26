@@ -100,6 +100,39 @@ func (or *orderRepository) FetchByGroomerID(c context.Context, groomerId string)
 	return orders, err
 }
 
+func (or *orderRepository) FetchByGroomerAndDateRange(
+	c context.Context,
+	groomerId string,
+	rangeStart, rangeEnd time.Time,
+) ([]domain.Order, error) {
+	collection := or.database.Collection(or.collection)
+
+	var orders []domain.Order
+
+	idHex, err := primitive.ObjectIDFromHex(groomerId)
+	if err != nil {
+		return orders, err
+	}
+
+	filter := bson.M{
+		"groomerId":   idHex,
+		"scheduledAt": bson.M{"$gte": rangeStart, "$lt": rangeEnd},
+		"status":      bson.M{"$ne": domain.OrderStatusCancelled},
+	}
+
+	cursor, err := collection.Find(c, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	err = cursor.All(c, &orders)
+	if orders == nil {
+		return []domain.Order{}, err
+	}
+
+	return orders, err
+}
+
 func (or *orderRepository) GetByID(c context.Context, id string) (domain.Order, error) {
 	collection := or.database.Collection(or.collection)
 

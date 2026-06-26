@@ -19,3 +19,21 @@ export async function createOrder(payload: OrderRequest) {
     console.error(err);
   }
 }
+
+export async function getBusySlots(groomerId: string, from: string, to: string) {
+  try {
+    const response = await fetch(
+      `http://localhost:8080/order/busy-slots?groomerId=${groomerId}&from=${from}&to=${to}`
+    );
+
+    const data = await response.json();
+
+    if (response.ok && Array.isArray(data)) {
+      return data;
+    }
+
+    console.error('getBusySlots failed:', data);
+  } catch (err) {
+    console.error(err);
+  }
+}

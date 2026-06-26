@@ -23,4 +23,5 @@ func NewOrderRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database
 	}
 
 	router.Post("/order", oc.Create)
+	router.Get("/order/busy-slots", oc.BusySlots)
 }

@@ -25,6 +25,7 @@ type StepDatetimeProps = {
   formattedDateTime: string | null;
   isSummaryExpanded: boolean;
   onToggleSummary: () => void;
+  durationMinutes: number;
 };
 
 const StepDatetime = ({
@@ -42,6 +43,7 @@ const StepDatetime = ({
   formattedDateTime,
   isSummaryExpanded,
   onToggleSummary,
+  durationMinutes,
 }: StepDatetimeProps) => (
   <div className={styles.stepContainer}>
     <h2 className={styles.title}>Оберіть дату та час</h2>
@@ -72,7 +74,8 @@ const StepDatetime = ({
           const isSelected = date.isSame(selectedDate, 'day');
           const isPast = date.isBefore(now, 'day');
           const hasNoSlots =
-            !isPast && generateTimeSlots(date, now).every((p) => p.slots.length === 0);
+            !isPast &&
+            generateTimeSlots(date, now, durationMinutes).every((p) => p.slots.length === 0);
           const isDisabled = isPast || hasNoSlots;
           return (
             <li

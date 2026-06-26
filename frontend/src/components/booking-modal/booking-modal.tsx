@@ -12,8 +12,9 @@ import { Icon, IconTypes } from '@/components/icon';
 import { BreedProps, normalizeBreedList, ServiceProps } from '@/utils/function';
 import { getBreedList } from '@/api/breed';
 import { getServiceList } from '@/api/service';
+import { getBusySlots } from '@/api/order';
 
-import { BookingStep, BookingFormData, Groomer } from './types';
+import { BookingStep, BookingFormData, BusySlot, Groomer } from './types';
 import { capitalize, generateWeekDates, generateTimeSlots, formSchema } from './utils';
 import StepServices from './step-services';
 import StepGroomer from './step-groomer';
@@ -53,6 +54,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
   const [extraServiceList, setExtraServiceList] = useState<ServiceProps[]>([]);
   const [selectedExtraServices, setSelectedExtraServices] = useState<ServiceProps[]>([]);
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+  const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
 
   const {
     control,
@@ -77,12 +79,6 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
     [weekOffset]
   );
 
-  const timeSlots = useMemo(() => generateTimeSlots(selectedDate, now), [selectedDate, now]);
-
-  const formattedDateTime = selectedSlot
-    ? `${capitalize(selectedDate.format('dddd D MMMM'))}, ${selectedSlot}`
-    : null;
-
   const totalDurationMin = useMemo(() => {
     const base =
       (selectedServices[0]?.durationHour ?? 0) * 60 + (selectedServices[0]?.durationMin ?? 0);
@@ -92,6 +88,15 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
     );
     return base + extra;
   }, [selectedServices, selectedExtraServices]);
+
+  const timeSlots = useMemo(
+    () => generateTimeSlots(selectedDate, now, totalDurationMin, busySlots),
+    [selectedDate, now, totalDurationMin, busySlots]
+  );
+
+  const formattedDateTime = selectedSlot
+    ? `${capitalize(selectedDate.format('dddd D MMMM'))}, ${selectedSlot}`
+    : null;
 
   const formattedDateTimeRange = useMemo(() => {
     if (!selectedSlot) return null;
@@ -139,6 +144,20 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
     })();
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen || !selectedGroomer) {
+      setBusySlots([]);
+      return;
+    }
+
+    (async () => {
+      const from = weekDates[0].format('YYYY-MM-DD');
+      const to = weekDates[weekDates.length - 1].format('YYYY-MM-DD');
+      const result = await getBusySlots(selectedGroomer.id, from, to);
+      setBusySlots(Array.isArray(result) ? result : []);
+    })();
+  }, [isOpen, selectedGroomer, weekDates]);
+
   const handleBreedChange = async (value: string) => {
     const breed = breedList.find((b) => b.value === value) ?? null;
     setSelectedBreed(breed);
@@ -180,6 +199,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
       petComment: '',
       groomerId: selectedGroomer.id,
       scheduledAt,
+      durationMinutes: totalDurationMin,
       comment: data.comment ?? '',
       serviceIds: [...selectedServices, ...selectedExtraServices].map((s) => s.id),
     });
@@ -206,9 +226,9 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
   const stepOnBack: Record<BookingStep, (() => void) | null> = {
     services: null,
     groomer: () => setStep('services'),
-    datetime: () => setStep('groomer'),
-    'extra-services': () => setStep('datetime'),
-    form: () => setStep('extra-services'),
+    'extra-services': () => setStep('groomer'),
+    datetime: () => setStep('extra-services'),
+    form: () => setStep('datetime'),
     success: null,
   };
 
@@ -271,7 +291,16 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
           selectedGroomer={selectedGroomer}
           selectedServices={selectedServices}
           onSelectGroomer={setSelectedGroomer}
+          onNext={() => setStep('extra-services')}
+        />
+      )}
+
+      {step === 'extra-services' && (
+        <StepExtraServices
+          extraServiceList={extraServiceList}
+          onToggleExtraService={toggleExtraService}
           onNext={() => setStep('datetime')}
+          {...sharedSummaryProps}
         />
       )}
 
@@ -288,16 +317,8 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
           }}
           onSelectSlot={setSelectedSlot}
           onWeekOffsetChange={setWeekOffset}
-          onNext={() => setStep('extra-services')}
-          {...sharedSummaryProps}
-        />
-      )}
-
-      {step === 'extra-services' && (
-        <StepExtraServices
-          extraServiceList={extraServiceList}
-          onToggleExtraService={toggleExtraService}
           onNext={() => setStep('form')}
+          durationMinutes={totalDurationMin}
           {...sharedSummaryProps}
         />
       )}

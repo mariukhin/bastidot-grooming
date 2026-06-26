@@ -65,15 +65,16 @@ func (ou *orderUsecase) CreateOrder(c context.Context, request *domain.OrderRequ
 
 	now := time.Now()
 	order := domain.Order{
-		ID:          primitive.NewObjectID(),
-		ClientID:    client.ID,
-		PetID:       pet.ID,
-		GroomerID:   groomerID,
-		CreatedAt:   now,
-		ScheduledAt: request.ScheduledAt,
-		Status:      domain.OrderStatusPending,
-		Comment:     request.Comment,
-		ServiceIDs:  serviceIDs,
+		ID:              primitive.NewObjectID(),
+		ClientID:        client.ID,
+		PetID:           pet.ID,
+		GroomerID:       groomerID,
+		CreatedAt:       now,
+		ScheduledAt:     request.ScheduledAt,
+		DurationMinutes: request.DurationMinutes,
+		Status:          domain.OrderStatusPending,
+		Comment:         request.Comment,
+		ServiceIDs:      serviceIDs,
 	}
 
 	if err := ou.orderRepository.Create(ctx, &order); err != nil {
@@ -81,6 +82,29 @@ func (ou *orderUsecase) CreateOrder(c context.Context, request *domain.OrderRequ
 	}
 
 	return &order, nil
+}
+
+func (ou *orderUsecase) FetchBusySlots(c context.Context, groomerId string, from, to time.Time) ([]domain.BusySlot, error) {
+	ctx, cancel := context.WithTimeout(c, ou.contextTimeout)
+	defer cancel()
+
+	rangeStart := time.Date(from.Year(), from.Month(), from.Day(), 0, 0, 0, 0, from.Location())
+	rangeEnd := time.Date(to.Year(), to.Month(), to.Day(), 0, 0, 0, 0, to.Location()).AddDate(0, 0, 1)
+
+	orders, err := ou.orderRepository.FetchByGroomerAndDateRange(ctx, groomerId, rangeStart, rangeEnd)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch busy slots: %w", err)
+	}
+
+	busySlots := make([]domain.BusySlot, 0, len(orders))
+	for _, order := range orders {
+		busySlots = append(busySlots, domain.BusySlot{
+			ScheduledAt:     order.ScheduledAt,
+			DurationMinutes: order.DurationMinutes,
+		})
+	}
+
+	return busySlots, nil
 }
 
 func (ou *orderUsecase) findOrCreateClient(ctx context.Context, request *domain.OrderRequest) (domain.User, error) {

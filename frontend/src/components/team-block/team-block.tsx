@@ -44,7 +44,7 @@ const TeamBlock = ({ onOpenBooking }: TeamBlockProps) => {
                   />
                   <p className={styles.teamMemberDateText}>Найближчий час:</p>
                   <p className={styles.teamMemberDate}>
-                    {dayjs(item.nearestDate).format('DD MMMM HH:mm')}
+                    {item.nearestDate ? dayjs(item.nearestDate).format('DD MMMM HH:mm') : '—'}
                   </p>
                 </div>
                 <Button

@@ -5,8 +5,8 @@ import { StaticImageData } from 'next/image';
 export type BookingStep =
   | 'services'
   | 'groomer'
-  | 'datetime'
   | 'extra-services'
+  | 'datetime'
   | 'form'
   | 'success';
 
@@ -27,7 +27,7 @@ export type Groomer = {
   name: string;
   isVip: boolean;
   photoSrc: string | StaticImageData;
-  nearestDate: Dayjs;
+  nearestDate: Dayjs | null;
 };
 
 export type BookingFormData = {
@@ -49,8 +49,14 @@ export type OrderRequest = {
   petComment: string;
   groomerId: string;
   scheduledAt: string;
+  durationMinutes: number;
   comment: string;
   serviceIds: string[];
+};
+
+export type BusySlot = {
+  scheduledAt: string;
+  durationMinutes: number;
 };
 
 export type OrderResponse = {
