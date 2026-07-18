@@ -5,7 +5,10 @@ import { cors } from './shared/cors.ts';
 import { logger } from './shared/logger.ts';
 import { timeRouter } from './features/time/time.routes.ts';
 import { createBreedRouter } from './features/breed/controller.ts';
-import {createServiceRouter} from "./features/service/controller.ts";
+import {createServiceRouter} from './features/service/controller.ts';
+import {createGroomerRouter} from './features/groomer/controller.ts';
+import { createPetRouter } from './features/pet/controller.ts';
+import { createOrderRouter } from './features/order/controller.ts';
 
 // Збирання Express-застосунку відокремлене від запуску сервера (server.ts),
 // щоб в інтеграційних тестах можна було створити app без відкриття порту.
@@ -27,6 +30,9 @@ export function createApp(db: Db) {
   app.use('/time', timeRouter);
   app.use('/breed', createBreedRouter(db));
   app.use('/service', createServiceRouter(db));
+  app.use('/groomer', createGroomerRouter(db));
+  app.use('/pet', createPetRouter(db));
+  app.use('/order', createOrderRouter(db));
 
   // 404 — після всіх роутів
   app.use((req, res) => {
