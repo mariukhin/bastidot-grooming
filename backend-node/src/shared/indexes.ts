@@ -1,5 +1,5 @@
 import type { Db } from 'mongodb';
-import { logger } from '../logger.ts';
+import { logger } from './logger.ts';
 
 // Дзеркало backend/bootstrap/indexes.go — безпечно викликати на кожному
 // старті: Mongo ігнорує вже існуючі ідентичні індекси.

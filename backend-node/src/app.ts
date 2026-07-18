@@ -1,13 +1,14 @@
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import type { Db } from 'mongodb';
-import { cors } from './middleware/cors.ts';
-import { logger } from './logger.ts';
-import { timeRouter } from './routes/time.ts';
+import { cors } from './shared/cors.ts';
+import { logger } from './shared/logger.ts';
+import { timeRouter } from './features/time/time.routes.ts';
+import { createBreedRouter } from './features/breed/controller.ts';
+import {createServiceRouter} from "./features/service/controller.ts";
 
 // Збирання Express-застосунку відокремлене від запуску сервера (server.ts),
 // щоб в інтеграційних тестах можна було створити app без відкриття порту.
-// db поки не використовується — репозиторії підключаться зі Stage 2.
 export function createApp(db: Db) {
   const app = express();
 
@@ -24,15 +25,14 @@ export function createApp(db: Db) {
   });
 
   app.use('/time', timeRouter);
+  app.use('/breed', createBreedRouter(db));
+  app.use('/service', createServiceRouter(db));
 
   // 404 — після всіх роутів
   app.use((req, res) => {
     res.status(404).json({ error: 'Not found' });
   });
 
-  // Централізований error handler: 4 аргументи — саме так Express
-  // відрізняє його від звичайного middleware. В Express 5 помилки
-  // з async-хендлерів потрапляють сюди автоматично, без try/catch.
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     logger.error('Unhandled error', { message: err.message });
     if (res.headersSent) {

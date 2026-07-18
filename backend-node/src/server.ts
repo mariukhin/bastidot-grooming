@@ -1,7 +1,7 @@
-import { config } from './config.ts';
-import { logger } from './logger.ts';
-import { connectToDatabase, closeDatabase } from './bootstrap/database.ts';
-import { ensureIndexes } from './bootstrap/indexes.ts';
+import { config } from './shared/config.ts';
+import { logger } from './shared/logger.ts';
+import { connectToDatabase, closeDatabase } from './shared/db.ts';
+import { ensureIndexes } from './shared/indexes.ts';
 import { createApp } from './app.ts';
 
 const db = await connectToDatabase();

@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
-import { config } from '../config.ts';
-import { logger } from '../logger.ts';
+import { config } from './config.ts';
+import { logger } from './logger.ts';
 
 // Той самий URI-формат, що і в Go-версії (bootstrap/database.go)
 const uri = `mongodb+srv://${config.dbUser}:${config.dbPass}@${config.dbHost}/${config.dbName}?retryWrites=true&w=majority&appName=Cluster`;
