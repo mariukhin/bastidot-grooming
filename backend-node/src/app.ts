@@ -9,6 +9,10 @@ import {createServiceRouter} from './features/service/controller.ts';
 import {createGroomerRouter} from './features/groomer/controller.ts';
 import { createPetRouter } from './features/pet/controller.ts';
 import { createOrderRouter } from './features/order/controller.ts';
+import { createAuthRouter } from './features/auth/controller.ts';
+import { createProfileRouter } from './features/profile/controller.ts';
+import { requireAuth } from './shared/auth-middleware.ts';
+import { config } from './shared/config.ts';
 
 // Збирання Express-застосунку відокремлене від запуску сервера (server.ts),
 // щоб в інтеграційних тестах можна було створити app без відкриття порту.
@@ -33,6 +37,9 @@ export function createApp(db: Db) {
   app.use('/groomer', createGroomerRouter(db));
   app.use('/pet', createPetRouter(db));
   app.use('/order', createOrderRouter(db));
+  app.use('/public', createAuthRouter(db));
+
+  app.use('/protected', requireAuth(config.accessTokenSecret), createProfileRouter(db));
 
   // 404 — після всіх роутів
   app.use((req, res) => {

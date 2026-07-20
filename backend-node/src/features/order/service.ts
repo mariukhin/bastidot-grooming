@@ -8,7 +8,7 @@ import {
 } from './types.ts';
 // Крос-фічеві типи. User/Pet — не специфічні для groomer/pet, тож у
 // «дорослому» проєкті жили б у shared/. Поки імпортуємо звідти, де є.
-import { USER_COLLECTION, type User } from '../groomer/types.ts';
+import { USER_COLLECTION, type User } from '../../shared/user.ts';
 import { PET_COLLECTION, type Pet } from '../pet/types.ts';
 
 // Знаходить клієнта за телефоном або створює нового walk-in юзера.
