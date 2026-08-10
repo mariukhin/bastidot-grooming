@@ -2,7 +2,7 @@ import { LoginFormData } from '@/components/login-modal/login-modal';
 
 export async function authClientGoogle(token: string) {
   try {
-    const response = await fetch('http://localhost:8080/public/login/google', {
+    const response = await fetch('http://localhost:8081/public/login/google', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

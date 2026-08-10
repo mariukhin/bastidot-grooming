@@ -1,6 +1,6 @@
 export async function getServiceList(breedId: string) {
   try {
-    const response = await fetch('http://localhost:8080/service', {
+    const response = await fetch('http://localhost:8081/service', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

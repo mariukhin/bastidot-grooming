@@ -1,6 +1,6 @@
 export async function getGroomerList() {
   try {
-    const response = await fetch('http://localhost:8080/groomer');
+    const response = await fetch('http://localhost:8081/groomer');
 
     const data = await response.json();
 

@@ -2,8 +2,7 @@ import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import type { Db } from 'mongodb';
 import { cors } from './shared/cors.ts';
-import { logger } from './shared/logger.ts';
-import { timeRouter } from './features/time/time.routes.ts';
+import pinoHttp from 'pino-http';
 import { createBreedRouter } from './features/breed/controller.ts';
 import {createServiceRouter} from './features/service/controller.ts';
 import {createGroomerRouter} from './features/groomer/controller.ts';
@@ -18,20 +17,17 @@ import { config } from './shared/config.ts';
 // щоб в інтеграційних тестах можна було створити app без відкриття порту.
 export function createApp(db: Db) {
   const app = express();
+  const httpLogger = pinoHttp();
 
   app.use(cors);
   app.use(express.json());
 
-  app.use((req, res, next) => {
-    logger.info(`${req.method} ${req.path}`);
-    next();
-  });
+  app.use(httpLogger);
 
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
   });
 
-  app.use('/time', timeRouter);
   app.use('/breed', createBreedRouter(db));
   app.use('/service', createServiceRouter(db));
   app.use('/groomer', createGroomerRouter(db));
@@ -47,7 +43,6 @@ export function createApp(db: Db) {
   });
 
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    logger.error('Unhandled error', { message: err.message });
     if (res.headersSent) {
       return next(err);
     }
