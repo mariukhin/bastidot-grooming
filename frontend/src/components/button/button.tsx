@@ -7,7 +7,7 @@ import { Icon, IconTypes } from '@/components/icon';
 
 import styles from './button.module.scss';
 
-type ButtonVariant = 'primary' | 'secondary' | 'link';
+type ButtonVariant = 'primary' | 'secondary' | 'link' | 'onvideo';
 type ButtonColor = 'red' | 'blue';
 type ButtonSize = 'medium' | 'large';
 type ButtonIconPosition = 'start' | 'end';
@@ -19,6 +19,7 @@ type ButtonProps = {
   size?: ButtonSize;
   icon?: IconTypes;
   iconPosition?: ButtonIconPosition;
+  block?: boolean;
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
 const Button: FC<ButtonProps> = ({
@@ -29,11 +30,19 @@ const Button: FC<ButtonProps> = ({
   className,
   icon,
   iconPosition = 'end',
+  block = false,
   ...rest
 }) => {
   return (
     <button
-      className={classNames(styles.button, styles[variant], styles[size], styles[color], className)}
+      className={classNames(
+        styles.button,
+        styles[variant],
+        styles[size],
+        styles[color],
+        block && styles.block,
+        className
+      )}
       {...rest}
     >
       {!!icon && iconPosition === 'start' && (

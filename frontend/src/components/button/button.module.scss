@@ -9,7 +9,8 @@
   font-size: 14px;
   line-height: 20px;
   border: 1px solid;
-  border-radius: 8px;
+  border-radius: var(--r-pill);
+  min-height: 48px;
   transition: all 0.3s ease;
 
   &:disabled {
@@ -18,14 +19,12 @@
   }
 
   @include breakpoints.lg {
-    &:active:not(:disabled) {
-      box-shadow: var(--shadow-froly);
-      transform: scale(0.98);
-    }
-  }
-
-  @include breakpoints.lg {
     &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-asphalt);
+    }
+
+    &:active:not(:disabled) {
       box-shadow: var(--shadow-froly);
       transform: scale(0.98);
     }
@@ -90,7 +89,16 @@
   &:hover,
   &:active {
     box-shadow: none !important;
+    transform: none !important;
   }
+}
+
+.onvideo {
+  color: var(--color-white);
+  background-color: rgba(253, 253, 253, 0.16);
+  border-color: rgba(253, 253, 253, 0.48);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .medium {
@@ -99,6 +107,11 @@
 
 .large {
   padding: 14px 28px;
+  min-height: 56px;
+}
+
+.block {
+  width: 100%;
 }
 
 .iconStart {
