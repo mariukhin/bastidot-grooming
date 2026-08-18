@@ -28,4 +28,30 @@
   --shadow-asphalt: 0px 6px 22px -2px #1d09091f, 0px 2px 8px 0px #13020214;
 
   --modal-backdrop: rgba(14, 19, 20, 0.62);
+
+  // spacing scale
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  // radii
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  // motion
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur: 0.2s;
+
+  // layout
+  --shell: 1320px;
+  --pad: clamp(16px, 5vw, 72px);
+  --header-h: clamp(64px, 8vw, 88px);
 }

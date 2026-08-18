@@ -1,0 +1,37 @@
+.shell {
+  width: min(100% - var(--pad) * 2, var(--shell));
+  margin-inline: auto;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-dark-burgundy);
+}
+
+.section-title {
+  font-weight: 700;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-woodsmoke);
+}
+
+.section-lead {
+  font-weight: 400;
+  font-size: clamp(16px, 2vw, 18px);
+  line-height: 1.6;
+  color: var(--color-gray);
+}
+
+.display {
+  font-weight: 700;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--color-woodsmoke);
+}
