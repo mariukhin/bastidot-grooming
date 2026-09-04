@@ -83,7 +83,6 @@ const StepForm = ({
           render={({ field }) => (
             <TextInput
               label="Ваше ім'я"
-              required
               placeholder="Наприклад: Анна"
               onChange={field.onChange}
               error={errors.name?.message}
@@ -96,7 +95,6 @@ const StepForm = ({
           render={({ field }) => (
             <TextInput
               label="Електронна пошта"
-              required
               placeholder="Наприклад: anna@gmail.com"
               type="email"
               onChange={field.onChange}
@@ -110,6 +108,7 @@ const StepForm = ({
           render={({ field }) => (
             <TextInput
               label="Ім'я улюбленця"
+              required
               placeholder="Наприклад, Рекс"
               onChange={field.onChange}
             />

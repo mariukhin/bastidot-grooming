@@ -34,9 +34,16 @@ type BookingModalProps = {
   onClose: () => void;
   initialBreed?: string;
   initialService?: ServiceProps;
+  initialGroomer?: Groomer;
 };
 
-const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: BookingModalProps) => {
+const BookingModal = ({
+  isOpen,
+  onClose,
+  initialBreed,
+  initialService,
+  initialGroomer,
+}: BookingModalProps) => {
   const { groomerList } = useGroomerStore();
   const { createOrder } = useOrderStore();
   const [step, setStep] = useState<BookingStep>('services');
@@ -47,7 +54,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
   const [selectedServices, setSelectedServices] = useState<ServiceProps[]>(
     initialService ? [initialService] : []
   );
-  const [selectedGroomer, setSelectedGroomer] = useState<Groomer | null>(null);
+  const [selectedGroomer, setSelectedGroomer] = useState<Groomer | null>(initialGroomer ?? null);
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(() => dayjs());
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -111,7 +118,7 @@ const BookingModal = ({ isOpen, onClose, initialBreed, initialService }: Booking
 
     setStep('services');
     setSelectedServices(initialService ? [initialService] : []);
-    setSelectedGroomer(null);
+    setSelectedGroomer(initialGroomer ?? null);
     setWeekOffset(0);
     const _today = dayjs().startOf('day');
     const _todayHasSlots = generateTimeSlots(_today, dayjs()).some((p) => p.slots.length > 0);

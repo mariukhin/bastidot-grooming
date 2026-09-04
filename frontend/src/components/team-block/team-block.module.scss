@@ -2,7 +2,7 @@
 
 .teamContainer {
   width: 100%;
-  background-color: var(--color-hint-of-red);
+  background-color: var(--color-diesel);
   position: relative;
   overflow: hidden;
 
@@ -14,6 +14,7 @@
     background-image: url('./dog-paw.png');
     background-size: 915px 915px;
     background-repeat: no-repeat;
+    opacity: 0.06;
 
     transform: rotate(180deg);
     transform-origin: center center;
@@ -21,6 +22,8 @@
 }
 
 .teamWrapper {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,13 +38,33 @@
   }
 }
 
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #e0a0a0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  &:before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-milano-red);
+  }
+}
+
 .title {
   font-size: 40px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   line-height: 47px;
   font-weight: 800;
   z-index: 2;
-  color: var(--color-dark-burgundy);
+  color: var(--color-white);
 
   @include breakpoints.md_r {
     width: 100%;
@@ -52,28 +75,42 @@
   }
 }
 
+.subtitle {
+  max-width: 480px;
+  margin-bottom: 24px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.6;
+  text-align: center;
+
+  @include breakpoints.md {
+    text-align: left;
+  }
+}
+
 .teamBlock {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 
   @include breakpoints.md {
     flex-direction: row;
-    gap: 0;
+    gap: 16px;
   }
 }
 
 .teamItem {
   display: flex;
-  border-radius: 12px;
-  background-color: var(--color-white);
-  filter: drop-shadow(0px 2px 8px rgb(19, 2, 2, 0.08));
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   flex-direction: column;
 
   @include breakpoints.md {
-    flex-basis: calc(50% - 10px);
-    max-width: calc(50% - 10px);
+    flex-basis: calc(50% - 8px);
+    max-width: calc(50% - 8px);
     flex-direction: row;
   }
 }
@@ -82,30 +119,34 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 53px 20px;
+  width: 100%;
+  padding: 32px 24px;
 
   @include breakpoints.lg {
-    padding: 16px 163px 20px;
+    padding: 40px 48px;
   }
 }
 
 .teamMemberPhoto {
-  width: 215px;
-  height: 210px;
-  border-radius: 188px;
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.24);
+  object-fit: cover;
 }
 
 .teamMemberName {
   font-size: 20px;
   line-height: 23px;
   font-weight: 800;
-  color: var(--color-woodsmoke);
+  color: var(--color-white);
   margin-top: 16px;
 }
 
 .teamMemberTitleBlock {
   margin-top: 8px;
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 8px;
   font-size: 16px;
@@ -115,38 +156,47 @@
 
 .teamMemberVipTag {
   border-radius: 8px;
-  border: 1px solid var(--color-ebb);
   padding: 0 16px;
-  background-color: var(--color-hint-of-red);
-
-  color: var(--color-milano-red);
+  background: linear-gradient(135deg, var(--color-dark-burgundy), var(--color-milano-red));
+  color: var(--color-white);
+  font-weight: 700;
 }
 
 .teamMemberPosition {
-  color: var(--color-gray);
+  color: rgba(255, 255, 255, 0.62);
 }
 
-.teamMemberDateBlock {
-  margin-top: 8px;
+.slotChip {
   display: flex;
-  justify-content: center;
-  gap: 4px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
-.teamMemberDateText {
-  font-size: 14px;
-  line-height: 20px;
+.slotChipText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.slotChipLabel {
+  font-size: 12px;
+  line-height: 16px;
   font-weight: 500;
-  color: var(--color-gray);
-  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.62);
 }
 
-.teamMemberDate {
+.slotChipValue {
   font-size: 14px;
   line-height: 20px;
   font-weight: 800;
-  color: var(--color-gray);
-  white-space: nowrap;
+  color: var(--color-white);
 }
 
 .teamMemberButton {
