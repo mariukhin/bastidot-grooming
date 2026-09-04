@@ -1,0 +1,21 @@
+staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+
+if echo "$staged_files" | grep -q '^frontend/'; then
+  echo "-> Checking frontend (eslint + tsc)..."
+  (cd frontend && npx eslint 'src/**/*.{ts,tsx}') || {
+    echo "frontend eslint failed - fix the errors above before committing."
+    exit 1
+  }
+  (cd frontend && npx tsc --noEmit) || {
+    echo "frontend type check failed - fix the errors above before committing."
+    exit 1
+  }
+fi
+
+if echo "$staged_files" | grep -q '^backend-node/'; then
+  echo "-> Checking backend-node (tsc)..."
+  (cd backend-node && npm run typecheck) || {
+    echo "backend-node type check failed - fix the errors above before committing."
+    exit 1
+  }
+fi
