@@ -4,8 +4,8 @@
   position: relative;
   display: flex;
   overflow: hidden;
-  min-height: 100vh;
-  min-height: 100svh;
+  min-height: calc(100vh - var(--header-height, 80px));
+  min-height: calc(100svh - var(--header-height, 80px));
   background: linear-gradient(160deg, var(--color-temptress), var(--color-woodsmoke));
 }
 
@@ -20,6 +20,33 @@
 
   @include breakpoints.rwd(901px) {
     object-position: 60% center;
+  }
+}
+
+.videoControl {
+  position: absolute;
+  z-index: 4;
+  right: var(--sp-4);
+  bottom: var(--sp-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid rgba(253, 253, 253, 0.48);
+  border-radius: 50%;
+  background-color: rgba(253, 253, 253, 0.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--color-white);
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgba(253, 253, 253, 0.28);
   }
 }
 

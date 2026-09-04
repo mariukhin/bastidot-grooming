@@ -38,7 +38,7 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
   const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
   return (
     <html lang="ua">
-      <body className={montserrat.variable}>
+      <body className={montserrat.variable} suppressHydrationWarning>
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <Header />
           {children}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -20,6 +20,7 @@ const Header = () => {
   const pathname = usePathname();
   const [isLoginModal, setIsLoginModal] = useState(false);
   const [isBookingModal, setIsBookingModal] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   const { user } = useUserStore();
 
@@ -27,8 +28,24 @@ const Header = () => {
     setIsLoginModal(true);
   };
 
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+
+    const updateHeaderHeight = () => {
+      document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`);
+    };
+
+    updateHeaderHeight();
+
+    const observer = new ResizeObserver(updateHeaderHeight);
+    observer.observe(header);
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <header className={styles.wrapper}>
+    <header className={styles.wrapper} ref={headerRef}>
       <Image src={'/big-logo.svg'} alt="Logo" width={169} height={37} priority />
       <nav className={styles.navbar}>
         <ul className={styles.navbarContainer}>

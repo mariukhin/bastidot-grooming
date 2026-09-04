@@ -43,14 +43,14 @@ const ServicesBlock = () => {
       const currentBreed = normalizedBreedList.find((item) => item.value === 'Мальтіпу');
       setValue('type', 'Мальтіпу');
       const res = currentBreed && (await getServiceList(currentBreed.id));
-      setServiceList(res);
+      setServiceList(res ?? []);
     })();
   }, [setValue]);
 
   const onChange = async (value: string) => {
     const currentBreed = breedList.find((item) => item.value === value);
     const res = currentBreed && (await getServiceList(currentBreed.id));
-    setServiceList(res);
+    setServiceList(res ?? []);
   };
 
   const handleBookClick = (service: ServiceProps) => {
