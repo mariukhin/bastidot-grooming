@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json({ error: 'API key not configured' }, { status: 500 });
   }
 
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?fields=reviews&place_id=${PLACE_ID}&key=${API_KEY}`;
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?fields=reviews&place_id=${PLACE_ID}&reviews_sort=newest&language=uk&key=${API_KEY}`;
 
   const response = await fetch(url, { next: { revalidate: 3600 } });
   const data = await response.json();

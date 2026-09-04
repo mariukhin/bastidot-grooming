@@ -4,7 +4,7 @@ import { useState } from 'react';
 import styles from './page.module.scss';
 import { HeroBlock } from '@/components/hero-block';
 import { ServicesBlock } from '@/components/services-block';
-import { PublicationsBlock } from '@/components/publications-block';
+// import { PublicationsBlock } from '@/components/publications-block';
 import { TeamBlock } from '@/components/team-block';
 // import { CoursesBlock } from '@/components/courses-block';
 import { ReviewsBlock } from '@/components/reviews-block';
@@ -19,7 +19,7 @@ const Dashboard = () => {
     <div className={styles.wrapper}>
       <HeroBlock onOpenBooking={() => setBookingOpen(true)} />
       <ServicesBlock />
-      <PublicationsBlock />
+      {/*<PublicationsBlock />*/}
       <TeamBlock onOpenBooking={() => setBookingOpen(true)} />
       {/*<CoursesBlock />*/}
       <ReviewsBlock />

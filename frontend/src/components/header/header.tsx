@@ -35,33 +35,21 @@ const Header = () => {
   };
 
   useEffect(() => {
-    let ticking = false;
+    const sentinel = document.getElementById('header-scroll-sentinel');
+    if (!sentinel) return;
 
-    const updateScrolled = () => {
-      setIsScrolled(window.scrollY > SCROLL_THRESHOLD);
-      ticking = false;
-    };
+    const observer = new IntersectionObserver(([entry]) => setIsScrolled(!entry.isIntersecting), {
+      rootMargin: `${SCROLL_THRESHOLD}px 0px 0px 0px`,
+    });
+    observer.observe(sentinel);
 
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateScrolled);
-        ticking = true;
-      }
-    };
-
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
-    const elements = SECTION_IDS.map((id) => document.getElementById(id)).filter(
-      (el): el is HTMLElement => !!el
-    );
-    if (!elements.length) return;
+    const observedIds = new Set<string>();
 
-    const observer = new IntersectionObserver(
+    const intersectionObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -74,9 +62,33 @@ const Header = () => {
       { rootMargin: '-45% 0px -50% 0px' }
     );
 
-    elements.forEach((el) => observer.observe(el));
+    const observeAvailableSections = () => {
+      SECTION_IDS.forEach((id) => {
+        if (observedIds.has(id)) return;
 
-    return () => observer.disconnect();
+        const el = document.getElementById(id);
+        if (el) {
+          intersectionObserver.observe(el);
+          observedIds.add(id);
+        }
+      });
+
+      if (observedIds.size === SECTION_IDS.length) {
+        mutationObserver.disconnect();
+      }
+    };
+
+    // Some sections (e.g. reviews) mount asynchronously after a data fetch,
+    // so they may not exist yet on first render — watch the DOM for them.
+    const mutationObserver = new MutationObserver(observeAvailableSections);
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+    observeAvailableSections();
+
+    return () => {
+      intersectionObserver.disconnect();
+      mutationObserver.disconnect();
+    };
   }, [pathname]);
 
   return (

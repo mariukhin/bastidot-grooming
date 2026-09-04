@@ -22,7 +22,7 @@ const ServiceItem = ({ item, breedName }: ServiceItemProps) => {
       <div className={styles.secondRow}>
         <Icon id={IconTypes.money} color={'var(--color-gray)'} width={19} height={13} />
         <p className={styles.groomerText}>
-          Грумер - {item.defaultPrice} грн. | VIP Грумер - {item.vipPrice} грн
+          Грумер - {item.defaultPrice} грн
         </p>
       </div>
       <div className={styles.thirdRow}>

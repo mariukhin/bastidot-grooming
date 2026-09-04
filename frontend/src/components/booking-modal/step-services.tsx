@@ -66,7 +66,7 @@ const StepServices = ({
                 <div className={styles.serviceItemRow}>
                   <Icon id={IconTypes.money} color="var(--color-gray)" width={19} height={13} />
                   <p className={styles.serviceItemMeta}>
-                    Грумер – {service.defaultPrice} грн. | VIP Грумер – {service.vipPrice} грн
+                    Грумер – {service.defaultPrice} грн
                   </p>
                 </div>
                 <div className={styles.serviceItemRow}>

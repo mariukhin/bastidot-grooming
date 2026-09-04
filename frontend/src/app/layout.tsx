@@ -40,6 +40,7 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
     <html lang="ua">
       <body className={montserrat.variable} suppressHydrationWarning>
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          <div id="header-scroll-sentinel" />
           <Header />
           {children}
           <div id="modal-root" />

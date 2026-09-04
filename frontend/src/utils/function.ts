@@ -3,6 +3,8 @@ export type ReviewProps = {
   name: string;
   text: string;
   photoSrc: string;
+  rating: number;
+  date: string;
 };
 
 export type BreedDbProps = {
@@ -32,16 +34,21 @@ export type GoogleReviewProps = {
   author_name: string;
   text: string;
   profile_photo_url: string;
+  relative_time_description: string;
 };
 
 export const normalizeReviews = (reviewsData: GoogleReviewProps[]): ReviewProps[] => {
   return reviewsData
     .filter((review) => review.rating >= 4)
+    .sort((a, b) => b.time - a.time)
+    .slice(0, 5)
     .map((review) => ({
       id: review.time,
       name: review.author_name,
       text: review.text,
       photoSrc: review.profile_photo_url,
+      rating: review.rating,
+      date: review.relative_time_description,
     }));
 };
 
