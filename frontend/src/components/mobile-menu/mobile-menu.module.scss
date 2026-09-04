@@ -1,0 +1,89 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  background-color: var(--modal-backdrop);
+
+  @include breakpoints.lg {
+    display: none;
+  }
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  width: min(320px, 86vw);
+  padding: var(--sp-6) var(--sp-5) var(--sp-5);
+  overflow-y: auto;
+  background-color: var(--color-hint-of-red);
+  box-shadow: var(--shadow-asphalt);
+  animation: slideIn var(--dur) var(--ease);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.closeButton {
+  display: flex;
+  align-self: flex-end;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  cursor: pointer;
+  border: 0;
+  border-radius: var(--r-pill);
+  background-color: transparent;
+  color: var(--color-temptress);
+}
+
+.navList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navLink {
+  display: block;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--color-woodsmoke);
+}
+
+.navLinkActive {
+  color: var(--color-milano-red);
+}
+
+.phone {
+  font-weight: 500;
+  color: var(--color-gray);
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: auto;
+}

@@ -4,8 +4,8 @@
   position: relative;
   display: flex;
   overflow: hidden;
-  min-height: calc(100vh - var(--header-height, 80px));
-  min-height: calc(100svh - var(--header-height, 80px));
+  min-height: 100vh;
+  min-height: 100svh;
   background: linear-gradient(160deg, var(--color-temptress), var(--color-woodsmoke));
 }
 
@@ -58,23 +58,23 @@
   background-image:
     linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.88) 0%,
-      rgba(0, 0, 0, 0.74) 38%,
-      rgba(0, 0, 0, 0.4) 74%,
-      rgba(0, 0, 0, 0.36) 100%
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.62) 38%,
+      rgba(0, 0, 0, 0.28) 74%,
+      rgba(0, 0, 0, 0.24) 100%
     ),
-    linear-gradient(to right, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.2) 100%);
+    linear-gradient(to right, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.12) 100%);
 
   @include breakpoints.rwd(901px) {
     background-image:
       linear-gradient(
         to bottom,
-        rgba(0, 0, 0, 0.88) 0%,
-        rgba(0, 0, 0, 0.74) 32%,
-        rgba(0, 0, 0, 0.38) 64%,
-        rgba(0, 0, 0, 0.4) 100%
+        rgba(0, 0, 0, 0.75) 0%,
+        rgba(0, 0, 0, 0.62) 32%,
+        rgba(0, 0, 0, 0.26) 64%,
+        rgba(0, 0, 0, 0.28) 100%
       ),
-      linear-gradient(to right, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.26) 55%, rgba(0, 0, 0, 0) 100%);
+      linear-gradient(to right, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.16) 55%, rgba(0, 0, 0, 0) 100%);
   }
 }
 
@@ -94,7 +94,12 @@
   justify-content: center;
   gap: var(--sp-5);
   max-width: 640px;
-  margin-left: 180px;
+  padding-inline: var(--pad);
+
+  @include breakpoints.rwd(901px) {
+    padding-inline: 0;
+    margin-left: 180px;
+  }
 }
 
 .badge {

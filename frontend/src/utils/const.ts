@@ -12,7 +12,7 @@ export const links: LinkProps[] = [
   // { href: '/#academy', label: 'Курси', anchorId: 'academy' },
   { href: '/#reviews', label: 'Відгуки', anchorId: 'reviews' },
   { href: '/#about', label: 'Про нас', anchorId: 'about' },
-  { href: '/#contacts', label: 'Контакти' },
+  { href: '/#contacts', label: 'Контакти', anchorId: 'contacts' },
 ];
 
 export const footerSocials = [

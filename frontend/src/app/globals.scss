@@ -3,6 +3,10 @@
 @use 'src/styles/custom-scrollbar';
 @use 'src/styles/utilities';
 
+html {
+  scroll-padding-top: var(--header-h);
+}
+
 body {
   font-family: var(--font-montserrat), sans-serif;
 

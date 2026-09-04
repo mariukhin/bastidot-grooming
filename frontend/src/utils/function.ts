@@ -53,6 +53,17 @@ export const normalizeBreedList = (breedList: BreedDbProps[]): BreedProps[] => {
   }));
 };
 
+export const isNavLinkActive = (
+  href: string,
+  anchorId: string | undefined,
+  pathname: string,
+  activeSection: string | null
+): boolean => {
+  if (anchorId) return activeSection === anchorId;
+  if (href === '/') return pathname === '/' && !activeSection;
+  return pathname === href;
+};
+
 export const handleScroll = (id: string) => {
   const element = document.getElementById(id);
   if (element) {

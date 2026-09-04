@@ -2,12 +2,19 @@
 
 .wrapper {
   display: flex;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   z-index: 1000;
   justify-content: space-between;
   width: 100%;
-  background-color: var(--color-hint-of-red);
+  background-color: transparent;
+  box-shadow: none;
+  color: var(--color-white);
+  transition:
+    background-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    color var(--dur) var(--ease);
 
   @include breakpoints.xs {
     padding: 8px 10px;
@@ -20,6 +27,26 @@
   @include breakpoints.xl {
     padding: 12px 200px;
   }
+}
+
+.scrolled {
+  background-color: rgba(247, 245, 245, 0.88);
+  box-shadow: var(--shadow-asphalt);
+  color: var(--color-temptress);
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+}
+
+.logo {
+  filter: brightness(0) invert(1);
+  transition: filter var(--dur) var(--ease);
+}
+
+.logoScrolled {
+  filter: none;
 }
 
 .navbar {
@@ -41,6 +68,7 @@
 .linkText {
   font-size: 16px;
   font-weight: 500;
+  color: inherit;
 }
 
 .linkActive {
@@ -68,4 +96,30 @@
 .userButton {
   cursor: pointer;
   margin-left: 10px;
+}
+
+.desktopOnly {
+  @include breakpoints.lg_r {
+    display: none !important;
+  }
+}
+
+.burgerButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  cursor: pointer;
+  border: 0;
+  border-radius: var(--r-pill);
+  background-color: transparent;
+  color: inherit;
+
+  @include breakpoints.lg_r {
+    display: flex;
+  }
 }
