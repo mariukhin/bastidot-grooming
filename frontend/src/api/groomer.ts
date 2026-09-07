@@ -1,6 +1,7 @@
+import { API_URL } from './config';
 export async function getGroomerList() {
   try {
-    const response = await fetch('http://localhost:8081/groomer');
+    const response = await fetch(`${API_URL}/groomer`);
 
     const data = await response.json();
 

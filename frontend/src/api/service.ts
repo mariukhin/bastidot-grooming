@@ -1,6 +1,7 @@
+import { API_URL } from './config';
 export async function getServiceList(breedId: string) {
   try {
-    const response = await fetch('http://localhost:8081/service', {
+    const response = await fetch(`${API_URL}/service`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -7,10 +7,12 @@
     "node": ">=22"
   },
   "scripts": {
-    "start": "node --experimental-strip-types --env-file=.env src/server.ts",
+    "start": "node --experimental-strip-types src/server.ts",
     "dev": "node --experimental-strip-types --watch --env-file=.env src/server.ts",
     "typecheck": "tsc --noEmit",
-    "test": "node --test"
+    "test": "node --test",
+    "reminder:run": "node --experimental-strip-types --env-file=.env src/features/reminder/run.ts",
+    "reminder:preview": "node --experimental-strip-types --env-file=.env src/features/reminder/run.ts --dry-run"
   },
   "dependencies": {
     "express": "^5.2.1",

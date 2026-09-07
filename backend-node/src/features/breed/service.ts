@@ -26,10 +26,30 @@ async function create(db: Db, name: string): Promise<Breed | null> {
   return { _id: result.insertedId, name };
 }
 
+async function resolveId(db: Db, id: string | null | undefined): Promise<ObjectId | null> {
+  if (!id) {
+    return null;
+  }
+  if (!ObjectId.isValid(id)) {
+    throw new Error(`invalid breedId: ${id}`);
+  }
+
+  const _id = new ObjectId(id);
+  const exists = await db
+    .collection<Breed>(BREED_COLLECTION)
+    .countDocuments({ _id }, { limit: 1 });
+
+  if (exists === 0) {
+    throw new Error(`breed not found: ${id}`);
+  }
+  return _id;
+}
+
 const BreedService = {
   fetchAll: fetchAll,
   getById: getById,
-  create: create
+  create: create,
+  resolveId: resolveId
 }
 
 export default BreedService;

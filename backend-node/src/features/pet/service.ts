@@ -1,9 +1,12 @@
 import type { Db } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import { PET_COLLECTION, type Pet, type CreatePetInput } from './types.ts';
+import BreedService from '../breed/service.ts';
 
 async function create(db: Db, input: CreatePetInput): Promise<Pet> {
   const collection = db.collection<Pet>(PET_COLLECTION);
+
+  const breedId = await BreedService.resolveId(db, input.breedId);
 
   const pet: Pet = {
     name: input.name,
@@ -11,6 +14,7 @@ async function create(db: Db, input: CreatePetInput): Promise<Pet> {
     weight: input.weight,
     photoUrl: input.photoUrl ?? '',
     userId: new ObjectId(input.userId),
+    breedId,
     createdAt: new Date(),
     comment: input.comment ?? '',
   };

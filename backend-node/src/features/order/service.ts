@@ -9,31 +9,47 @@ import {
 // Крос-фічеві типи. User/Pet — не специфічні для groomer/pet, тож у
 // «дорослому» проєкті жили б у shared/. Поки імпортуємо звідти, де є.
 import { USER_COLLECTION, type User } from '../../shared/user.ts';
+import { CLIENT_COLLECTION, type Client } from '../../shared/client.ts';
 import { PET_COLLECTION, type Pet } from '../pet/types.ts';
+import BreedService from '../breed/service.ts';
+import { normalizePhone } from '../../shared/phone.ts';
 
-// Знаходить клієнта за телефоном або створює нового walk-in юзера.
-// Телефон — природний ключ клієнта (унікальний індекс на phoneNumber).
-async function findOrCreateClient(db: Db, input: CreateOrderInput): Promise<User> {
-  const users = db.collection<User>(USER_COLLECTION);
+async function findOrCreateClient(db: Db, input: CreateOrderInput): Promise<Client> {
+  const clients = db.collection<Client>(CLIENT_COLLECTION);
 
-  const existing = await users.findOne({ phoneNumber: input.clientPhone });
+  const phone = normalizePhone(input.clientPhone);
+  if (!phone) {
+    throw new Error('invalid clientPhone');
+  }
+
+  const existing = await clients.findOne({
+    $or: [{ phone: phone.phone }, { phoneRaw: phone.phoneRaw }],
+  });
   if (existing) {
     return existing;
   }
 
-  const client: User = {
-    username: input.clientName,
-    phoneNumber: input.clientPhone,
-    email: input.clientEmail ?? '',
-    photoUrl: '',
-    password: '',
-    isAdmin: false,
-    isGroomer: false,
-    isVip: false,
-    createdAt: new Date(),
+  const now = new Date();
+  const client: Client = {
+    phone: phone.phone,
+    phoneRaw: phone.phoneRaw,
+    name: input.clientName,
+    lastVisitAt: null,
+    visitsCount: 0,
+    totalSpent: 0,
+    crmGroup: 'Новий',
+    dateSource: 'сайт',
+    isForeign: phone.isForeign,
+    doNotContact: false,
+    lastNotifiedAt: null,
+    notifyHistory: [],
+    importedAt: now,
   };
+  if (input.clientEmail) {
+    client.email = input.clientEmail;
+  }
 
-  const result = await users.insertOne(client);
+  const result = await clients.insertOne(client);
   return { ...client, _id: result.insertedId };
 }
 
@@ -42,9 +58,14 @@ async function findOrCreateClient(db: Db, input: CreateOrderInput): Promise<User
 // однаковим іменем, а в різних власників — може.
 async function findOrCreatePet(db: Db, input: CreateOrderInput, clientId: ObjectId): Promise<Pet> {
   const pets = db.collection<Pet>(PET_COLLECTION);
+  const breedId = await BreedService.resolveId(db, input.petBreedId);
 
   const existing = await pets.findOne({ userId: clientId, name: input.petName });
   if (existing) {
+    if (breedId && !existing.breedId) {
+      await pets.updateOne({ _id: existing._id }, { $set: { breedId } });
+      return { ...existing, breedId };
+    }
     return existing;
   }
 
@@ -54,6 +75,7 @@ async function findOrCreatePet(db: Db, input: CreateOrderInput, clientId: Object
     weight: input.petWeight ?? 0,
     photoUrl: input.petPhotoUrl ?? '',
     userId: clientId,
+    breedId,
     createdAt: new Date(),
     comment: input.petComment ?? '',
   };

@@ -69,6 +69,7 @@ function validateCreateOrder(body: unknown): { error: string } | { input: Create
       petWeight: typeof b.petWeight === 'number' ? b.petWeight : undefined,
       petPhotoUrl: typeof b.petPhotoUrl === 'string' ? b.petPhotoUrl : undefined,
       petComment: typeof b.petComment === 'string' ? b.petComment : undefined,
+      petBreedId: typeof b.petBreedId === 'string' && b.petBreedId !== '' ? b.petBreedId : undefined,
       groomerId: b.groomerId.trim(),
       scheduledAt: b.scheduledAt,
       durationMinutes: b.durationMinutes,

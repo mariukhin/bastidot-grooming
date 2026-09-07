@@ -1,8 +1,9 @@
 import { LoginFormData } from '@/components/login-modal/login-modal';
+import { API_URL } from './config';
 
 export async function authClientGoogle(token: string) {
   try {
-    const response = await fetch('http://localhost:8081/public/login/google', {
+    const response = await fetch(`${API_URL}/public/login/google`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

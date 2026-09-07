@@ -12,6 +12,7 @@ interface PetDTO {
   weight: number;
   photoUrl: string;
   userId: string;
+  breedId: string | null;
   createdAt: string;
   comment: string;
 }
@@ -24,6 +25,7 @@ function toPetDTO(pet: Pet): PetDTO {
     weight: pet.weight,
     photoUrl: pet.photoUrl,
     userId: pet.userId.toHexString(),
+    breedId: pet.breedId ? pet.breedId.toHexString() : null,
     createdAt: pet.createdAt.toISOString(),
     comment: pet.comment,
   };
@@ -34,7 +36,10 @@ function validateCreatePet(body: unknown): { error: string } | { input: CreatePe
     return { error: 'Request body must be an object' };
   }
 
-  const { name, age, weight, userId, photoUrl, comment } = body as Record<string, unknown>;
+  const { name, age, weight, userId, breedId, photoUrl, comment } = body as Record<
+    string,
+    unknown
+  >;
 
   if (typeof name !== 'string' || name.trim() === '') {
     return { error: 'name is required' };
@@ -48,6 +53,11 @@ function validateCreatePet(body: unknown): { error: string } | { input: CreatePe
   if (typeof userId !== 'string' || !ObjectId.isValid(userId)) {
     return { error: 'valid userId is required' };
   }
+  if (breedId !== undefined && breedId !== null && breedId !== '') {
+    if (typeof breedId !== 'string' || !ObjectId.isValid(breedId)) {
+      return { error: 'breedId must be a valid id' };
+    }
+  }
 
   return {
     input: {
@@ -55,6 +65,7 @@ function validateCreatePet(body: unknown): { error: string } | { input: CreatePe
       age,
       weight,
       userId,
+      breedId: typeof breedId === 'string' && breedId !== '' ? breedId : undefined,
       photoUrl: typeof photoUrl === 'string' ? photoUrl : undefined,
       comment: typeof comment === 'string' ? comment : undefined,
     },
@@ -72,8 +83,14 @@ export function createPetRouter(db: Db): Router {
       return;
     }
 
-    const pet = await PetService.create(db, result.input);
-    res.status(201).json(toPetDTO(pet));
+    try {
+      const pet = await PetService.create(db, result.input);
+      res.status(201).json(toPetDTO(pet));
+    } catch (err) {
+      res
+        .status(400)
+        .json({ error: err instanceof Error ? err.message : 'Failed to create pet' });
+    }
   });
 
   // GET /pet?userId=...

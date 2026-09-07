@@ -1,5 +1,3 @@
-// Аналог bootstrap/env.go: читаємо env один раз при старті і падаємо одразу,
-// якщо чогось критичного бракує — а не на першому запиті посеред ночі.
 function required(name: string): string {
   const value = process.env[name];
   if (!value) {
@@ -28,4 +26,18 @@ export const config = {
   accessTokenSecret: required('ACCESS_TOKEN_SECRET'),
   refreshTokenSecret: required('REFRESH_TOKEN_SECRET'),
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
+
+  corsOrigins: (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin !== ''),
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
+  telegramChatId: process.env.TELEGRAM_CHAT_ID ?? '',
+
+  reminderInactiveDays: optionalInt('REMINDER_INACTIVE_DAYS', 60),
+  reminderCooldownDays: optionalInt('REMINDER_COOLDOWN_DAYS', 30),
+  reminderBatchSize: optionalInt('REMINDER_BATCH_SIZE', 5),
+  reminderRunAt: process.env.REMINDER_RUN_AT ?? '11:00',
+  reminderInProcess: process.env.REMINDER_IN_PROCESS === 'true',
+  reminderTimeZone: process.env.REMINDER_TIME_ZONE ?? 'Europe/Kyiv',
 };

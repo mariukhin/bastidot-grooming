@@ -204,6 +204,7 @@ const BookingModal = ({
       petWeight: 0,
       petPhotoUrl: '',
       petComment: '',
+      petBreedId: selectedBreed?.id,
       groomerId: selectedGroomer.id,
       scheduledAt,
       durationMinutes: totalDurationMin,

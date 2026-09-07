@@ -42,6 +42,7 @@ export type OrderRequest = {
   petWeight: number;
   petPhotoUrl: string;
   petComment: string;
+  petBreedId?: string;
   groomerId: string;
   scheduledAt: string;
   durationMinutes: number;

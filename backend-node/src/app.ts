@@ -2,7 +2,7 @@ import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import type { Db } from 'mongodb';
 import { cors } from './shared/cors.ts';
-import pinoHttp from 'pino-http';
+import { pinoHttp } from 'pino-http';
 import { createBreedRouter } from './features/breed/controller.ts';
 import {createServiceRouter} from './features/service/controller.ts';
 import {createGroomerRouter} from './features/groomer/controller.ts';

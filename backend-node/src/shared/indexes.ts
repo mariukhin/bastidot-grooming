@@ -1,8 +1,6 @@
 import type { Db } from 'mongodb';
 import { logger } from './logger.ts';
 
-// Дзеркало backend/bootstrap/indexes.go — безпечно викликати на кожному
-// старті: Mongo ігнорує вже існуючі ідентичні індекси.
 export async function ensureIndexes(db: Db): Promise<void> {
   const results = await Promise.allSettled([
     db.collection('user').createIndexes([
@@ -15,6 +13,12 @@ export async function ensureIndexes(db: Db): Promise<void> {
       { key: { petId: 1, status: 1 } },
     ]),
     db.collection('pet').createIndexes([{ key: { userId: 1 } }]),
+    db.collection('client').createIndexes([
+      { key: { doNotContact: 1, lastVisitAt: -1 } },
+      { key: { lastNotifiedAt: 1 } },
+      { key: { phone: 1 } },
+      { key: { phoneRaw: 1 } },
+    ]),
   ]);
 
   for (const result of results) {

@@ -1,8 +1,9 @@
 import { OrderRequest } from '@/components/booking-modal/types';
+import { API_URL } from './config';
 
 export async function createOrder(payload: OrderRequest) {
   try {
-    const response = await fetch('http://localhost:8081/order', {
+    const response = await fetch(`${API_URL}/order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -23,7 +24,7 @@ export async function createOrder(payload: OrderRequest) {
 export async function getBusySlots(groomerId: string, from: string, to: string) {
   try {
     const response = await fetch(
-      `http://localhost:8081/order/busy-slots?groomerId=${groomerId}&from=${from}&to=${to}`
+      `${API_URL}/order/busy-slots?groomerId=${groomerId}&from=${from}&to=${to}`
     );
 
     const data = await response.json();
