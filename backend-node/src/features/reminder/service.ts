@@ -99,12 +99,12 @@ async function findLapsedClients(
         $facet: {
           warm: [
             { $sort: { lastVisitAt: -1 } },
-            { $limit: options.batchSize },
+            { $limit: options.warmSize },
             { $project: LAPSED_CLIENT_PROJECTION },
           ],
           cold: [
             { $sort: { lastVisitAt: 1 } },
-            { $limit: options.batchSize },
+            { $limit: options.coldSize },
             { $project: LAPSED_CLIENT_PROJECTION },
           ],
         },

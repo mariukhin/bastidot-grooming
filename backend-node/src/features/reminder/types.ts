@@ -21,5 +21,6 @@ export interface LapsedClientGroups {
 export interface FindLapsedOptions {
   inactiveDays: number;
   cooldownDays: number;
-  batchSize: number;
+  warmSize: number;
+  coldSize: number;
 }

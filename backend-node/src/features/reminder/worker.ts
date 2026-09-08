@@ -117,7 +117,8 @@ export async function previewInactiveClientsDigest(
     {
       inactiveDays: config.reminderInactiveDays,
       cooldownDays: config.reminderCooldownDays,
-      batchSize: config.reminderBatchSize,
+      warmSize: config.reminderWarmSize,
+      coldSize: config.reminderColdSize,
     },
     now
   );
@@ -184,7 +185,8 @@ export async function runInactiveClientsDigest(db: Db, now: Date = new Date()): 
     {
       inactiveDays: config.reminderInactiveDays,
       cooldownDays: config.reminderCooldownDays,
-      batchSize: config.reminderBatchSize,
+      warmSize: config.reminderWarmSize,
+      coldSize: config.reminderColdSize,
     },
     now
   );

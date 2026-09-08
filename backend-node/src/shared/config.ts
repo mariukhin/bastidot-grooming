@@ -36,7 +36,8 @@ export const config = {
 
   reminderInactiveDays: optionalInt('REMINDER_INACTIVE_DAYS', 60),
   reminderCooldownDays: optionalInt('REMINDER_COOLDOWN_DAYS', 30),
-  reminderBatchSize: optionalInt('REMINDER_BATCH_SIZE', 5),
+  reminderWarmSize: optionalInt('REMINDER_WARM_COUNT', 6),
+  reminderColdSize: optionalInt('REMINDER_COLD_COUNT', 2),
   reminderRunAt: process.env.REMINDER_RUN_AT ?? '11:00',
   reminderInProcess: process.env.REMINDER_IN_PROCESS === 'true',
   reminderTimeZone: process.env.REMINDER_TIME_ZONE ?? 'Europe/Kyiv',
