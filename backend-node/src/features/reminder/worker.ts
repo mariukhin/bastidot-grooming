@@ -129,6 +129,55 @@ export async function previewInactiveClientsDigest(
   return buildDigestMessage(groups, now);
 }
 
+function zoneParts(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).formatToParts(date);
+  const get = (type: string) => Number.parseInt(parts.find((p) => p.type === type)!.value, 10);
+  return {
+    year: get('year'),
+    month: get('month'),
+    day: get('day'),
+    hour: get('hour') % 24,
+    minute: get('minute'),
+    second: get('second'),
+  };
+}
+
+function startOfDayInZone(now: Date, timeZone: string): Date {
+  const p = zoneParts(now, timeZone);
+  const guess = Date.UTC(p.year, p.month - 1, p.day);
+  const shifted = zoneParts(new Date(guess), timeZone);
+  const offset =
+    Date.UTC(shifted.year, shifted.month - 1, shifted.day, shifted.hour, shifted.minute, shifted.second) - guess;
+  return new Date(guess - offset);
+}
+
+export type SkipReason = 'early' | 'already-sent';
+
+export async function shouldSkipScheduledRun(
+  db: Db,
+  now: Date = new Date()
+): Promise<SkipReason | null> {
+  const [hour, minute] = config.reminderRunAt.split(':').map((v) => Number.parseInt(v, 10));
+  const local = zoneParts(now, config.reminderTimeZone);
+
+  if (local.hour * 60 + local.minute < (hour ?? 11) * 60 + (minute ?? 0)) {
+    return 'early';
+  }
+  if (await ReminderService.wasSentSince(db, startOfDayInZone(now, config.reminderTimeZone))) {
+    return 'already-sent';
+  }
+  return null;
+}
+
 export async function runInactiveClientsDigest(db: Db, now: Date = new Date()): Promise<number> {
   const groups = await ReminderService.findLapsedClients(
     db,

@@ -41,7 +41,15 @@ async function findLapsedClients(
           lastVisitAt: { $ne: null, $lte: inactiveBefore },
           doNotContact: { $ne: true },
           phone: { $nin: ['', null] },
-          $or: [{ lastNotifiedAt: null }, { lastNotifiedAt: { $lt: cooldownSince } }],
+          $or: [
+            { remindAfter: { $ne: null, $lte: now } },
+            {
+              $and: [
+                { $or: [{ remindAfter: null }, { remindAfter: { $exists: false } }] },
+                { $or: [{ lastNotifiedAt: null }, { lastNotifiedAt: { $lt: cooldownSince } }] },
+              ],
+            },
+          ],
         },
       },
 
@@ -54,7 +62,7 @@ async function findLapsedClients(
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ['$clientId', '$clientId'] },
+                    { $eq: ['$clientId', '$$clientId'] },
                     { $eq: ['$status', 'pending'] },
                     { $gt: ['$scheduledAt', now] },
                   ],
@@ -134,7 +142,7 @@ async function markNotified(
       updateOne: {
         filter: { _id: client.clientId },
         update: {
-          $set: { lastNotifiedAt: sentAt },
+          $set: { lastNotifiedAt: sentAt, remindAfter: null },
           $push: {
             notifyHistory: { sentAt, lastVisitAt: client.lastVisitAt, group },
           },
@@ -144,9 +152,17 @@ async function markNotified(
   );
 }
 
+async function wasSentSince(db: Db, since: Date): Promise<boolean> {
+  const count = await db
+    .collection<Client>(CLIENT_COLLECTION)
+    .countDocuments({ lastNotifiedAt: { $gte: since } }, { limit: 1 });
+  return count > 0;
+}
+
 const ReminderService = {
   findLapsedClients,
   markNotified,
+  wasSentSince,
 };
 
 export default ReminderService;

@@ -8,6 +8,15 @@ export interface NotifyHistoryEntry {
   group: 'warm' | 'cold';
 }
 
+export interface CallEntry {
+  calledAt: Date;
+  channel: string;
+  result: string;
+  reason?: string;
+  comment?: string;
+  bookedFor?: Date;
+}
+
 export interface Client {
   _id?: ObjectId;
   phone: string;
@@ -27,6 +36,8 @@ export interface Client {
   doNotContact: boolean;
   lastNotifiedAt: Date | null;
   notifyHistory: NotifyHistoryEntry[];
+  calls?: CallEntry[];
+  remindAfter?: Date | null;
   importedAt: Date;
   whatsapp?: string;
   instagram?: string;

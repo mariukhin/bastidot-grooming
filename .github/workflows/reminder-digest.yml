@@ -1,16 +1,15 @@
 name: Дайджест сплячих клієнтів
 
-# Щоденне нагадування персоналу про клієнтів, які давно не були в салоні.
-# Живе тут, а не в процесі бекенду, бо сайт іще не запущений — тримати
-# заради однієї джоби постійно ввімкнений сервер немає сенсу.
 on:
   schedule:
-    # GitHub рахує cron у UTC, а нам потрібна 11:00 за Києвом цілий рік.
-    # Влітку Київ це UTC+3, взимку UTC+2, тож ставимо обидва варіанти —
-    # крок нижче лишить тільки той запуск, що припав на 11-ту за Києвом.
-    - cron: '0 8 * * *'
-    - cron: '0 9 * * *'
-  # Ручний запуск із вкладки Actions: зручно для перевірки.
+    # Кілька спроб замість однієї: планувальник GitHub регулярно затримує
+    # запуски на десятки хвилин, надто на початку години. Хвилина 17 обрана
+    # свідомо — там менше черга. Сам скрипт вирішує, чи вже час і чи не
+    # надсилали сьогодні, тож зайві спроби нічого не роблять.
+    - cron: '17 8 * * *'
+    - cron: '17 9 * * *'
+    - cron: '17 10 * * *'
+    - cron: '17 12 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -18,45 +17,26 @@ on:
         type: boolean
         default: true
 
+# Дві спроби не мають виконуватись одночасно.
+concurrency:
+  group: reminder-digest
+  cancel-in-progress: false
+
 jobs:
   digest:
     runs-on: ubuntu-latest
     steps:
-      - name: Перевірити, чи зараз 11-та за Києвом
-        id: clock
-        run: |
-          # Ручний запуск пропускаємо повз перевірку часу.
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          HOUR=$(TZ=Europe/Kyiv date +%H)
-          echo "За Києвом зараз $HOUR:00"
-          if [ "$HOUR" = "11" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Не наша година — це запуск для іншої половини року, виходимо."
-          fi
-
       - uses: actions/checkout@v4
-        if: steps.clock.outputs.run == 'true'
 
       - uses: actions/setup-node@v4
-        if: steps.clock.outputs.run == 'true'
         with:
-          # Потрібен рівно Node 22+: бекенд виконує .ts напряму, без збірки.
           node-version: '22'
 
       - name: Встановити залежності
-        if: steps.clock.outputs.run == 'true'
         working-directory: backend-node
-        # npm ci — з lock-файлу, без devDependencies: для запуску джоби
-        # достатньо драйвера mongodb.
         run: npm ci --omit=dev
 
       - name: Надіслати дайджест
-        if: steps.clock.outputs.run == 'true'
         working-directory: backend-node
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
@@ -70,8 +50,11 @@ jobs:
           REMINDER_INACTIVE_DAYS: ${{ vars.REMINDER_INACTIVE_DAYS }}
           REMINDER_COOLDOWN_DAYS: ${{ vars.REMINDER_COOLDOWN_DAYS }}
           REMINDER_BATCH_SIZE: ${{ vars.REMINDER_BATCH_SIZE }}
+          REMINDER_RUN_AT: ${{ vars.REMINDER_RUN_AT }}
         run: |
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            node --experimental-strip-types src/features/reminder/run.ts --scheduled
+          elif [ "${{ inputs.dry_run }}" = "true" ]; then
             node --experimental-strip-types src/features/reminder/run.ts --dry-run
           else
             node --experimental-strip-types src/features/reminder/run.ts
