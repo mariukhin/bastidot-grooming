@@ -11,8 +11,13 @@ function optionalInt(name: string, fallback: number): number {
   return value ? Number.parseInt(value, 10) : fallback;
 }
 
+function optionalString(name: string, fallback: string): string {
+  const value = process.env[name];
+  return value && value.trim() !== '' ? value.trim() : fallback;
+}
+
 export const config = {
-  appEnv: process.env.APP_ENV ?? 'development',
+  appEnv: optionalString('APP_ENV', 'development'),
   port: optionalInt('PORT', 8081),
   contextTimeoutSec: optionalInt('CONTEXT_TIMEOUT', 2),
 
@@ -38,7 +43,7 @@ export const config = {
   reminderCooldownDays: optionalInt('REMINDER_COOLDOWN_DAYS', 30),
   reminderWarmSize: optionalInt('REMINDER_WARM_COUNT', 6),
   reminderColdSize: optionalInt('REMINDER_COLD_COUNT', 2),
-  reminderRunAt: process.env.REMINDER_RUN_AT ?? '11:00',
+  reminderRunAt: optionalString('REMINDER_RUN_AT', '11:00'),
   reminderInProcess: process.env.REMINDER_IN_PROCESS === 'true',
-  reminderTimeZone: process.env.REMINDER_TIME_ZONE ?? 'Europe/Kyiv',
+  reminderTimeZone: optionalString('REMINDER_TIME_ZONE', 'Europe/Kyiv'),
 };
