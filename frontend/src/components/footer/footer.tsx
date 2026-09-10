@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import classNames from 'classnames';
 
 import { Icon } from '@/components/icon';
 import { links, footerSocials } from '@/utils/const';
@@ -31,7 +32,7 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Icon id={item.icon} color={'var(--color-woodsmoke)'} />
+                  <Icon id={item.icon} width={20} height={20} />
                 </a>
               </li>
             ))}
@@ -39,7 +40,7 @@ const Footer = () => {
         </div>
         <div className={styles.logoContainer}>
           <Image
-            className={styles.bigLogo}
+            className={classNames(styles.logo, styles.bigLogo)}
             src={'/big-logo.svg'}
             alt="Logo"
             width={169}
@@ -47,14 +48,19 @@ const Footer = () => {
             priority
           />
           <Image
-            className={styles.smallLogo}
+            className={classNames(styles.logo, styles.smallLogo)}
             src={'/small-logo.svg'}
             alt="Logo"
             width={75}
             height={57}
             priority
           />
-          <span className={styles.footerText}>© 2026 Bastidot. All rights reserved.</span>
+        </div>
+        <div className={styles.bottomRow}>
+          <span>© 2026 Bastidot. All rights reserved.</span>
+          <span className={styles.bottomRowAddress}>
+            Велика Васильківська, 23А, Київ, 02000, Україна
+          </span>
         </div>
       </div>
     </footer>

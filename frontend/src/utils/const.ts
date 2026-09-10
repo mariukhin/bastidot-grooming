@@ -53,7 +53,7 @@ export const contactBlockSocials = [
   },
   {
     href: 'https://www.youtube.com/@BastidotGrooming',
-    icon: IconTypes.viber,
+    icon: IconTypes.youtube,
   },
   {
     href: 'https://www.tiktok.com/@bastidot.grooming',

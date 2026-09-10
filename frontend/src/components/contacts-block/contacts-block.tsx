@@ -13,23 +13,27 @@ const ContactsBlock = () => (
       <div className={styles.contactsInfoWrapper}>
         <div className={styles.contactsInfoWrapperCards}>
           <div className={styles.contactsInfoCard}>
-            <Icon
-              id={IconTypes.phone}
-              color={'var(--color-dark-burgundy)'}
-              width={24}
-              height={24}
-            />
+            <span className={styles.contactsIconBadge}>
+              <Icon
+                id={IconTypes.phone}
+                color={'var(--color-dark-burgundy)'}
+                width={22}
+                height={22}
+              />
+            </span>
             <a className={styles.contactsText} href="tel:+380501739178">
               +380 (50) 173-91-78
             </a>
           </div>
-          <div className={styles.contactsInfoCard} style={{ padding: '20px 0' }}>
-            <Icon
-              id={IconTypes.point}
-              color={'var(--color-dark-burgundy)'}
-              width={24}
-              height={24}
-            />
+          <div className={styles.contactsInfoCard}>
+            <span className={styles.contactsIconBadge}>
+              <Icon
+                id={IconTypes.point}
+                color={'var(--color-dark-burgundy)'}
+                width={22}
+                height={22}
+              />
+            </span>
             <a
               className={styles.contactsText}
               href="https://maps.app.goo.gl/bdPe7GPDjYbxTAAM9"
@@ -38,6 +42,17 @@ const ContactsBlock = () => (
             >
               Велика Васильківська, 23А, Київ, 02000, Україна
             </a>
+          </div>
+          <div className={styles.contactsInfoCard}>
+            <span className={styles.contactsIconBadge}>
+              <Icon
+                id={IconTypes.clock}
+                color={'var(--color-dark-burgundy)'}
+                width={22}
+                height={22}
+              />
+            </span>
+            <p className={styles.contactsText}>Щодня 09:00–20:00</p>
           </div>
           <div className={classnames(styles.contactsInfoCard, styles.contactsInfoCardHorizontal)}>
             {contactBlockSocials.map((item) => (
@@ -48,7 +63,7 @@ const ContactsBlock = () => (
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Icon id={item.icon} color={'var(--color-dark-burgundy)'} width={32} height={32} />
+                <Icon id={item.icon} width={22} height={22} />
               </a>
             ))}
           </div>
@@ -59,7 +74,7 @@ const ContactsBlock = () => (
             width="100%"
             height="100%"
             allowFullScreen={false}
-            style={{ border: 0, borderRadius: '20px' }}
+            style={{ border: 0 }}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           ></iframe>

@@ -14,7 +14,10 @@ const AboutBlock = ({ onOpenBooking }: AboutBlockProps) => (
   <div className={styles.aboutContainer} id={'about'}>
     <div className={styles.aboutWrapper}>
       <p className={styles.aboutTitleMobile}>Про нас</p>
-      <Image className={styles.aboutPhoto} src={aboutPhoto} alt="about photo" />
+      <div className={styles.aboutPhotoWrapper}>
+        <div className={styles.aboutPhotoBackdrop} />
+        <Image className={styles.aboutPhoto} src={aboutPhoto} alt="about photo" />
+      </div>
       <div className={styles.aboutInfoContainer}>
         <p className={styles.aboutTitle}>Про нас</p>
         <p className={styles.aboutSubtitle}>

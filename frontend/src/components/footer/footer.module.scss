@@ -4,26 +4,26 @@
   width: 100%;
   bottom: 0;
   z-index: 1000;
-  background-color: var(--color-ebb);
+  background-color: var(--color-diesel);
 }
 
 .wrapper {
   display: flex;
   width: 100%;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 30px;
+  align-items: center;
+  gap: 24px;
 
   @include breakpoints.xs {
-    padding: 40px 16px 20px;
+    padding: 40px 16px 24px;
   }
 
   @include breakpoints.md {
-    padding: 30px 111px;
+    padding: 40px 111px 24px;
   }
 
   @include breakpoints.xl {
-    padding: 30px 150px;
+    padding: 40px 150px 24px;
   }
 }
 
@@ -36,48 +36,61 @@
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 32px;
-
-  @include breakpoints.lg_r {
-    justify-content: center;
-  }
+  justify-content: center;
+  gap: 16px 32px;
 }
 
 .linkText {
   font-size: 16px;
   font-weight: 500;
-  color: var(--color-pickled-bluewood-dark);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .linkActive {
   color: var(--color-milano-red);
 }
 
-.phoneNumber {
-  text-decoration: underline;
-  padding-left: 10px;
-}
-
 .linksContainer {
   display: flex;
   width: 100%;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 
-  @include breakpoints.lg_r {
-    flex-direction: column;
-    gap: 32px;
-    padding-bottom: 32px;
-    border-bottom: 2px solid var(--color-thatch);
+  @include breakpoints.lg {
+    flex-direction: row;
+    justify-content: space-between;
   }
 }
 
 .socialContainer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 40px;
+  gap: 12px;
+}
+
+.socialLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: rgba(255, 255, 255, 0.82);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-dark-burgundy);
+    border-color: var(--color-dark-burgundy);
+    color: var(--color-white);
+  }
 }
 
 .logoContainer {
@@ -85,22 +98,10 @@
   width: 100%;
   justify-content: center;
   align-items: center;
-  gap: 32px;
-
-  @include breakpoints.md_r {
-    flex-direction: column;
-    gap: 24px;
-  }
 }
 
-.footerText {
-  font-size: 14px;
-  color: var(--color-pickled-bluewood);
-  font-weight: 500;
-
-  @include breakpoints.md_r {
-    font-size: 10px;
-  }
+.logo {
+  filter: brightness(0) invert(1);
 }
 
 .bigLogo {
@@ -115,6 +116,28 @@
   }
 }
 
-.socialLink {
+.bottomRow {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.62);
+
+  @include breakpoints.md {
+    flex-direction: row;
+    gap: 0;
+  }
+}
+
+.bottomRowAddress {
+  @include breakpoints.md {
+    &:before {
+      content: '•';
+      margin: 0 12px;
+      opacity: 0.5;
+    }
+  }
 }
