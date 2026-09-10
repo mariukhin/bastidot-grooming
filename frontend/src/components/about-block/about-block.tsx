@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/button';
 import Image from 'next/image';
 
@@ -5,52 +7,57 @@ import styles from './about-block.module.scss';
 import aboutPhoto from './about.png';
 import { Icon, IconTypes } from '@/components/icon';
 import { offers } from '@/utils/const';
+import { useReveal } from '@/hooks/use-reveal';
 
 type AboutBlockProps = {
   onOpenBooking?: () => void;
 };
 
-const AboutBlock = ({ onOpenBooking }: AboutBlockProps) => (
-  <div className={styles.aboutContainer} id={'about'}>
-    <div className={styles.aboutWrapper}>
-      <p className={styles.aboutTitleMobile}>Про нас</p>
-      <div className={styles.aboutPhotoWrapper}>
-        <div className={styles.aboutPhotoBackdrop} />
-        <Image className={styles.aboutPhoto} src={aboutPhoto} alt="about photo" />
-      </div>
-      <div className={styles.aboutInfoContainer}>
-        <p className={styles.aboutTitle}>Про нас</p>
-        <p className={styles.aboutSubtitle}>
-          Bastidot Grooming – це сучасний грумінг-салон у самому серці міста Києва, де турбота про
-          вашого улюбленця поєднується з професіоналізмом і любов’ю до тварин. У нас працюють
-          досвідчені грумери, які знають, як зробити процедури комфортними для вашого хвостика.
-        </p>
-        <p className={styles.aboutSubtitleBold}>Ми пропонуємо:</p>
-        <div className={styles.aboutOffersBlock}>
-          {offers.map(({ id, text }) => (
-            <div className={styles.aboutOfferItem} key={id}>
-              <Icon
-                id={IconTypes.circleCheck}
-                width={20}
-                height={20}
-                color={'var(--color-dark-burgundy)'}
-              />
-              <p className={styles.aboutOfferItemText}>{text}</p>
-            </div>
-          ))}
+const AboutBlock = ({ onOpenBooking }: AboutBlockProps) => {
+  const revealRef = useReveal<HTMLDivElement>();
+
+  return (
+    <div className={styles.aboutContainer} id={'about'}>
+      <div className={styles.aboutWrapper}>
+        <p className={styles.aboutTitleMobile}>Про нас</p>
+        <div className={styles.aboutPhotoWrapper} ref={revealRef} data-d="1">
+          <div className={styles.aboutPhotoBackdrop} />
+          <Image className={styles.aboutPhoto} src={aboutPhoto} alt="about photo" />
         </div>
-        <p className={styles.aboutSubtitle}>
-          Це місце, де ваші улюбленці отримають найкращий догляд та виглядатимуть бездоганно!
-        </p>
-        <Button
-          className={styles.aboutButton}
-          type={'button'}
-          text={'Записатися'}
-          onClick={onOpenBooking}
-        />
+        <div className={styles.aboutInfoContainer} ref={revealRef} data-d="2">
+          <p className={styles.aboutTitle}>Про нас</p>
+          <p className={styles.aboutSubtitle}>
+            Bastidot Grooming – це сучасний грумінг-салон у самому серці міста Києва, де турбота про
+            вашого улюбленця поєднується з професіоналізмом і любов’ю до тварин. У нас працюють
+            досвідчені грумери, які знають, як зробити процедури комфортними для вашого хвостика.
+          </p>
+          <p className={styles.aboutSubtitleBold}>Ми пропонуємо:</p>
+          <div className={styles.aboutOffersBlock}>
+            {offers.map(({ id, text }) => (
+              <div className={styles.aboutOfferItem} key={id}>
+                <Icon
+                  id={IconTypes.circleCheck}
+                  width={20}
+                  height={20}
+                  color={'var(--color-dark-burgundy)'}
+                />
+                <p className={styles.aboutOfferItemText}>{text}</p>
+              </div>
+            ))}
+          </div>
+          <p className={styles.aboutSubtitle}>
+            Це місце, де ваші улюбленці отримають найкращий догляд та виглядатимуть бездоганно!
+          </p>
+          <Button
+            className={styles.aboutButton}
+            type={'button'}
+            text={'Записатися'}
+            onClick={onOpenBooking}
+          />
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default AboutBlock;

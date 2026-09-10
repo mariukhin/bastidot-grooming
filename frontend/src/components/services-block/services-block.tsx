@@ -15,12 +15,14 @@ import { BreedProps, normalizeBreedList, ServiceProps } from '@/utils/function';
 import { getBreedList } from '@/api/breed';
 import { getServiceList } from '@/api/service';
 import { BookingModal } from '@/components/booking-modal';
+import { useReveal } from '@/hooks/use-reveal';
 
 const ServicesBlock = () => {
   const [breedList, setBreedList] = useState<BreedProps[]>([]);
   const [serviceList, setServiceList] = useState<ServiceProps[]>([]);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingInitialService, setBookingInitialService] = useState<ServiceProps | undefined>();
+  const revealRef = useReveal<HTMLDivElement>();
 
   const {
     control,
@@ -82,8 +84,13 @@ const ServicesBlock = () => {
         />
       </div>
       <div className={styles.serviceContainer}>
-        {serviceList.map((item) => (
-          <div className={styles.serviceItemContainer} key={item.id}>
+        {serviceList.map((item, index) => (
+          <div
+            className={styles.serviceItemContainer}
+            key={item.id}
+            ref={revealRef}
+            data-d={(index % 4) + 1}
+          >
             <ServiceItem item={item} breedName={getValues('type')} />
             <Button
               type={'button'}

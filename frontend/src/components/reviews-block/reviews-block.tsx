@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import styles from './reviews-block.module.scss';
 import { Icon, IconTypes } from '@/components/icon';
 import { normalizeReviews, ReviewProps } from '@/utils/function';
+import { useReveal } from '@/hooks/use-reveal';
 
 const Stars: FC<{ rating: number }> = ({ rating }) => (
   <div className={styles.stars} aria-hidden="true">
@@ -23,7 +24,11 @@ const Stars: FC<{ rating: number }> = ({ rating }) => (
   </div>
 );
 
-const ReviewCard: FC<{ review: ReviewProps }> = ({ review }) => {
+const ReviewCard: FC<{
+  review: ReviewProps;
+  revealRef: (node: HTMLElement | null) => void;
+  d: number;
+}> = ({ review, revealRef, d }) => {
   const [expanded, setExpanded] = useState(false);
   const [isClamped, setIsClamped] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
@@ -38,6 +43,8 @@ const ReviewCard: FC<{ review: ReviewProps }> = ({ review }) => {
   return (
     <article
       className={styles.reviewItem}
+      ref={revealRef}
+      data-d={d}
       tabIndex={0}
       aria-label={`Відгук від ${review.name}, оцінка ${review.rating} з 5`}
     >
@@ -89,6 +96,7 @@ const ReviewsBlock = () => {
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const railRef = useRef<HTMLDivElement>(null);
+  const revealRef = useReveal<HTMLElement>();
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -144,8 +152,8 @@ const ReviewsBlock = () => {
 
         <div className={styles.reviewsRailWrapper}>
           <div className={styles.reviewsBlock} ref={railRef}>
-            {reviewsFetch.map((item) => (
-              <ReviewCard key={item.id} review={item} />
+            {reviewsFetch.map((item, index) => (
+              <ReviewCard key={item.id} review={item} revealRef={revealRef} d={(index % 4) + 1} />
             ))}
           </div>
 

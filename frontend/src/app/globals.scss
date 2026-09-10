@@ -2,6 +2,7 @@
 @use 'src/styles/variables' as *;
 @use 'src/styles/custom-scrollbar';
 @use 'src/styles/utilities';
+@use 'src/styles/reveal';
 
 html {
   scroll-padding-top: var(--header-h);
