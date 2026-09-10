@@ -23,6 +23,8 @@ const LAPSED_CLIENT_PROJECTION = {
   petName: { $ifNull: ['$pet.name', null] },
   petAge: { $ifNull: ['$pet.age', null] },
   petBreed: { $ifNull: ['$breed.name', null] },
+  lastCallAt: { $ifNull: ['$lastCall.calledAt', null] },
+  attempts: { $size: { $ifNull: ['$calls', []] } },
 };
 
 async function findLapsedClients(
@@ -95,16 +97,35 @@ async function findLapsedClients(
         },
       },
       { $addFields: { breed: { $first: '$breed' } } },
+
+      {
+        $addFields: {
+          lastCall: { $arrayElemAt: [{ $ifNull: ['$calls', []] }, -1] },
+        },
+      },
+      {
+        $addFields: {
+          isNoAnswer: { $eq: [{ $ifNull: ['$lastCall.result', null] }, 'Не відповів'] },
+        },
+      },
       {
         $facet: {
           warm: [
+            { $match: { isNoAnswer: false } },
             { $sort: { lastVisitAt: -1 } },
             { $limit: options.warmSize },
             { $project: LAPSED_CLIENT_PROJECTION },
           ],
           cold: [
+            { $match: { isNoAnswer: false } },
             { $sort: { lastVisitAt: 1 } },
             { $limit: options.coldSize },
+            { $project: LAPSED_CLIENT_PROJECTION },
+          ],
+          noAnswer: [
+            { $match: { isNoAnswer: true } },
+            { $sort: { 'lastCall.calledAt': 1 } },
+            { $limit: options.noAnswerSize },
             { $project: LAPSED_CLIENT_PROJECTION },
           ],
         },
@@ -114,12 +135,14 @@ async function findLapsedClients(
 
   const warm = result?.warm ?? [];
   const cold = result?.cold ?? [];
+  const noAnswer = result?.noAnswer ?? [];
 
   const warmIds = new Set(warm.map((client) => client.clientId.toHexString()));
 
   return {
     warm,
     cold: cold.filter((client) => !warmIds.has(client.clientId.toHexString())),
+    noAnswer,
   };
 }
 
@@ -128,9 +151,10 @@ async function markNotified(
   groups: LapsedClientGroups,
   sentAt: Date = new Date()
 ): Promise<void> {
-  const entries: Array<{ client: LapsedClient; group: 'warm' | 'cold' }> = [
+  const entries: Array<{ client: LapsedClient; group: 'warm' | 'cold' | 'no-answer' }> = [
     ...groups.warm.map((client) => ({ client, group: 'warm' as const })),
     ...groups.cold.map((client) => ({ client, group: 'cold' as const })),
+    ...groups.noAnswer.map((client) => ({ client, group: 'no-answer' as const })),
   ];
 
   if (entries.length === 0) {

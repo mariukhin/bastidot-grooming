@@ -5,13 +5,13 @@ export const CLIENT_COLLECTION = 'client';
 export interface NotifyHistoryEntry {
   sentAt: Date;
   lastVisitAt: Date | null;
-  group: 'warm' | 'cold';
+  group: 'warm' | 'cold' | 'no-answer';
 }
 
 export interface CallEntry {
   calledAt: Date;
   channel: string;
-  result: string;
+  result?: string;
   reason?: string;
   comment?: string;
   bookedFor?: Date;

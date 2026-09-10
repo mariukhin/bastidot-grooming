@@ -31,7 +31,12 @@ function formatDate(date: Date): string {
   }).format(date);
 }
 
-function formatClient(client: LapsedClient, position: number, now: Date): string {
+function formatClient(
+  client: LapsedClient,
+  position: number,
+  now: Date,
+  showAttempts = false
+): string {
   const days = Math.floor((now.getTime() - new Date(client.lastVisitAt).getTime()) / DAY_MS);
 
   const name = escapeHtml(client.name || 'Без імені');
@@ -51,6 +56,11 @@ function formatClient(client: LapsedClient, position: number, now: Date): string
   lines.push(
     `🗓 Останній візит: ${formatDate(new Date(client.lastVisitAt))} — ${days} ${plural(days, ['день', 'дні', 'днів'])} тому`
   );
+  if (showAttempts && client.lastCallAt) {
+    const since = Math.floor((now.getTime() - new Date(client.lastCallAt).getTime()) / DAY_MS);
+    const ago = since <= 0 ? 'сьогодні' : `${since} ${plural(since, ['день', 'дні', 'днів'])} тому`;
+    lines.push(`📵 Спроб: ${client.attempts} · остання ${ago}`);
+  }
   if (client.visitsCount > 0) {
     lines.push(`↩️ Усього візитів: ${client.visitsCount}`);
   } else if (client.dateSource.includes('стара CRM')) {
@@ -64,10 +74,11 @@ function formatSection(
   heading: string,
   clients: LapsedClient[],
   startFrom: number,
-  now: Date
+  now: Date,
+  showAttempts = false
 ): string {
   const body = clients
-    .map((client, index) => formatClient(client, startFrom + index, now))
+    .map((client, index) => formatClient(client, startFrom + index, now, showAttempts))
     .join('\n\n');
 
   return `${heading}\n\n${body}`;
@@ -99,6 +110,18 @@ export function buildDigestMessage(groups: LapsedClientGroups, now: Date = new D
     );
   }
 
+  if (groups.noAnswer.length > 0) {
+    sections.push(
+      formatSection(
+        '📵 <b>Не беруть слухавку</b> — спробувати ще раз',
+        groups.noAnswer,
+        groups.warm.length + groups.cold.length + 1,
+        now,
+        true
+      )
+    );
+  }
+
   const header = `🔔 <b>Кому нагадати про грумінг</b>\n${formatDate(now)}`;
 
   return [
@@ -119,11 +142,12 @@ export async function previewInactiveClientsDigest(
       cooldownDays: config.reminderCooldownDays,
       warmSize: config.reminderWarmSize,
       coldSize: config.reminderColdSize,
+      noAnswerSize: config.reminderNoAnswerSize,
     },
     now
   );
 
-  if (groups.warm.length === 0 && groups.cold.length === 0) {
+  if (groups.warm.length === 0 && groups.cold.length === 0 && groups.noAnswer.length === 0) {
     return 'Нікого нагадувати: під критерії не підпадає жоден клієнт.';
   }
 
@@ -187,11 +211,12 @@ export async function runInactiveClientsDigest(db: Db, now: Date = new Date()): 
       cooldownDays: config.reminderCooldownDays,
       warmSize: config.reminderWarmSize,
       coldSize: config.reminderColdSize,
+      noAnswerSize: config.reminderNoAnswerSize,
     },
     now
   );
 
-  const total = groups.warm.length + groups.cold.length;
+  const total = groups.warm.length + groups.cold.length + groups.noAnswer.length;
   if (total === 0) {
     logger.info('Inactive clients digest: nobody to remind');
     return 0;
@@ -203,6 +228,7 @@ export async function runInactiveClientsDigest(db: Db, now: Date = new Date()): 
   logger.info('Inactive clients digest sent', {
     warm: groups.warm.length,
     cold: groups.cold.length,
+    noAnswer: groups.noAnswer.length,
   });
   return total;
 }

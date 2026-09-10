@@ -11,11 +11,14 @@ export interface LapsedClient {
   petName: string | null;
   petAge: number | null;
   petBreed: string | null;
+  lastCallAt: Date | null;
+  attempts: number;
 }
 
 export interface LapsedClientGroups {
   warm: LapsedClient[];
   cold: LapsedClient[];
+  noAnswer: LapsedClient[];
 }
 
 export interface FindLapsedOptions {
@@ -23,4 +26,5 @@ export interface FindLapsedOptions {
   cooldownDays: number;
   warmSize: number;
   coldSize: number;
+  noAnswerSize: number;
 }

@@ -54,6 +54,7 @@ jobs:
           REMINDER_COOLDOWN_DAYS: ${{ vars.REMINDER_COOLDOWN_DAYS }}
           REMINDER_WARM_COUNT: ${{ vars.REMINDER_WARM_COUNT }}
           REMINDER_COLD_COUNT: ${{ vars.REMINDER_COLD_COUNT }}
+          REMINDER_NOANSWER_COUNT: ${{ vars.REMINDER_NOANSWER_COUNT }}
           REMINDER_RUN_AT: ${{ vars.REMINDER_RUN_AT }}
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
