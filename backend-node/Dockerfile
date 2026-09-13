@@ -12,7 +12,7 @@ COPY src ./src
 
 USER node
 
-# Koyeb пробрасывает свій порт через PORT; 8000 — його дефолт.
+# config.ts читає PORT; має збігатися з internal_port у fly.toml.
 ENV PORT=8000
 EXPOSE 8000
 

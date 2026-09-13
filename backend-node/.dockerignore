@@ -11,3 +11,5 @@ tsconfig.json
 Dockerfile
 .dockerignore
 DEPLOY.md
+fly.toml
+.node-version

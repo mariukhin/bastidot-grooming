@@ -16,10 +16,13 @@ function optionalString(name: string, fallback: string): string {
   return value && value.trim() !== '' ? value.trim() : fallback;
 }
 
+const timeZone = optionalString('TIME_ZONE', 'Europe/Kyiv');
+
 export const config = {
   appEnv: optionalString('APP_ENV', 'development'),
   port: optionalInt('PORT', 8081),
   contextTimeoutSec: optionalInt('CONTEXT_TIMEOUT', 2),
+  timeZone,
 
   dbHost: required('DB_HOST'),
   dbUser: required('DB_USER'),
@@ -46,5 +49,5 @@ export const config = {
   reminderNoAnswerSize: optionalInt('REMINDER_NOANSWER_COUNT', 2),
   reminderRunAt: optionalString('REMINDER_RUN_AT', '11:00'),
   reminderInProcess: process.env.REMINDER_IN_PROCESS === 'true',
-  reminderTimeZone: optionalString('REMINDER_TIME_ZONE', 'Europe/Kyiv'),
+  reminderTimeZone: optionalString('REMINDER_TIME_ZONE', timeZone),
 };

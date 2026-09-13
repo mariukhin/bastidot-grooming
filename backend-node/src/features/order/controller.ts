@@ -3,6 +3,8 @@ import type { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import type { Db } from 'mongodb';
 import OrderService from './service.ts';
+import { notifyNewOrder } from './notification.ts';
+import { logger } from '../../shared/logger.ts';
 import type { Order, BusySlot, CreateOrderInput } from './types.ts';
 
 function toOrderDTO(order: Order) {
@@ -97,6 +99,15 @@ export function createOrderRouter(db: Db): Router {
     try {
       const order = await OrderService.createOrder(db, result.input);
       res.status(201).json(toOrderDTO(order));
+
+      // Запис уже збережений, тож відповідь клієнту не чекає на Telegram:
+      // недоступний бот не має ні гальмувати форму, ні ламати запис.
+      notifyNewOrder(db, order).catch((err: unknown) => {
+        logger.error('Failed to send new-order notification', {
+          orderId: order._id?.toHexString(),
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
     } catch (err) {
       res.status(400).json({ error: err instanceof Error ? err.message : 'Failed to create order' });
     }
