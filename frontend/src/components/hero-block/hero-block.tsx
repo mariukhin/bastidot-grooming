@@ -6,12 +6,10 @@ import classNames from 'classnames';
 import { Button } from '@/components/button';
 
 import styles from './hero-block.module.scss';
+import useBookingStore from '@/store/useBookingStore';
 
-type HeroBlockProps = {
-  onOpenBooking: () => void;
-};
-
-const HeroBlock = ({ onOpenBooking }: HeroBlockProps) => {
+const HeroBlock = () => {
+  const openBooking = useBookingStore((state) => state.openBooking);
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const manualPauseRef = useRef(false);
@@ -129,12 +127,12 @@ const HeroBlock = ({ onOpenBooking }: HeroBlockProps) => {
             Ваші особливості, причини обрати вас або опис салону, цінностей і тд
           </p>
           <div className={styles.ctaRow}>
-            <Button text={'Записатися онлайн'} size={'large'} onClick={onOpenBooking} />
+            <Button text={'Записатися онлайн'} size={'large'} onClick={() => openBooking()} />
             <Button
               text={'Обрати послугу'}
               size={'large'}
               variant={'onvideo'}
-              onClick={onOpenBooking}
+              onClick={() => openBooking()}
             />
           </div>
         </div>

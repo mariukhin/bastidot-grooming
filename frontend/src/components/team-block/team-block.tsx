@@ -1,29 +1,37 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/button';
 import Image from 'next/image';
 import { Icon, IconTypes } from '@/components/icon';
 import styles from './team-block.module.scss';
 import dayjs from 'dayjs';
 import useGroomerStore from '@/store/useGroomerStore';
-import { Groomer } from '@/components/booking-modal/types';
+import useBookingStore from '@/store/useBookingStore';
+import { GroomerDbProps } from '@/components/booking-modal/types';
+import { normalizeGroomerList } from '@/components/booking-modal/utils';
 import { useReveal } from '@/hooks/use-reveal';
 
 type TeamBlockProps = {
-  onOpenBooking?: (groomer: Groomer) => void;
+  groomers: GroomerDbProps[];
 };
 
-const TeamBlock = ({ onOpenBooking }: TeamBlockProps) => {
-  const { groomerList, fetchGroomers } = useGroomerStore();
+const TeamBlock = ({ groomers }: TeamBlockProps) => {
+  const initialGroomers = useMemo(() => normalizeGroomerList(groomers), [groomers]);
+  const groomerList = useGroomerStore((state) => state.groomerList);
+  const fetchGroomers = useGroomerStore((state) => state.fetchGroomers);
+  const openBooking = useBookingStore((state) => state.openBooking);
   const revealRef = useReveal<HTMLDivElement>();
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const railRef = useRef<HTMLDivElement>(null);
 
+  // Server-rendered list until the store enriches it with the nearest free slot.
+  const teamList = groomerList.length > 0 ? groomerList : initialGroomers;
+
   useEffect(() => {
-    fetchGroomers();
-  }, [fetchGroomers]);
+    fetchGroomers(initialGroomers);
+  }, [fetchGroomers, initialGroomers]);
 
   const updateEdges = () => {
     const rail = railRef.current;
@@ -38,7 +46,7 @@ const TeamBlock = ({ onOpenBooking }: TeamBlockProps) => {
 
     window.addEventListener('resize', updateEdges);
     return () => window.removeEventListener('resize', updateEdges);
-  }, [groomerList]);
+  }, [teamList]);
 
   const scrollByCard = (direction: 1 | -1) => {
     const rail = railRef.current;
@@ -54,13 +62,13 @@ const TeamBlock = ({ onOpenBooking }: TeamBlockProps) => {
     <div className={styles.teamContainer}>
       <div className={styles.teamWrapper}>
         <span className={styles.kicker}>Наша команда</span>
-        <p className={styles.title}>Команда</p>
+        <h2 className={styles.title}>Команда</h2>
         <p className={styles.subtitle}>Досвідчені майстри, яким можна довірити улюбленця</p>
         <div className={styles.teamRailWrapper}>
           <div className={styles.teamBlock} ref={railRef}>
-            {groomerList.map((item, index) => (
+            {teamList.map((item, index) => (
               <div
-                className={styles.teamItem}
+                className={`${styles.teamItem} reveal`}
                 key={item.id}
                 ref={revealRef}
                 data-d={(index % 4) + 1}
@@ -73,7 +81,7 @@ const TeamBlock = ({ onOpenBooking }: TeamBlockProps) => {
                     width={124}
                     height={124}
                   />
-                  <p className={styles.teamMemberName}>{item.name}</p>
+                  <h3 className={styles.teamMemberName}>{item.name}</h3>
                   <div className={styles.teamMemberTitleBlock}>
                     {item.isVip && <span className={styles.teamMemberVipTag}>VIP</span>}
                     <p className={styles.teamMemberPosition}>Грумер</p>
@@ -97,7 +105,7 @@ const TeamBlock = ({ onOpenBooking }: TeamBlockProps) => {
                     type={'button'}
                     variant={'onvideo'}
                     text={'Записатися'}
-                    onClick={() => onOpenBooking?.(item)}
+                    onClick={() => openBooking({ groomer: item })}
                   />
                 </div>
               </div>

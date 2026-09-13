@@ -14,9 +14,9 @@ const ServiceItem = ({ item, breedName }: ServiceItemProps) => {
   return (
     <div className={styles.container}>
       <div className={styles.firstRow}>
-        <p className={styles.title}>
+        <h3 className={styles.title}>
           {item.type} - {breedName}
-        </p>
+        </h3>
         <Icon id={IconTypes.info} color={'var(--color-gray)'} width={16} height={16} />
       </div>
       <div className={styles.secondRow}>

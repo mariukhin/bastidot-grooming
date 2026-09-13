@@ -9,14 +9,13 @@ const NEAREST_SLOT_DAYS_AHEAD = 14;
 
 interface GroomerState {
   groomerList: Groomer[];
-  fetchGroomers: () => void;
+  fetchGroomers: (seed?: Groomer[]) => Promise<void>;
 }
 
 const useGroomerStore = create<GroomerState>((set) => ({
   groomerList: [],
-  fetchGroomers: async () => {
-    const data = await getGroomerList();
-    const groomers = normalizeGroomerList(data);
+  fetchGroomers: async (seed) => {
+    const groomers = seed ?? normalizeGroomerList(await getGroomerList());
     set({ groomerList: groomers });
 
     const now = dayjs();

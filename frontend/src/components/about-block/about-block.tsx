@@ -8,30 +8,28 @@ import aboutPhoto from './about.png';
 import { Icon, IconTypes } from '@/components/icon';
 import { offers } from '@/utils/const';
 import { useReveal } from '@/hooks/use-reveal';
+import useBookingStore from '@/store/useBookingStore';
 
-type AboutBlockProps = {
-  onOpenBooking?: () => void;
-};
-
-const AboutBlock = ({ onOpenBooking }: AboutBlockProps) => {
+const AboutBlock = () => {
+  const openBooking = useBookingStore((state) => state.openBooking);
   const revealRef = useReveal<HTMLDivElement>();
 
   return (
     <div className={styles.aboutContainer} id={'about'}>
       <div className={styles.aboutWrapper}>
-        <p className={styles.aboutTitleMobile}>Про нас</p>
-        <div className={styles.aboutPhotoWrapper} ref={revealRef} data-d="1">
+        <h2 className={styles.aboutTitleMobile}>Про нас</h2>
+        <div className={`${styles.aboutPhotoWrapper} reveal`} ref={revealRef} data-d="1">
           <div className={styles.aboutPhotoBackdrop} />
           <Image className={styles.aboutPhoto} src={aboutPhoto} alt="about photo" />
         </div>
-        <div className={styles.aboutInfoContainer} ref={revealRef} data-d="2">
-          <p className={styles.aboutTitle}>Про нас</p>
+        <div className={`${styles.aboutInfoContainer} reveal`} ref={revealRef} data-d="2">
+          <h2 className={styles.aboutTitle}>Про нас</h2>
           <p className={styles.aboutSubtitle}>
             Bastidot Grooming – це сучасний грумінг-салон у самому серці міста Києва, де турбота про
             вашого улюбленця поєднується з професіоналізмом і любов’ю до тварин. У нас працюють
             досвідчені грумери, які знають, як зробити процедури комфортними для вашого хвостика.
           </p>
-          <p className={styles.aboutSubtitleBold}>Ми пропонуємо:</p>
+          <h3 className={styles.aboutSubtitleBold}>Ми пропонуємо:</h3>
           <div className={styles.aboutOffersBlock}>
             {offers.map(({ id, text }) => (
               <div className={styles.aboutOfferItem} key={id}>
@@ -52,7 +50,7 @@ const AboutBlock = ({ onOpenBooking }: AboutBlockProps) => {
             className={styles.aboutButton}
             type={'button'}
             text={'Записатися'}
-            onClick={onOpenBooking}
+            onClick={() => openBooking()}
           />
         </div>
       </div>

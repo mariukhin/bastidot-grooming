@@ -6,7 +6,7 @@ import classNames from 'classnames';
 
 import styles from './reviews-block.module.scss';
 import { Icon, IconTypes } from '@/components/icon';
-import { normalizeReviews, ReviewProps } from '@/utils/function';
+import { ReviewProps } from '@/utils/function';
 import { useReveal } from '@/hooks/use-reveal';
 
 const Stars: FC<{ rating: number }> = ({ rating }) => (
@@ -40,9 +40,14 @@ const ReviewCard: FC<{
     }
   }, []);
 
+  // Clamping can only be measured in the browser, so the button keeps its row in
+  // the server markup and is only made invisible — otherwise hydration would
+  // change the card height.
+  const showMore = isClamped && !expanded;
+
   return (
     <article
-      className={styles.reviewItem}
+      className={classNames(styles.reviewItem, 'reveal')}
       ref={revealRef}
       data-d={d}
       tabIndex={0}
@@ -65,7 +70,7 @@ const ReviewCard: FC<{
           />
         </div>
         <div>
-          <p className={styles.reviewItemAuthorName}>{review.name}</p>
+          <h3 className={styles.reviewItemAuthorName}>{review.name}</h3>
           <p className={styles.reviewItemDate}>{review.date}</p>
         </div>
       </div>
@@ -82,38 +87,28 @@ const ReviewCard: FC<{
         {review.text}
       </p>
 
-      {isClamped && !expanded && (
-        <button type={'button'} className={styles.reviewItemMore} onClick={() => setExpanded(true)}>
-          Читати повністю
-        </button>
-      )}
+      <button
+        type={'button'}
+        className={classNames(styles.reviewItemMore, !showMore && styles.reviewItemMoreHidden)}
+        onClick={() => setExpanded(true)}
+        aria-hidden={!showMore}
+        tabIndex={showMore ? 0 : -1}
+      >
+        Читати повністю
+      </button>
     </article>
   );
 };
 
-const ReviewsBlock = () => {
-  const [reviewsFetch, setReviews] = useState<ReviewProps[]>([]);
+type ReviewsBlockProps = {
+  reviews: ReviewProps[];
+};
+
+const ReviewsBlock = ({ reviews }: ReviewsBlockProps) => {
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const railRef = useRef<HTMLDivElement>(null);
   const revealRef = useReveal<HTMLElement>();
-
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await fetch('/api/reviews');
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-          setReviews(normalizeReviews(data));
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchReviews();
-  }, []);
 
   const updateEdges = () => {
     const rail = railRef.current;
@@ -128,7 +123,7 @@ const ReviewsBlock = () => {
 
     window.addEventListener('resize', updateEdges);
     return () => window.removeEventListener('resize', updateEdges);
-  }, [reviewsFetch]);
+  }, [reviews]);
 
   const scrollByCard = (direction: 1 | -1) => {
     const rail = railRef.current;
@@ -140,19 +135,19 @@ const ReviewsBlock = () => {
     updateEdges();
   };
 
-  if (reviewsFetch.length === 0) return null;
+  if (reviews.length === 0) return null;
 
   return (
     <div className={styles.reviewsContainer} id={'reviews'}>
       <div className={styles.reviewsWrapper}>
         <div className={styles.reviewsTitleWrapper}>
-          <p className={styles.reviewsTitle}>Відгуки</p>
+          <h2 className={styles.reviewsTitle}>Відгуки</h2>
           <p className={styles.reviewsSubtitle}>Надихаючі слова наших клієнтів</p>
         </div>
 
         <div className={styles.reviewsRailWrapper}>
           <div className={styles.reviewsBlock} ref={railRef}>
-            {reviewsFetch.map((item, index) => (
+            {reviews.map((item, index) => (
               <ReviewCard key={item.id} review={item} revealRef={revealRef} d={(index % 4) + 1} />
             ))}
           </div>

@@ -1,6 +1,5 @@
-'use client';
+import type { Metadata } from 'next';
 
-import { useState } from 'react';
 import styles from './page.module.scss';
 import { HeroBlock } from '@/components/hero-block';
 import { ServicesBlock } from '@/components/services-block';
@@ -10,36 +9,39 @@ import { TeamBlock } from '@/components/team-block';
 import { ReviewsBlock } from '@/components/reviews-block';
 import { AboutBlock } from '@/components/about-block';
 import { ContactsBlock } from '@/components/contacts-block';
-import { BookingModal } from '@/components/booking-modal';
-import { Groomer } from '@/components/booking-modal/types';
+import { getGroomers, getHomeCatalog } from '@/server/catalog';
+import { fetchGoogleReviews } from '@/server/reviews';
+import { normalizeReviews } from '@/utils/function';
 
-const Dashboard = () => {
-  const [bookingOpen, setBookingOpen] = useState(false);
-  const [bookingInitialGroomer, setBookingInitialGroomer] = useState<Groomer | undefined>(
-    undefined
-  );
+export const revalidate = 300;
 
-  const openBooking = (groomer?: Groomer) => {
-    setBookingInitialGroomer(groomer);
-    setBookingOpen(true);
-  };
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
+
+const Dashboard = async () => {
+  const [catalog, groomers, reviewsResult] = await Promise.all([
+    getHomeCatalog(),
+    getGroomers(),
+    fetchGoogleReviews(),
+  ]);
+
+  const reviews = reviewsResult.ok ? normalizeReviews(reviewsResult.reviews) : [];
 
   return (
     <div className={styles.wrapper}>
-      <HeroBlock onOpenBooking={() => openBooking()} />
-      <ServicesBlock />
-      {/*<PublicationsBlock />*/}
-      <TeamBlock onOpenBooking={(groomer) => openBooking(groomer)} />
-      {/*<CoursesBlock />*/}
-      <ReviewsBlock />
-      <AboutBlock onOpenBooking={() => openBooking()} />
-      <ContactsBlock />
-
-      <BookingModal
-        isOpen={bookingOpen}
-        onClose={() => setBookingOpen(false)}
-        initialGroomer={bookingInitialGroomer}
+      <HeroBlock />
+      <ServicesBlock
+        breedList={catalog.breedList}
+        initialBreedName={catalog.defaultBreedName}
+        initialServiceList={catalog.serviceList}
       />
+      {/*<PublicationsBlock />*/}
+      <TeamBlock groomers={groomers} />
+      {/*<CoursesBlock />*/}
+      <ReviewsBlock reviews={reviews} />
+      <AboutBlock />
+      <ContactsBlock />
     </div>
   );
 };

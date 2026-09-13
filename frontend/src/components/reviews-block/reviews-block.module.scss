@@ -76,6 +76,7 @@
   align-items: stretch;
   gap: 16px;
   overflow-x: hidden;
+  overflow-y: hidden;
 
   @include breakpoints.md {
     grid-auto-columns: calc((100% - 16px) / 2);
@@ -169,6 +170,11 @@
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.reviewItemMoreHidden {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .railNav {

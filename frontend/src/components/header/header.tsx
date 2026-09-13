@@ -12,9 +12,9 @@ import { handleScroll, isNavLinkActive } from '@/utils/function';
 
 import styles from './header.module.scss';
 import { LoginModal } from '@/components/login-modal';
-import { BookingModal } from '@/components/booking-modal';
 import { MobileMenu } from '@/components/mobile-menu';
 import useUserStore from '@/store/useUserStore';
+import useBookingStore from '@/store/useBookingStore';
 import { Icon, IconTypes } from '@/components/icon';
 
 const SCROLL_THRESHOLD = 60;
@@ -23,12 +23,12 @@ const SECTION_IDS = ['services', 'reviews', 'about', 'contacts'];
 const Header = () => {
   const pathname = usePathname();
   const [isLoginModal, setIsLoginModal] = useState(false);
-  const [isBookingModal, setIsBookingModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   const { user } = useUserStore();
+  const openBooking = useBookingStore((state) => state.openBooking);
 
   const handleOpenModal = () => {
     setIsLoginModal(true);
@@ -126,7 +126,7 @@ const Header = () => {
           className={styles.desktopOnly}
           type={'button'}
           text={'Записатися'}
-          onClick={() => setIsBookingModal(true)}
+          onClick={() => openBooking()}
         />
         {user ? (
           <Icon
@@ -158,13 +158,12 @@ const Header = () => {
         </button>
       </div>
       <LoginModal isOpen={isLoginModal} onClose={() => setIsLoginModal(false)} />
-      <BookingModal isOpen={isBookingModal} onClose={() => setIsBookingModal(false)} />
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         activeSection={activeSection}
         onOpenLogin={handleOpenModal}
-        onOpenBooking={() => setIsBookingModal(true)}
+        onOpenBooking={() => openBooking()}
       />
     </header>
   );

@@ -1,113 +1,65 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import styles from './services-block.module.scss';
 import { Select } from '@/components/select';
-import { Controller, useForm } from 'react-hook-form';
-import {
-  FormExampleFormData,
-  formExampleValidationSchema,
-} from '@/components/form-example/validation';
-import { yupResolver } from '@hookform/resolvers/yup';
 import ServiceItem from '@/components/service-item/service-item';
 import { Button } from '@/components/button';
-import { BreedProps, normalizeBreedList, ServiceProps } from '@/utils/function';
-import { getBreedList } from '@/api/breed';
+import { BreedProps, ServiceProps } from '@/utils/function';
 import { getServiceList } from '@/api/service';
-import { BookingModal } from '@/components/booking-modal';
+import useBookingStore from '@/store/useBookingStore';
 import { useReveal } from '@/hooks/use-reveal';
 
-const ServicesBlock = () => {
-  const [breedList, setBreedList] = useState<BreedProps[]>([]);
-  const [serviceList, setServiceList] = useState<ServiceProps[]>([]);
-  const [bookingOpen, setBookingOpen] = useState(false);
-  const [bookingInitialService, setBookingInitialService] = useState<ServiceProps | undefined>();
+type ServicesBlockProps = {
+  breedList: BreedProps[];
+  initialBreedName: string;
+  initialServiceList: ServiceProps[];
+};
+
+const ServicesBlock = ({ breedList, initialBreedName, initialServiceList }: ServicesBlockProps) => {
+  const [breedName, setBreedName] = useState(initialBreedName);
+  const [serviceList, setServiceList] = useState<ServiceProps[]>(initialServiceList);
+  const openBooking = useBookingStore((state) => state.openBooking);
   const revealRef = useReveal<HTMLDivElement>();
 
-  const {
-    control,
-    getValues,
-    setValue,
-    formState: { errors },
-  } = useForm<FormExampleFormData>({
-    resolver: yupResolver(formExampleValidationSchema),
-    defaultValues: {
-      type: '',
-    },
-  });
-
-  useEffect(() => {
-    (async () => {
-      const result = await getBreedList();
-      const normalizedBreedList = normalizeBreedList(result);
-      setBreedList(normalizedBreedList);
-
-      const currentBreed = normalizedBreedList.find((item) => item.value === 'Мальтіпу');
-      setValue('type', 'Мальтіпу');
-      const res = currentBreed && (await getServiceList(currentBreed.id));
-      setServiceList(res ?? []);
-    })();
-  }, [setValue]);
-
   const onChange = async (value: string) => {
+    setBreedName(value);
     const currentBreed = breedList.find((item) => item.value === value);
     const res = currentBreed && (await getServiceList(currentBreed.id));
     setServiceList(res ?? []);
   };
 
-  const handleBookClick = (service: ServiceProps) => {
-    setBookingInitialService(service);
-    setBookingOpen(true);
-  };
-
   return (
     <div className={styles.container} id={'services'}>
-      <p className={styles.title}>Послуги</p>
+      <h2 className={styles.title}>Послуги</h2>
       <div className={styles.selectBlock}>
         <p className={styles.selectBlockText}>Оберіть вашого улюбленця</p>
-        <Controller
-          control={control}
-          name={'type'}
-          render={({ field }) => (
-            <Select
-              className={styles.select}
-              options={breedList}
-              required
-              defaultValue={field.value}
-              onChange={(value) => {
-                field.onChange(value);
-                onChange(value);
-              }}
-              error={errors?.type?.message}
-            />
-          )}
+        <Select
+          className={styles.select}
+          options={breedList}
+          required
+          defaultValue={initialBreedName}
+          onChange={onChange}
         />
       </div>
       <div className={styles.serviceContainer}>
         {serviceList.map((item, index) => (
           <div
-            className={styles.serviceItemContainer}
+            className={`${styles.serviceItemContainer} reveal`}
             key={item.id}
             ref={revealRef}
             data-d={(index % 4) + 1}
           >
-            <ServiceItem item={item} breedName={getValues('type')} />
+            <ServiceItem item={item} breedName={breedName} />
             <Button
               type={'button'}
               text={'Записатись'}
               color={'blue'}
-              onClick={() => handleBookClick(item)}
+              onClick={() => openBooking({ service: item, breedName })}
             />
           </div>
         ))}
       </div>
-
-      <BookingModal
-        isOpen={bookingOpen}
-        onClose={() => setBookingOpen(false)}
-        initialBreed={getValues('type')}
-        initialService={bookingInitialService}
-      />
     </div>
   );
 };

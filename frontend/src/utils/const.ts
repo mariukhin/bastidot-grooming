@@ -19,18 +19,22 @@ export const footerSocials = [
   {
     href: 'https://www.facebook.com/profile.php?id=61573034533317',
     icon: IconTypes.facebook,
+    label: 'Bastidot у Facebook',
   },
   {
     href: 'https://www.instagram.com/basti.dot',
     icon: IconTypes.instagram,
+    label: 'Bastidot в Instagram',
   },
   {
     href: 'https://www.youtube.com/@BastidotGrooming',
     icon: IconTypes.youtube,
+    label: 'Bastidot на YouTube',
   },
   {
     href: 'https://www.tiktok.com/@bastidot.grooming',
     icon: IconTypes.tiktok,
+    label: 'Bastidot у TikTok',
   },
 ];
 
@@ -46,17 +50,21 @@ export const contactBlockSocials = [
   {
     href: 'https://www.instagram.com/basti.dot',
     icon: IconTypes.instagram,
+    label: 'Bastidot в Instagram',
   },
   {
     href: 'https://t.me/bastidot',
     icon: IconTypes.telegram,
+    label: 'Bastidot у Telegram',
   },
   {
     href: 'https://www.youtube.com/@BastidotGrooming',
     icon: IconTypes.youtube,
+    label: 'Bastidot на YouTube',
   },
   {
     href: 'https://www.tiktok.com/@bastidot.grooming',
     icon: IconTypes.tiktok,
+    label: 'Bastidot у TikTok',
   },
 ];
