@@ -18,6 +18,7 @@ primary_region = 'ams'
   REMINDER_NOANSWER_COUNT = '2'
   REMINDER_RUN_AT = '11:00'
   REMINDER_TIME_ZONE = 'Europe/Kyiv'
+  REMINDER_IN_PROCESS = 'true'
 
 [http_service]
   internal_port = 8000
