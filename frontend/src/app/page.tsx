@@ -9,8 +9,10 @@ import { TeamBlock } from '@/components/team-block';
 import { ReviewsBlock } from '@/components/reviews-block';
 import { AboutBlock } from '@/components/about-block';
 import { ContactsBlock } from '@/components/contacts-block';
+import { JsonLd } from '@/components/json-ld';
 import { getGroomers, getHomeCatalog } from '@/server/catalog';
 import { fetchGoogleReviews } from '@/server/reviews';
+import { buildBusinessJsonLd } from '@/server/json-ld';
 import { normalizeReviews } from '@/utils/function';
 
 export const revalidate = 300;
@@ -28,8 +30,15 @@ const Dashboard = async () => {
 
   const reviews = reviewsResult.ok ? normalizeReviews(reviewsResult.reviews) : [];
 
+  const jsonLd = buildBusinessJsonLd({
+    services: catalog.serviceList,
+    rating: reviewsResult.ok ? reviewsResult.rating : null,
+    reviewCount: reviewsResult.ok ? reviewsResult.reviewCount : null,
+  });
+
   return (
     <div className={styles.wrapper}>
+      <JsonLd data={jsonLd} />
       <HeroBlock />
       <ServicesBlock
         breedList={catalog.breedList}

@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { Icon, IconTypes } from '@/components/icon';
 import { ServiceProps } from '@/utils/function';
 import { Groomer } from './types';
-import { getGroomerPrice } from './utils';
+import { formatDuration, getBookingTotals } from './utils';
 
 import styles from './booking-modal.module.scss';
 
@@ -29,9 +29,11 @@ const SummaryCard = ({
   selectedExtraServices = [],
   children,
 }: SummaryCardProps) => {
-  const extraTotal = selectedExtraServices.reduce((sum, s) => sum + s.defaultPrice, 0);
-  const basePrice = selectedGroomer ? getGroomerPrice(selectedGroomer, selectedServices) : null;
-  const totalPrice = basePrice !== null ? basePrice + extraTotal : null;
+  const { price, extraTotal, durationMinutes, isFrom } = getBookingTotals(
+    selectedServices,
+    selectedExtraServices,
+    selectedGroomer
+  );
 
   const serviceNames = [selectedServices[0]?.type, ...selectedExtraServices.map((s) => s.type)]
     .filter(Boolean)
@@ -62,11 +64,7 @@ const SummaryCard = ({
             <div className={styles.summaryRow}>
               <Icon id={IconTypes.money} color="var(--color-gray)" width={19} height={13} />
               <p className={styles.summaryText}>
-                Грумер {selectedGroomer.isVip ? 'VIP' : ''}: {selectedGroomer.name} – {totalPrice}{' '}
-                грн
-                {extraTotal > 0 && (
-                  <span className={styles.extraPriceHint}> (+{extraTotal} грн)</span>
-                )}
+                Грумер {selectedGroomer.isVip ? 'VIP' : ''}: {selectedGroomer.name}
               </p>
               {onEditGroomer && (
                 <button type="button" className={styles.editButton} onClick={onEditGroomer}>
@@ -88,6 +86,20 @@ const SummaryCard = ({
           )}
         </>
       )}
+
+      {price !== null && (
+        <div className={styles.summaryTotalRow}>
+          <p className={styles.summaryTotalLabel}>{isFrom ? 'Разом від' : 'Разом'}</p>
+          {durationMinutes > 0 && (
+            <p className={styles.summaryTotalMeta}>{formatDuration(durationMinutes)}</p>
+          )}
+          <p className={styles.summaryTotalValue}>
+            {price} грн
+            {extraTotal > 0 && <span className={styles.extraPriceHint}> (+{extraTotal})</span>}
+          </p>
+        </div>
+      )}
+
       {children}
     </div>
   );

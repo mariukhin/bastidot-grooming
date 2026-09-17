@@ -1,6 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { object, string } from 'yup';
 import groomerPreview from '@/components/team-block/groomerPreview.png';
+import { ServiceProps } from '@/utils/function';
 import { BusySlot, Groomer, GroomerDbProps, TimeSlotPeriod } from './types';
 
 const DAY_CLOSE_HOUR = 20;
@@ -88,8 +89,8 @@ export const findNearestAvailableSlot = (
 export const formSchema = object({
   phone: string().required("Телефон обов'язковий").min(13, 'Невірний формат'),
   name: string().required("Ім'я обов'язкове"),
-  email: string().email('Невірний формат пошти').required(`Пошта обов'язкова`),
-  petName: string().optional(),
+  email: string().email('Невірний формат пошти').optional(),
+  petName: string().required("Ім'я улюбленця обов'язкове"),
   comment: string().optional(),
 });
 
@@ -99,4 +100,44 @@ export const getGroomerPrice = (
 ): number | null => {
   if (services.length === 0) return null;
   return groomer.isVip ? services[0].vipPrice : services[0].defaultPrice;
+};
+
+export const formatDuration = (minutes: number): string => {
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return [hours > 0 ? `${hours} год` : '', rest > 0 ? `${rest} хв` : ''].filter(Boolean).join(' ');
+};
+
+export type BookingTotals = {
+  price: number | null;
+  extraTotal: number;
+  durationMinutes: number;
+  isFrom: boolean;
+};
+
+export const getBookingTotals = (
+  selectedServices: ServiceProps[],
+  selectedExtraServices: ServiceProps[],
+  selectedGroomer: Groomer | null
+): BookingTotals => {
+  const base = selectedGroomer
+    ? getGroomerPrice(selectedGroomer, selectedServices)
+    : (selectedServices[0]?.defaultPrice ?? null);
+
+  const extraTotal = selectedExtraServices.reduce((sum, service) => sum + service.defaultPrice, 0);
+
+  const durationMinutes =
+    (selectedServices[0]?.durationHour ?? 0) * 60 +
+    (selectedServices[0]?.durationMin ?? 0) +
+    selectedExtraServices.reduce(
+      (sum, service) => sum + (service.durationHour ?? 0) * 60 + (service.durationMin ?? 0),
+      0
+    );
+
+  return {
+    price: base === null ? null : base + extraTotal,
+    extraTotal,
+    durationMinutes,
+    isFrom: selectedGroomer === null,
+  };
 };

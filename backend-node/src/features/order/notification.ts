@@ -45,8 +45,8 @@ function formatDuration(minutes: number): string {
 }
 
 function servicePrice(service: Service, isVip: boolean): number {
-  const price = isVip ? service.vipPrice : service.defaultPrice;
-  return typeof price === 'number' ? price : 0;
+  const vipPrice = isVip ? service.vipPrice : null;
+  return typeof vipPrice === 'number' ? vipPrice : (service.defaultPrice ?? 0);
 }
 
 export function buildNewOrderMessage(ctx: NewOrderContext): string {

@@ -7,7 +7,7 @@ export interface Service {
   breedId: ObjectId;
   type: string;
   defaultPrice: number;
-  vipPrice: number;
+  vipPrice: number | null;
   durationHour: number;
   durationMin: number;
 }

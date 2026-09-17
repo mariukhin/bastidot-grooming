@@ -28,8 +28,8 @@ export type Groomer = {
 export type BookingFormData = {
   phone: string;
   name: string;
-  email: string;
-  petName: string | undefined;
+  email: string | undefined;
+  petName: string;
   comment: string | undefined;
 };
 

@@ -9,7 +9,7 @@ import { PhoneInput } from '@/components/phone-input';
 import { TextArea } from '@/components/text-area';
 import { ServiceProps } from '@/utils/function';
 import { BookingFormData, Groomer } from './types';
-import { getGroomerPrice } from './utils';
+import { formatDuration, getBookingTotals } from './utils';
 
 import styles from './booking-modal.module.scss';
 
@@ -38,23 +38,15 @@ const StepForm = ({
   formattedDateTime,
   onGoToStep,
 }: StepFormProps) => {
-  const extraTotal = selectedExtraServices.reduce((sum, s) => sum + s.defaultPrice, 0);
-  const basePrice = selectedGroomer ? getGroomerPrice(selectedGroomer, selectedServices) : null;
-  const totalPrice = basePrice !== null ? basePrice + extraTotal : null;
+  const { price, extraTotal, durationMinutes } = getBookingTotals(
+    selectedServices,
+    selectedExtraServices,
+    selectedGroomer
+  );
 
   const serviceNames = [selectedServices[0]?.type, ...selectedExtraServices.map((s) => s.type)]
     .filter(Boolean)
     .join(', ');
-
-  const totalMinutes =
-    (selectedServices[0]?.durationHour ?? 0) * 60 +
-    (selectedServices[0]?.durationMin ?? 0) +
-    selectedExtraServices.reduce(
-      (sum, s) => sum + (s.durationHour ?? 0) * 60 + (s.durationMin ?? 0),
-      0
-    );
-  const durationHour = Math.floor(totalMinutes / 60);
-  const durationMin = totalMinutes % 60;
 
   return (
     <div className={styles.stepContainer}>
@@ -73,6 +65,7 @@ const StepForm = ({
               label="Телефон"
               required
               onChange={field.onChange}
+              onBlur={field.onBlur}
               error={errors.phone?.message}
             />
           )}
@@ -83,8 +76,10 @@ const StepForm = ({
           render={({ field }) => (
             <TextInput
               label="Ваше ім'я"
+              required
               placeholder="Наприклад: Анна"
               onChange={field.onChange}
+              onBlur={field.onBlur}
               error={errors.name?.message}
             />
           )}
@@ -98,6 +93,7 @@ const StepForm = ({
               placeholder="Наприклад: anna@gmail.com"
               type="email"
               onChange={field.onChange}
+              onBlur={field.onBlur}
               error={errors.email?.message}
             />
           )}
@@ -111,6 +107,8 @@ const StepForm = ({
               required
               placeholder="Наприклад, Рекс"
               onChange={field.onChange}
+              onBlur={field.onBlur}
+              error={errors.petName?.message}
             />
           )}
         />
@@ -130,10 +128,7 @@ const StepForm = ({
                 <p className={styles.bookingSummaryText}>{serviceNames}</p>
                 <div className={styles.serviceItemRow}>
                   <Icon id={IconTypes.clock} color="var(--color-gray)" width={14} height={14} />
-                  <p className={styles.serviceItemMeta}>
-                    {durationHour ? `${durationHour} год` : ''}{' '}
-                    {durationMin ? `${durationMin} хв` : ''}
-                  </p>
+                  <p className={styles.serviceItemMeta}>{formatDuration(durationMinutes)}</p>
                 </div>
               </div>
               <button
@@ -145,11 +140,10 @@ const StepForm = ({
               </button>
             </div>
 
-            {selectedGroomer && totalPrice !== null && (
+            {selectedGroomer && (
               <div className={styles.bookingSummaryRow}>
                 <p className={styles.bookingSummaryText}>
-                  Грумер {selectedGroomer.isVip ? 'VIP' : ''}: {selectedGroomer.name} – {totalPrice}{' '}
-                  грн
+                  Грумер {selectedGroomer.isVip ? 'VIP' : ''}: {selectedGroomer.name}
                 </p>
                 <button
                   type="button"
@@ -188,6 +182,18 @@ const StepForm = ({
       </form>
 
       <div className={styles.footer}>
+        {price !== null && (
+          <div className={styles.summaryTotalRow}>
+            <p className={styles.summaryTotalLabel}>Разом</p>
+            {durationMinutes > 0 && (
+              <p className={styles.summaryTotalMeta}>{formatDuration(durationMinutes)}</p>
+            )}
+            <p className={styles.summaryTotalValue}>
+              {price} грн
+              {extraTotal > 0 && <span className={styles.extraPriceHint}> (+{extraTotal})</span>}
+            </p>
+          </div>
+        )}
         <Button
           text="Записатися зараз"
           size="large"

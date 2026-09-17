@@ -920,3 +920,35 @@
     background-color: var(--color-hint-of-red);
   }
 }
+
+.summaryTotalRow {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.summaryTotalLabel {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--color-woodsmoke);
+}
+
+.summaryTotalMeta {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-gray);
+}
+
+.summaryTotalValue {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 20px;
+  color: var(--color-dark-burgundy);
+}
+
+.footer .summaryTotalRow {
+  padding-bottom: 10px;
+}

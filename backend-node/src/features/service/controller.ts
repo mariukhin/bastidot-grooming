@@ -10,7 +10,7 @@ function toServiceDTO(service: Service): {
   breedId: string,
   type: string,
   defaultPrice: number,
-  vipPrice: number,
+  vipPrice: number | null,
   durationHour: number,
   durationMin: number
 } {

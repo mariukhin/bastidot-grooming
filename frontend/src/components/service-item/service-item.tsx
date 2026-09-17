@@ -6,17 +6,14 @@ import { Icon, IconTypes } from '@/components/icon';
 
 type ServiceItemProps = {
   item: ServiceProps;
-  breedName: string;
   onBook?: () => void;
 };
 
-const ServiceItem = ({ item, breedName }: ServiceItemProps) => {
+const ServiceItem = ({ item }: ServiceItemProps) => {
   return (
     <div className={styles.container}>
       <div className={styles.firstRow}>
-        <h3 className={styles.title}>
-          {item.type} - {breedName}
-        </h3>
+        <h3 className={styles.title}>{item.type}</h3>
         <Icon id={IconTypes.info} color={'var(--color-gray)'} width={16} height={16} />
       </div>
       <div className={styles.secondRow}>

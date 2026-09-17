@@ -50,7 +50,7 @@ const ServicesBlock = ({ breedList, initialBreedName, initialServiceList }: Serv
             ref={revealRef}
             data-d={(index % 4) + 1}
           >
-            <ServiceItem item={item} breedName={breedName} />
+            <ServiceItem item={item} />
             <Button
               type={'button'}
               text={'Записатись'}

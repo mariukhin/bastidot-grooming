@@ -21,6 +21,7 @@ type StepDatetimeProps = {
   onWeekOffsetChange: (updater: (prev: number) => number) => void;
   onNext: () => void;
   selectedServices: ServiceProps[];
+  selectedExtraServices: ServiceProps[];
   selectedGroomer: Groomer | null;
   formattedDateTime: string | null;
   isSummaryExpanded: boolean;
@@ -39,6 +40,7 @@ const StepDatetime = ({
   onWeekOffsetChange,
   onNext,
   selectedServices,
+  selectedExtraServices,
   selectedGroomer,
   formattedDateTime,
   isSummaryExpanded,
@@ -122,6 +124,7 @@ const StepDatetime = ({
     <div className={styles.footer}>
       <SummaryCard
         selectedServices={selectedServices}
+        selectedExtraServices={selectedExtraServices}
         selectedGroomer={selectedGroomer}
         formattedDateTime={formattedDateTime}
         isSummaryExpanded={isSummaryExpanded}

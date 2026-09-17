@@ -60,7 +60,7 @@ const BookingModal = ({
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [extraServiceList, setExtraServiceList] = useState<ServiceProps[]>([]);
   const [selectedExtraServices, setSelectedExtraServices] = useState<ServiceProps[]>([]);
-  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
 
   const {
@@ -70,7 +70,10 @@ const BookingModal = ({
     formState: { errors, isValid },
   } = useForm<BookingFormData>({
     resolver: yupResolver(formSchema) as Resolver<BookingFormData>,
-    mode: 'onChange',
+    // onTouched, а не onChange: PhoneInput повідомляє '+380' одразу на маунті,
+    // і при onChange поле спалахувало помилкою ще до того, як користувач
+    // щось увів. Тепер перевірка — після першого blur.
+    mode: 'onTouched',
     defaultValues: { phone: '', name: '', email: '', petName: '', comment: '' },
   });
 
@@ -125,7 +128,7 @@ const BookingModal = ({
     setSelectedDate(_todayHasSlots ? _today : _today.add(1, 'day'));
     setSelectedSlot(null);
     setSelectedExtraServices([]);
-    setIsSummaryExpanded(false);
+    setIsSummaryExpanded(true);
     reset();
 
     (async () => {
@@ -198,8 +201,8 @@ const BookingModal = ({
     const order = await createOrder({
       clientName: data.name,
       clientPhone: data.phone,
-      clientEmail: data.email,
-      petName: data.petName?.trim() || 'Улюбленець',
+      clientEmail: data.email?.trim() ?? '',
+      petName: data.petName.trim(),
       petAge: 0,
       petWeight: 0,
       petPhotoUrl: '',
@@ -227,7 +230,7 @@ const BookingModal = ({
     setSelectedDate(_todayHasSlots ? _today : _today.add(1, 'day'));
     setSelectedSlot(null);
     setSelectedExtraServices([]);
-    setIsSummaryExpanded(false);
+    setIsSummaryExpanded(true);
     reset();
   };
 
@@ -298,6 +301,9 @@ const BookingModal = ({
           groomers={groomerList}
           selectedGroomer={selectedGroomer}
           selectedServices={selectedServices}
+          selectedExtraServices={selectedExtraServices}
+          isSummaryExpanded={isSummaryExpanded}
+          onToggleSummary={() => setIsSummaryExpanded((prev) => !prev)}
           onSelectGroomer={setSelectedGroomer}
           onNext={() => setStep('extra-services')}
         />

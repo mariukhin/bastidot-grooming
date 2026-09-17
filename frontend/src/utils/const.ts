@@ -1,4 +1,5 @@
 import { IconTypes } from '@/components/icon';
+import { SOCIAL } from '@/utils/site';
 
 type LinkProps = {
   href: string;
@@ -17,22 +18,22 @@ export const links: LinkProps[] = [
 
 export const footerSocials = [
   {
-    href: 'https://www.facebook.com/profile.php?id=61573034533317',
+    href: SOCIAL.facebook,
     icon: IconTypes.facebook,
     label: 'Bastidot у Facebook',
   },
   {
-    href: 'https://www.instagram.com/basti.dot',
+    href: SOCIAL.instagram,
     icon: IconTypes.instagram,
     label: 'Bastidot в Instagram',
   },
   {
-    href: 'https://www.youtube.com/@BastidotGrooming',
+    href: SOCIAL.youtube,
     icon: IconTypes.youtube,
     label: 'Bastidot на YouTube',
   },
   {
-    href: 'https://www.tiktok.com/@bastidot.grooming',
+    href: SOCIAL.tiktok,
     icon: IconTypes.tiktok,
     label: 'Bastidot у TikTok',
   },
@@ -48,22 +49,22 @@ export const offers = [
 
 export const contactBlockSocials = [
   {
-    href: 'https://www.instagram.com/basti.dot',
+    href: SOCIAL.instagram,
     icon: IconTypes.instagram,
     label: 'Bastidot в Instagram',
   },
   {
-    href: 'https://t.me/bastidot',
+    href: SOCIAL.telegram,
     icon: IconTypes.telegram,
     label: 'Bastidot у Telegram',
   },
   {
-    href: 'https://www.youtube.com/@BastidotGrooming',
+    href: SOCIAL.youtube,
     icon: IconTypes.youtube,
     label: 'Bastidot на YouTube',
   },
   {
-    href: 'https://www.tiktok.com/@bastidot.grooming',
+    href: SOCIAL.tiktok,
     icon: IconTypes.tiktok,
     label: 'Bastidot у TikTok',
   },

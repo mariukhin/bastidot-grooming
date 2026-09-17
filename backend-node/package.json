@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test",
     "reminder:run": "node --experimental-strip-types --env-file-if-exists=.env src/features/reminder/run.ts",
-    "reminder:preview": "node --experimental-strip-types --env-file-if-exists=.env src/features/reminder/run.ts --dry-run"
+    "reminder:preview": "node --experimental-strip-types --env-file-if-exists=.env src/features/reminder/run.ts --dry-run",
+    "client:apply": "node --experimental-strip-types --env-file-if-exists=.env src/scripts/apply-client-json.ts"
   },
   "dependencies": {
     "express": "^5.2.1",

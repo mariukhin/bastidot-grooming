@@ -2,10 +2,10 @@ import Image from 'next/image';
 import classNames from 'classnames';
 
 import { Button } from '@/components/button';
-import { Icon, IconTypes } from '@/components/icon';
 import { ServiceProps } from '@/utils/function';
 import { Groomer } from './types';
 import { getGroomerPrice } from './utils';
+import SummaryCard from './summary-card';
 
 import styles from './booking-modal.module.scss';
 
@@ -13,6 +13,9 @@ type StepGroomerProps = {
   groomers: Groomer[];
   selectedGroomer: Groomer | null;
   selectedServices: ServiceProps[];
+  selectedExtraServices: ServiceProps[];
+  isSummaryExpanded: boolean;
+  onToggleSummary: () => void;
   onSelectGroomer: (groomer: Groomer) => void;
   onNext: () => void;
 };
@@ -21,6 +24,9 @@ const StepGroomer = ({
   groomers,
   selectedGroomer,
   selectedServices,
+  selectedExtraServices,
+  isSummaryExpanded,
+  onToggleSummary,
   onSelectGroomer,
   onNext,
 }: StepGroomerProps) => (
@@ -64,18 +70,21 @@ const StepGroomer = ({
     </div>
 
     <div className={styles.groomerFooter}>
-      <div className={styles.summaryCard}>
-        <div className={styles.summaryHeader}>
-          <Icon id={IconTypes.heart} color="var(--color-gray)" width={18} height={18} />
-          <p className={styles.summaryText}>{selectedServices[0]?.type}</p>
-        </div>
+      <SummaryCard
+        selectedServices={selectedServices}
+        selectedExtraServices={selectedExtraServices}
+        selectedGroomer={selectedGroomer}
+        formattedDateTime={null}
+        isSummaryExpanded={isSummaryExpanded}
+        onToggle={onToggleSummary}
+      >
         <Button
           text="Обрати дату та час"
           size="large"
           disabled={!selectedGroomer}
           onClick={onNext}
         />
-      </div>
+      </SummaryCard>
     </div>
   </div>
 );
