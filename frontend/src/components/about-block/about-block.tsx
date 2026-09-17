@@ -20,7 +20,11 @@ const AboutBlock = () => {
         <h2 className={styles.aboutTitleMobile}>Про нас</h2>
         <div className={`${styles.aboutPhotoWrapper} reveal`} ref={revealRef} data-d="1">
           <div className={styles.aboutPhotoBackdrop} />
-          <Image className={styles.aboutPhoto} src={aboutPhoto} alt="about photo" />
+          <Image
+            className={styles.aboutPhoto}
+            src={aboutPhoto}
+            alt="Власник салону тримає на руках йоркширського тер'єра"
+          />
         </div>
         <div className={`${styles.aboutInfoContainer} reveal`} ref={revealRef} data-d="2">
           <h2 className={styles.aboutTitle}>Про нас</h2>

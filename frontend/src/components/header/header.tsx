@@ -96,7 +96,7 @@ const Header = () => {
       <Image
         className={classNames(styles.logo, isScrolled && styles.logoScrolled)}
         src={'/big-logo.svg'}
-        alt="Logo"
+        alt="Bastidot Grooming"
         width={169}
         height={37}
         priority

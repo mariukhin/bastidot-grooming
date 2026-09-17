@@ -32,10 +32,7 @@ const fetchBreedList = () =>
   request<BreedDbProps[]>('/breed', { next: { revalidate: REVALIDATE_SECONDS } });
 
 const fetchServiceList = (breedId: string) =>
-  request<ServiceProps[]>('/service', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ breedId }),
+  request<ServiceProps[]>(`/service?breedId=${encodeURIComponent(breedId)}`, {
     next: { revalidate: REVALIDATE_SECONDS },
   });
 

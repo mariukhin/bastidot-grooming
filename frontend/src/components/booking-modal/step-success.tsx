@@ -118,7 +118,7 @@ const StepSuccess = ({
               src={selectedGroomer.photoSrc || groomerPreview}
               width={36}
               height={36}
-              alt={selectedGroomer.name}
+              alt=""
               className={styles.successGroomerPhoto}
             />
             <div>

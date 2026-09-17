@@ -20,11 +20,13 @@ const TeamBlock = ({ groomers }: TeamBlockProps) => {
   const initialGroomers = useMemo(() => normalizeGroomerList(groomers), [groomers]);
   const groomerList = useGroomerStore((state) => state.groomerList);
   const fetchGroomers = useGroomerStore((state) => state.fetchGroomers);
+  const loadNearestSlots = useGroomerStore((state) => state.loadNearestSlots);
   const openBooking = useBookingStore((state) => state.openBooking);
   const revealRef = useReveal<HTMLDivElement>();
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const railRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   // Server-rendered list until the store enriches it with the nearest free slot.
   const teamList = groomerList.length > 0 ? groomerList : initialGroomers;
@@ -32,6 +34,24 @@ const TeamBlock = ({ groomers }: TeamBlockProps) => {
   useEffect(() => {
     fetchGroomers(initialGroomers);
   }, [fetchGroomers, initialGroomers]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          loadNearestSlots();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px 0px' }
+    );
+    observer.observe(section);
+
+    return () => observer.disconnect();
+  }, [loadNearestSlots, teamList.length]);
 
   const updateEdges = () => {
     const rail = railRef.current;
@@ -59,7 +79,7 @@ const TeamBlock = ({ groomers }: TeamBlockProps) => {
   };
 
   return (
-    <div className={styles.teamContainer}>
+    <div className={styles.teamContainer} ref={sectionRef}>
       <div className={styles.teamWrapper}>
         <span className={styles.kicker}>Наша команда</span>
         <h2 className={styles.title}>Команда</h2>
@@ -77,7 +97,7 @@ const TeamBlock = ({ groomers }: TeamBlockProps) => {
                   <Image
                     className={styles.teamMemberPhoto}
                     src={item.photoSrc}
-                    alt="team member preview photo"
+                    alt=""
                     width={124}
                     height={124}
                   />

@@ -25,21 +25,28 @@ function toServiceDTO(service: Service): {
   };
 }
 
+async function respondWithServices(db: Db, breedId: unknown, res: Response): Promise<void> {
+  if (typeof breedId !== 'string' || !ObjectId.isValid(breedId)) {
+    res.status(400).json({ error: 'Valid breedId is required' });
+    return;
+  }
+
+  const services = await ServiceService.getByBreedId(db, breedId);
+  res.json(services.map(toServiceDTO));
+}
+
 export function createServiceRouter(db: Db): Router {
   const router = Router();
 
-  // POST /service
+  // GET /service?breedId=... — читання, тож кешується браузером і CDN.
+  router.get('/', async (req: Request, res: Response) => {
+    await respondWithServices(db, req.query.breedId, res);
+  });
+
+  // POST лишається тимчасово, щоб задеплоєний фронт попередньої версії
+  // не зламався між викатками. Прибрати після оновлення обох частин.
   router.post('/', async (req: Request, res: Response) => {
-    const { breedId } = req.body ?? {};
-
-    if (typeof breedId !== 'string' || !ObjectId.isValid(breedId)) {
-      res.status(400).json({ error: 'Valid breedId is required' });
-      return;
-    }
-
-    const services = await ServiceService.getByBreedId(db, breedId);
-
-    res.json(services.map(toServiceDTO));
+    await respondWithServices(db, (req.body ?? {}).breedId, res);
   });
 
   return router;

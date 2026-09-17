@@ -43,7 +43,7 @@ const Footer = () => {
           <Image
             className={classNames(styles.logo, styles.bigLogo)}
             src={'/big-logo.svg'}
-            alt="Logo"
+            alt="Bastidot Grooming"
             width={169}
             height={37}
             priority
@@ -51,7 +51,7 @@ const Footer = () => {
           <Image
             className={classNames(styles.logo, styles.smallLogo)}
             src={'/small-logo.svg'}
-            alt="Logo"
+            alt="Bastidot Grooming"
             width={75}
             height={57}
             priority

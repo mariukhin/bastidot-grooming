@@ -155,7 +155,7 @@ const BookingModal = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen || !selectedGroomer) {
+    if (!isOpen || !selectedGroomer || step !== 'datetime') {
       setBusySlots([]);
       return;
     }
@@ -166,7 +166,7 @@ const BookingModal = ({
       const result = await getBusySlots(selectedGroomer.id, from, to);
       setBusySlots(Array.isArray(result) ? result : []);
     })();
-  }, [isOpen, selectedGroomer, weekDates]);
+  }, [isOpen, step, selectedGroomer, weekDates]);
 
   const handleBreedChange = async (value: string) => {
     const breed = breedList.find((b) => b.value === value) ?? null;

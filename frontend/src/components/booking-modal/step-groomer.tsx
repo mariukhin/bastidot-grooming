@@ -53,7 +53,7 @@ const StepGroomer = ({
                 src={groomer.photoSrc}
                 width={60}
                 height={60}
-                alt={groomer.name}
+                alt=""
               />
               <div className={styles.groomerInfo}>
                 <p className={styles.groomerName}>{groomer.name}</p>
