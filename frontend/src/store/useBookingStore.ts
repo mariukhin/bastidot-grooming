@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { ServiceProps } from '@/utils/function';
 import { Groomer } from '@/components/booking-modal/types';
+import { track } from '@/utils/analytics';
 
 export type BookingIntent = {
   groomer?: Groomer;
@@ -19,13 +20,17 @@ const useBookingStore = create<BookingState>((set) => ({
   groomer: undefined,
   service: undefined,
   breedName: undefined,
-  openBooking: (intent) =>
+  openBooking: (intent) => {
+    track('booking_open', {
+      source: intent?.groomer ? 'groomer' : intent?.service ? 'service' : 'button',
+    });
     set({
       isOpen: true,
       groomer: intent?.groomer,
       service: intent?.service,
       breedName: intent?.breedName,
-    }),
+    });
+  },
   closeBooking: () => set({ isOpen: false }),
 }));
 

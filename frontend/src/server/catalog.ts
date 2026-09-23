@@ -50,6 +50,25 @@ export const getHomeCatalog = async (): Promise<HomeCatalog> => {
   };
 };
 
+// Послуги для кількох порід одразу — потрібні секції «Наші роботи», щоб
+// кнопка на картці відкривала запис саме на ту послугу, яку на фото.
+export const getServicesForBreeds = async (
+  breedNames: string[]
+): Promise<Map<string, ServiceProps[]>> => {
+  const breeds = await fetchBreedList();
+  const breedList = normalizeBreedList(Array.isArray(breeds) ? breeds : []);
+
+  const entries = await Promise.all(
+    breedNames.map(async (name) => {
+      const breed = breedList.find((item) => item.value === name);
+      const services = breed ? await fetchServiceList(breed.id) : null;
+      return [name, Array.isArray(services) ? services : []] as const;
+    })
+  );
+
+  return new Map(entries);
+};
+
 export const getGroomers = async (): Promise<GroomerDbProps[]> => {
   const groomers = await request<GroomerDbProps[]>('/groomer', {
     next: { revalidate: REVALIDATE_SECONDS },

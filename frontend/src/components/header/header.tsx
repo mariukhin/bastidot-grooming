@@ -18,7 +18,7 @@ import useBookingStore from '@/store/useBookingStore';
 import { Icon, IconTypes } from '@/components/icon';
 
 const SCROLL_THRESHOLD = 60;
-const SECTION_IDS = ['services', 'reviews', 'about', 'contacts'];
+const SECTION_IDS = ['services', 'works', 'reviews', 'about', 'contacts'];
 
 const Header = () => {
   const pathname = usePathname();

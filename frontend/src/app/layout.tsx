@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { BookingModalHost } from '@/components/booking-modal';
+import { Analytics } from '@/components/analytics';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/utils/site';
 
 import 'normalize.css';
@@ -83,6 +84,7 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
           <div id="modal-root" />
           <BookingModalHost />
           <Footer />
+          <Analytics />
         </GoogleOAuthProvider>
       </body>
     </html>

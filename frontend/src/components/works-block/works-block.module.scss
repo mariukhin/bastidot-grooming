@@ -1,0 +1,315 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+// Дрібний текст тут — --color-submarine-blue, а не --color-gray: на світлому
+// тлі секції сірий дає 4.34:1 при 13px, нижче порога WCAG AA (4.5:1).
+
+.container {
+  width: 100%;
+  background-color: var(--color-hint-of-red);
+  scroll-margin-top: 60px;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 60px 12px;
+
+  @include breakpoints.lg {
+    padding: var(--sp-7) 130px 120px;
+  }
+
+  @include breakpoints.xl {
+    padding: 60px 200px 120px;
+  }
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 26px;
+
+  @include breakpoints.md {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+}
+
+.kicker {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-milano-red);
+}
+
+.title {
+  margin-top: 8px;
+  font-size: 40px;
+  line-height: 47px;
+  font-weight: 800;
+  color: var(--color-dark-burgundy);
+
+  @include breakpoints.md_r {
+    font-size: 38px;
+    line-height: 46px;
+  }
+}
+
+.subtitle {
+  margin-top: 10px;
+  max-width: 58ch;
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 500;
+  color: var(--color-submarine-blue);
+}
+
+.count {
+  flex: none;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-submarine-blue);
+
+  b {
+    font-weight: 700;
+    color: var(--color-woodsmoke);
+  }
+}
+
+/* два повні кадри поруч; під 640px — один під одним, не звужуються вдвічі */
+.frames {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+  background-color: var(--color-ebb);
+
+  @media (min-width: 641px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.frame {
+  position: relative;
+  // 1:1, а не 4:3: знімки з телефона портретні (3:4), і в горизонтальній
+  // рамці cover зрізав би собаці голову й лапи. Квадрат лишає кадр цілим
+  // і для портретних, і для горизонтальних фото.
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: var(--color-polar);
+}
+
+.photo {
+  object-fit: cover;
+}
+
+.tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  background-color: rgba(19, 2, 2, 0.62);
+  color: var(--color-white);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tagCompact {
+  top: 9px;
+  left: 9px;
+  padding: 4px 9px;
+  font-size: 9.5px;
+}
+
+.frameAfter .tag {
+  background-color: var(--color-dark-burgundy);
+}
+
+.featured {
+  overflow: hidden;
+  border: 1px solid var(--color-ebb);
+  border-radius: 18px;
+  background-color: var(--color-white);
+  filter: drop-shadow(0 2px 8px rgb(19 2 2 / 8%));
+}
+
+.infobar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+  padding: 20px;
+  border-top: 1px solid var(--color-ebb);
+
+  @include breakpoints.lg {
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: center;
+    padding: 20px 24px;
+  }
+}
+
+.featuredTitle {
+  font-size: 21px;
+  line-height: 26px;
+  font-weight: 800;
+  color: var(--color-woodsmoke);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  list-style: none;
+
+  li {
+    padding: 5px 12px;
+    border: 1px solid var(--color-ebb);
+    border-radius: var(--r-pill);
+    background-color: var(--color-hint-of-red);
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--color-submarine-blue);
+  }
+
+  b {
+    font-weight: 700;
+    color: var(--color-woodsmoke);
+  }
+}
+
+.buy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  @include breakpoints.lg {
+    justify-self: end;
+    justify-content: flex-end;
+  }
+}
+
+.price {
+  font-size: 24px;
+  line-height: 28px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: var(--color-dark-burgundy);
+}
+
+// До 641px — горизонтальна стрічка: на екрані одна картка, решта гортається
+// свайпом. Сусідня визирає на 32px — без цього натяку люди не здогадуються,
+// що праворуч є ще роботи. Межа та сама, що й у .frames: з 641px кадри «до» і
+// «після» стають поруч, картка звужується — і в рядок їх влазить дві.
+.pairs {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 641px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    padding-bottom: 0;
+    overflow-x: visible;
+  }
+
+  @include breakpoints.lg {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.pair {
+  display: flex;
+  flex: 0 0 calc(100% - 32px);
+  flex-direction: column;
+  scroll-snap-align: start;
+  overflow: hidden;
+  border: 1px solid var(--color-ebb);
+  border-radius: 14px;
+  background-color: var(--color-white);
+
+  @media (min-width: 641px) {
+    flex: initial;
+  }
+}
+
+.pairBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  padding: 15px 16px 16px;
+}
+
+.pairTitle {
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 700;
+  color: var(--color-woodsmoke);
+}
+
+.pairSub {
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--color-submarine-blue);
+}
+
+.pairFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.pairPrice {
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: var(--color-woodsmoke);
+}
+
+.pairButton {
+  padding: 9px 16px;
+  font-size: 13px;
+}
+
+.foot {
+  display: flex;
+  justify-content: center;
+  margin-top: 26px;
+}
+
+.linkAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+  color: var(--color-dark-burgundy);
+  font-size: 15px;
+  font-weight: 700;
+  transition: border-color 0.2s var(--ease);
+
+  &:hover {
+    border-bottom-color: currentcolor;
+  }
+}

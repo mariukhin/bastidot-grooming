@@ -10,6 +10,7 @@ type LinkProps = {
 export const links: LinkProps[] = [
   { href: '/', label: 'Головна' },
   { href: '/#services', label: 'Послуги', anchorId: 'services' },
+  { href: '/#works', label: 'Наші роботи', anchorId: 'works' },
   // { href: '/#academy', label: 'Курси', anchorId: 'academy' },
   { href: '/#reviews', label: 'Відгуки', anchorId: 'reviews' },
   { href: '/#about', label: 'Про нас', anchorId: 'about' },

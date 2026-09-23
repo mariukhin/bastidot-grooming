@@ -13,9 +13,16 @@ import { BreedProps, normalizeBreedList, ServiceProps } from '@/utils/function';
 import { getBreedList } from '@/api/breed';
 import { getServiceList } from '@/api/service';
 import { getBusySlots } from '@/api/order';
+import { track } from '@/utils/analytics';
 
 import { BookingStep, BookingFormData, BusySlot, Groomer } from './types';
-import { capitalize, generateWeekDates, generateTimeSlots, formSchema } from './utils';
+import {
+  capitalize,
+  generateWeekDates,
+  generateTimeSlots,
+  getBookingTotals,
+  formSchema,
+} from './utils';
 import StepServices from './step-services';
 import StepGroomer from './step-groomer';
 import StepDatetime from './step-datetime';
@@ -195,6 +202,11 @@ const BookingModal = ({
   const onSubmit = async (data: BookingFormData) => {
     if (!selectedGroomer || !selectedSlot) return;
 
+    track('booking_submitted', {
+      services_count: selectedServices.length + selectedExtraServices.length,
+      duration_minutes: totalDurationMin,
+    });
+
     const [hour, minute] = selectedSlot.split(':').map(Number);
     const scheduledAt = selectedDate.hour(hour).minute(minute).second(0).toISOString();
 
@@ -216,6 +228,14 @@ const BookingModal = ({
     });
 
     if (order) {
+      track('booking_success', {
+        order_id: order.id,
+        groomer: selectedGroomer.name,
+        duration_minutes: totalDurationMin,
+        value:
+          getBookingTotals(selectedServices, selectedExtraServices, selectedGroomer).price ?? 0,
+        currency: 'UAH',
+      });
       setStep('success');
     }
   };
@@ -292,7 +312,14 @@ const BookingModal = ({
           selectedServices={selectedServices}
           onBreedChange={handleBreedChange}
           onToggleService={toggleService}
-          onNext={() => setStep('groomer')}
+          onNext={() => {
+            track('service_selected', {
+              service: selectedServices[0]?.type,
+              breed: selectedBreed?.value,
+              price: selectedServices[0]?.defaultPrice,
+            });
+            setStep('groomer');
+          }}
         />
       )}
 
@@ -305,7 +332,13 @@ const BookingModal = ({
           isSummaryExpanded={isSummaryExpanded}
           onToggleSummary={() => setIsSummaryExpanded((prev) => !prev)}
           onSelectGroomer={setSelectedGroomer}
-          onNext={() => setStep('extra-services')}
+          onNext={() => {
+            track('groomer_selected', {
+              groomer: selectedGroomer?.name,
+              is_vip: selectedGroomer?.isVip,
+            });
+            setStep('extra-services');
+          }}
         />
       )}
 
@@ -313,7 +346,13 @@ const BookingModal = ({
         <StepExtraServices
           extraServiceList={extraServiceList}
           onToggleExtraService={toggleExtraService}
-          onNext={() => setStep('datetime')}
+          onNext={() => {
+            track('addons_step', {
+              addons_count: selectedExtraServices.length,
+              addons_total: selectedExtraServices.reduce((sum, s) => sum + s.defaultPrice, 0),
+            });
+            setStep('datetime');
+          }}
           {...sharedSummaryProps}
         />
       )}
@@ -331,7 +370,13 @@ const BookingModal = ({
           }}
           onSelectSlot={setSelectedSlot}
           onWeekOffsetChange={setWeekOffset}
-          onNext={() => setStep('form')}
+          onNext={() => {
+            track('slot_selected', {
+              slot: selectedSlot ?? undefined,
+              days_ahead: selectedDate.startOf('day').diff(dayjs().startOf('day'), 'day'),
+            });
+            setStep('form');
+          }}
           durationMinutes={totalDurationMin}
           {...sharedSummaryProps}
         />

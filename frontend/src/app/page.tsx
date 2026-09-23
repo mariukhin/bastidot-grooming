@@ -4,6 +4,7 @@ import styles from './page.module.scss';
 import { HeroBlock } from '@/components/hero-block';
 import { ServicesBlock } from '@/components/services-block';
 // import { PublicationsBlock } from '@/components/publications-block';
+import { WorksBlock } from '@/components/works-block';
 import { TeamBlock } from '@/components/team-block';
 // import { CoursesBlock } from '@/components/courses-block';
 import { ReviewsBlock } from '@/components/reviews-block';
@@ -12,8 +13,10 @@ import { ContactsBlock } from '@/components/contacts-block';
 import { JsonLd } from '@/components/json-ld';
 import { getGroomers, getHomeCatalog } from '@/server/catalog';
 import { fetchGoogleReviews } from '@/server/reviews';
+import { getResolvedWorks } from '@/server/works';
 import { buildBusinessJsonLd } from '@/server/json-ld';
 import { normalizeReviews } from '@/utils/function';
+import { SOCIAL } from '@/utils/site';
 
 export const revalidate = 300;
 
@@ -22,10 +25,11 @@ export const metadata: Metadata = {
 };
 
 const Dashboard = async () => {
-  const [catalog, groomers, reviewsResult] = await Promise.all([
+  const [catalog, groomers, reviewsResult, works] = await Promise.all([
     getHomeCatalog(),
     getGroomers(),
     fetchGoogleReviews(),
+    getResolvedWorks(),
   ]);
 
   const reviews = reviewsResult.ok ? normalizeReviews(reviewsResult.reviews) : [];
@@ -46,6 +50,7 @@ const Dashboard = async () => {
         initialServiceList={catalog.serviceList}
       />
       {/*<PublicationsBlock />*/}
+      <WorksBlock works={works} allWorksUrl={SOCIAL.instagram} />
       <TeamBlock groomers={groomers} />
       {/*<CoursesBlock />*/}
       <ReviewsBlock reviews={reviews} />
