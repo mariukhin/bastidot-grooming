@@ -185,6 +185,15 @@ function startOfDayInZone(now: Date, timeZone: string): Date {
   return new Date(guess - offset);
 }
 
+function intervalStartInZone(now: Date): Date {
+  const today = startOfDayInZone(now, config.reminderTimeZone);
+  return new Date(today.getTime() - (config.reminderEveryDays - 1) * DAY_MS);
+}
+
+export async function wasSentRecently(db: Db, now: Date = new Date()): Promise<boolean> {
+  return ReminderService.wasSentSince(db, intervalStartInZone(now));
+}
+
 export type SkipReason = 'early' | 'already-sent';
 
 export async function shouldSkipScheduledRun(
@@ -197,7 +206,7 @@ export async function shouldSkipScheduledRun(
   if (local.hour * 60 + local.minute < (hour ?? 11) * 60 + (minute ?? 0)) {
     return 'early';
   }
-  if (await ReminderService.wasSentSince(db, startOfDayInZone(now, config.reminderTimeZone))) {
+  if (await wasSentRecently(db, now)) {
     return 'already-sent';
   }
   return null;
@@ -231,6 +240,16 @@ export async function runInactiveClientsDigest(db: Db, now: Date = new Date()): 
     noAnswer: groups.noAnswer.length,
   });
   return total;
+}
+
+export async function runScheduledDigest(db: Db, now: Date = new Date()): Promise<void> {
+  if (await wasSentRecently(db, now)) {
+    logger.info('Дайджест надсилали нещодавно — цей запуск пропускаємо', {
+      everyDays: config.reminderEveryDays,
+    });
+    return;
+  }
+  await runInactiveClientsDigest(db, now);
 }
 
 export function isDigestEnabled(): boolean {

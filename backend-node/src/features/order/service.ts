@@ -1,11 +1,15 @@
 import type { Db } from 'mongodb';
 import { ObjectId } from 'mongodb';
+import { randomBytes } from 'node:crypto';
 import {
   ORDER_COLLECTION,
   type Order,
   type BusySlot,
   type CreateOrderInput,
+  type RescheduleOrderInput,
+  OrderActionFailure,
 } from './types.ts';
+import { config } from '../../shared/config.ts';
 // Крос-фічеві типи. User/Pet — не специфічні для groomer/pet, тож у
 // «дорослому» проєкті жили б у shared/. Поки імпортуємо звідти, де є.
 import { USER_COLLECTION, type User } from '../../shared/user.ts';
@@ -124,6 +128,7 @@ async function createOrder(db: Db, input: CreateOrderInput): Promise<Order> {
     statusHistory: [{ status: 'pending', changedAt: now }],
     comment: input.comment ?? '',
     serviceIds,
+    cancelToken: randomBytes(16).toString('hex'),
   };
 
   const result = await db.collection<Order>(ORDER_COLLECTION).insertOne(order);
@@ -162,9 +167,123 @@ async function fetchBusySlots(
   }));
 }
 
+// Самообслуговування закривається за CUTOFF годин до візиту: інакше клієнт
+// скасує за 10 хвилин до початку, коли грумер уже тримає під нього час.
+const SELF_SERVICE_CUTOFF_MS = config.orderSelfServiceCutoffHours * 60 * 60 * 1000;
+
+// Токен видається лише тому, хто створив запис: замість логіна він доводить,
+// що замовлення своє. Без нього підібраний чужий _id нічого не дає.
+async function loadOwnOrder(db: Db, orderId: string, token: string): Promise<Order> {
+  if (!ObjectId.isValid(orderId)) {
+    throw new OrderActionFailure('not-found');
+  }
+
+  const order = await db.collection<Order>(ORDER_COLLECTION).findOne({ _id: new ObjectId(orderId) });
+
+  if (!order) {
+    throw new OrderActionFailure('not-found');
+  }
+  if (!order.cancelToken || !token || order.cancelToken !== token) {
+    throw new OrderActionFailure('forbidden');
+  }
+  return order;
+}
+
+function assertChangeable(order: Order, now: Date): void {
+  if (order.status === 'cancelled') {
+    throw new OrderActionFailure('already-cancelled');
+  }
+  if (order.scheduledAt.getTime() - now.getTime() < SELF_SERVICE_CUTOFF_MS) {
+    throw new OrderActionFailure('too-late');
+  }
+}
+
+/** Чи перетинається інтервал із уже зайнятим часом того самого грумера. */
+async function hasConflict(
+  db: Db,
+  groomerId: ObjectId,
+  start: Date,
+  durationMinutes: number,
+  ignoreOrderId?: ObjectId
+): Promise<boolean> {
+  const end = new Date(start.getTime() + durationMinutes * 60_000);
+
+  const nearby = await db
+    .collection<Order>(ORDER_COLLECTION)
+    .find({
+      groomerId,
+      status: { $ne: 'cancelled' },
+      ...(ignoreOrderId ? { _id: { $ne: ignoreOrderId } } : {}),
+      // Звужуємо добою назад: довший за добу візит салон не робить, а без цієї
+      // межі довелося б тягнути всю історію грумера.
+      scheduledAt: { $gte: new Date(start.getTime() - 24 * 60 * 60 * 1000), $lt: end },
+    })
+    .toArray();
+
+  return nearby.some((o) => new Date(o.scheduledAt.getTime() + o.durationMinutes * 60_000) > start);
+}
+
+async function cancelOrder(db: Db, orderId: string, token: string): Promise<Order> {
+  const order = await loadOwnOrder(db, orderId, token);
+  const now = new Date();
+  assertChangeable(order, now);
+
+  const change = { status: 'cancelled' as const, changedAt: now, note: 'Скасовано клієнтом' };
+  await db
+    .collection<Order>(ORDER_COLLECTION)
+    .updateOne({ _id: order._id! }, { $set: { status: 'cancelled' }, $push: { statusHistory: change } });
+
+  return { ...order, status: 'cancelled', statusHistory: [...order.statusHistory, change] };
+}
+
+async function rescheduleOrder(
+  db: Db,
+  orderId: string,
+  token: string,
+  input: RescheduleOrderInput
+): Promise<{ order: Order; previousAt: Date }> {
+  const order = await loadOwnOrder(db, orderId, token);
+  const now = new Date();
+  assertChangeable(order, now);
+
+  const scheduledAt = new Date(input.scheduledAt);
+  if (Number.isNaN(scheduledAt.getTime())) {
+    throw new Error('invalid scheduledAt');
+  }
+  // Перевіряємо обидва кінці: і старий час має бути ще не близько, і новий.
+  if (scheduledAt.getTime() - now.getTime() < SELF_SERVICE_CUTOFF_MS) {
+    throw new OrderActionFailure('too-late');
+  }
+
+  const durationMinutes = input.durationMinutes ?? order.durationMinutes;
+  if (await hasConflict(db, order.groomerId, scheduledAt, durationMinutes, order._id!)) {
+    throw new OrderActionFailure('slot-taken');
+  }
+
+  const change = { status: order.status, changedAt: now, note: 'Перенесено клієнтом' };
+  await db
+    .collection<Order>(ORDER_COLLECTION)
+    .updateOne(
+      { _id: order._id! },
+      { $set: { scheduledAt, durationMinutes }, $push: { statusHistory: change } }
+    );
+
+  return {
+    order: {
+      ...order,
+      scheduledAt,
+      durationMinutes,
+      statusHistory: [...order.statusHistory, change],
+    },
+    previousAt: order.scheduledAt,
+  };
+}
+
 const OrderService = {
   createOrder,
   fetchBusySlots,
+  cancelOrder,
+  rescheduleOrder,
 };
 
 export default OrderService;

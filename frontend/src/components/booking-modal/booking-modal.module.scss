@@ -787,6 +787,11 @@
   &:hover {
     border-color: var(--color-cold-turkey);
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
 }
 
 .successContacts {
@@ -817,6 +822,19 @@
   font-weight: 500;
   line-height: 20px;
   color: var(--color-woodsmoke);
+}
+
+.successContactLink {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--color-woodsmoke);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-bottom-color: currentcolor;
+  }
 }
 
 .successMap {
@@ -886,6 +904,58 @@
   &:hover {
     border-color: var(--color-cold-turkey);
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.cancelCallBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-ebb);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-woodsmoke);
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-cold-turkey);
+  }
+}
+
+.actionError {
+  margin-bottom: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background-color: var(--color-hint-of-red);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-milano-red);
+}
+
+.cancelDismissBtn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-submarine-blue);
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
 }
 
 .cancelDenyBtn {
@@ -901,6 +971,11 @@
 
   &:hover {
     opacity: 0.88;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 }
 

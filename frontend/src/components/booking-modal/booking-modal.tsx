@@ -12,7 +12,7 @@ import { Icon, IconTypes } from '@/components/icon';
 import { BreedProps, normalizeBreedList, ServiceProps } from '@/utils/function';
 import { getBreedList } from '@/api/breed';
 import { getServiceList } from '@/api/service';
-import { getBusySlots } from '@/api/order';
+import { cancelOrder, getBusySlots, rescheduleOrder } from '@/api/order';
 import { track } from '@/utils/analytics';
 
 import { BookingStep, BookingFormData, BusySlot, Groomer } from './types';
@@ -29,6 +29,7 @@ import StepDatetime from './step-datetime';
 import StepExtraServices from './step-extra-services';
 import StepForm from './step-form';
 import StepSuccess from './step-success';
+import StepCancelled from './step-cancelled';
 
 import styles from './booking-modal.module.scss';
 import useGroomerStore from '@/store/useGroomerStore';
@@ -42,6 +43,16 @@ type BookingModalProps = {
   initialBreed?: string;
   initialService?: ServiceProps;
   initialGroomer?: Groomer;
+};
+
+const STEP_LABEL: Record<BookingStep, string> = {
+  services: 'Запис: оберіть послугу',
+  groomer: 'Запис: оберіть майстра',
+  'extra-services': 'Запис: додаткові послуги',
+  datetime: 'Запис: оберіть дату та час',
+  form: 'Запис: ваші дані',
+  success: 'Запис підтверджено',
+  cancelled: 'Запис скасовано',
 };
 
 const BookingModal = ({
@@ -65,6 +76,17 @@ const BookingModal = ({
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(() => dayjs());
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState<{
+    orderId: string | null;
+    token: string | null;
+    startAt: Date;
+    petName: string;
+  } | null>(null);
+  // Увімкнено, коли з екрана успіху пішли міняти час: крок дати тоді веде не
+  // до форми (дані клієнта вже є), а одразу до PATCH наявного запису.
+  const [isRescheduling, setIsRescheduling] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [isActionPending, setIsActionPending] = useState(false);
   const [extraServiceList, setExtraServiceList] = useState<ServiceProps[]>([]);
   const [selectedExtraServices, setSelectedExtraServices] = useState<ServiceProps[]>([]);
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
@@ -208,7 +230,8 @@ const BookingModal = ({
     });
 
     const [hour, minute] = selectedSlot.split(':').map(Number);
-    const scheduledAt = selectedDate.hour(hour).minute(minute).second(0).toISOString();
+    const startAt = selectedDate.hour(hour).minute(minute).second(0);
+    const scheduledAt = startAt.toISOString();
 
     const order = await createOrder({
       clientName: data.name,
@@ -236,11 +259,70 @@ const BookingModal = ({
           getBookingTotals(selectedServices, selectedExtraServices, selectedGroomer).price ?? 0,
         currency: 'UAH',
       });
+      setConfirmed({
+        orderId: order.id ?? null,
+        token: order.cancelToken ?? null,
+        startAt: startAt.toDate(),
+        petName: data.petName.trim(),
+      });
       setStep('success');
     }
   };
 
+  const handleCancelOrder = async () => {
+    if (!confirmed?.orderId || !confirmed.token) return;
+
+    setIsActionPending(true);
+    setActionError(null);
+    const result = await cancelOrder(confirmed.orderId, confirmed.token);
+    setIsActionPending(false);
+
+    if (result.ok) {
+      track('booking_cancelled', { order_id: confirmed.orderId });
+      setStep('cancelled');
+    } else {
+      setActionError(result.message);
+    }
+  };
+
+  const handleStartReschedule = () => {
+    setActionError(null);
+    setIsRescheduling(true);
+    setSelectedSlot(null);
+    setStep('datetime');
+    track('booking_reschedule_start', { order_id: confirmed?.orderId ?? undefined });
+  };
+
+  const handleConfirmReschedule = async () => {
+    if (!confirmed?.orderId || !confirmed.token || !selectedSlot) return;
+
+    const [hour, minute] = selectedSlot.split(':').map(Number);
+    const startAt = selectedDate.hour(hour).minute(minute).second(0);
+
+    setIsActionPending(true);
+    setActionError(null);
+    const result = await rescheduleOrder(
+      confirmed.orderId,
+      confirmed.token,
+      startAt.toISOString(),
+      totalDurationMin
+    );
+    setIsActionPending(false);
+
+    if (result.ok) {
+      track('booking_rescheduled', { order_id: confirmed.orderId });
+      setConfirmed({ ...confirmed, startAt: startAt.toDate() });
+      setIsRescheduling(false);
+      setStep('success');
+    } else {
+      setActionError(result.message);
+    }
+  };
+
   const handleBookAgain = () => {
+    setConfirmed(null);
+    setIsRescheduling(false);
+    setActionError(null);
     setStep('services');
     setSelectedServices([]);
     setSelectedGroomer(null);
@@ -258,9 +340,18 @@ const BookingModal = ({
     services: null,
     groomer: () => setStep('services'),
     'extra-services': () => setStep('groomer'),
-    datetime: () => setStep('extra-services'),
+    datetime: () => {
+      if (!isRescheduling) {
+        setStep('extra-services');
+        return;
+      }
+      setIsRescheduling(false);
+      setActionError(null);
+      setStep('success');
+    },
     form: () => setStep('datetime'),
     success: null,
+    cancelled: null,
   };
 
   const backHandler = stepOnBack[step];
@@ -298,10 +389,11 @@ const BookingModal = ({
       isOpen={isOpen}
       onClose={onClose}
       modalClassName={classNames(styles.bookingModal, {
-        [styles.bookingModalAuto]: step === 'success',
+        [styles.bookingModalAuto]: step === 'success' || step === 'cancelled',
       })}
       disableScrollbar
-      fitContent={step === 'success'}
+      fitContent={step === 'success' || step === 'cancelled'}
+      label={STEP_LABEL[step]}
       backButton={backButton}
     >
       {step === 'services' && (
@@ -371,6 +463,10 @@ const BookingModal = ({
           onSelectSlot={setSelectedSlot}
           onWeekOffsetChange={setWeekOffset}
           onNext={() => {
+            if (isRescheduling) {
+              void handleConfirmReschedule();
+              return;
+            }
             track('slot_selected', {
               slot: selectedSlot ?? undefined,
               days_ahead: selectedDate.startOf('day').diff(dayjs().startOf('day'), 'day'),
@@ -378,6 +474,9 @@ const BookingModal = ({
             setStep('form');
           }}
           durationMinutes={totalDurationMin}
+          nextLabel={isRescheduling ? 'Перенести запис' : 'Далі'}
+          isNextPending={isActionPending}
+          errorMessage={isRescheduling ? actionError : null}
           {...sharedSummaryProps}
         />
       )}
@@ -403,8 +502,23 @@ const BookingModal = ({
           selectedExtraServices={selectedExtraServices}
           selectedGroomer={selectedGroomer}
           formattedDateTimeRange={formattedDateTimeRange}
+          startAt={confirmed?.startAt ?? null}
+          durationMinutes={totalDurationMin}
+          petName={confirmed?.petName ?? ''}
+          orderId={confirmed?.orderId ?? null}
+          canManage={Boolean(confirmed?.orderId && confirmed.token)}
+          isActionPending={isActionPending}
+          actionError={actionError}
           onBookAgain={handleBookAgain}
-          onClose={onClose}
+          onCancelOrder={() => void handleCancelOrder()}
+          onReschedule={handleStartReschedule}
+        />
+      )}
+
+      {step === 'cancelled' && (
+        <StepCancelled
+          formattedDateTimeRange={formattedDateTimeRange}
+          onBookAgain={handleBookAgain}
         />
       )}
     </Modal>

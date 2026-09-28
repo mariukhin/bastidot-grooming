@@ -3,7 +3,7 @@ import { BreedProps, ServiceProps } from '@/utils/function';
 import { StaticImageData } from 'next/image';
 
 export type BookingStep =
-  'services' | 'groomer' | 'extra-services' | 'datetime' | 'form' | 'success';
+  'services' | 'groomer' | 'extra-services' | 'datetime' | 'form' | 'success' | 'cancelled';
 
 export type TimeSlotPeriod = {
   period: string;
@@ -65,7 +65,12 @@ export type OrderResponse = {
   status: string;
   comment: string;
   serviceIds: string[];
+  /** Приходить лише у відповідь на створення — далі живе тільки в памʼяті вкладки. */
+  cancelToken?: string | null;
 };
+
+export type OrderActionResult =
+  { ok: true; order: OrderResponse } | { ok: false; message: string; code?: string };
 
 export type BookingState = {
   breedList: BreedProps[];

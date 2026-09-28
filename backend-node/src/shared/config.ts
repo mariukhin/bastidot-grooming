@@ -42,12 +42,15 @@ export const config = {
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
   telegramChatId: process.env.TELEGRAM_CHAT_ID ?? '',
 
+  orderSelfServiceCutoffHours: optionalInt('ORDER_SELF_SERVICE_CUTOFF_HOURS', 3),
+
   reminderInactiveDays: optionalInt('REMINDER_INACTIVE_DAYS', 60),
   reminderCooldownDays: optionalInt('REMINDER_COOLDOWN_DAYS', 30),
   reminderWarmSize: optionalInt('REMINDER_WARM_COUNT', 6),
   reminderColdSize: optionalInt('REMINDER_COLD_COUNT', 2),
   reminderNoAnswerSize: optionalInt('REMINDER_NOANSWER_COUNT', 2),
   reminderRunAt: optionalString('REMINDER_RUN_AT', '11:00'),
+  reminderEveryDays: Math.max(1, optionalInt('REMINDER_EVERY_DAYS', 2)),
   reminderInProcess: process.env.REMINDER_IN_PROCESS === 'true',
   reminderTimeZone: optionalString('REMINDER_TIME_ZONE', timeZone),
 };

@@ -6,6 +6,15 @@ import Image from 'next/image';
 import { Button } from '@/components/button';
 import { Icon, IconTypes } from '@/components/icon';
 import { ServiceProps } from '@/utils/function';
+import { buildIcs, downloadIcs } from '@/utils/calendar';
+import { track } from '@/utils/analytics';
+import {
+  BUSINESS,
+  BUSINESS_ADDRESS,
+  BUSINESS_PHONE_DISPLAY,
+  SITE_NAME,
+  SITE_URL,
+} from '@/utils/site';
 import groomerPreview from '@/components/team-block/groomerPreview.png';
 import { Groomer } from './types';
 import { getGroomerPrice } from './utils';
@@ -17,8 +26,17 @@ type StepSuccessProps = {
   selectedExtraServices: ServiceProps[];
   selectedGroomer: Groomer | null;
   formattedDateTimeRange: string | null;
+  startAt: Date | null;
+  durationMinutes: number;
+  petName: string;
+  orderId: string | null;
+  /** Токен є лише у того, хто щойно створив запис у цій вкладці. */
+  canManage: boolean;
+  isActionPending: boolean;
+  actionError: string | null;
   onBookAgain: () => void;
-  onClose: () => void;
+  onCancelOrder: () => void;
+  onReschedule: () => void;
 };
 
 const SuccessIllustration = () => (
@@ -82,8 +100,16 @@ const StepSuccess = ({
   selectedExtraServices,
   selectedGroomer,
   formattedDateTimeRange,
+  startAt,
+  durationMinutes,
+  petName,
+  orderId,
+  canManage,
+  isActionPending,
+  actionError,
   onBookAgain,
-  onClose,
+  onCancelOrder,
+  onReschedule,
 }: StepSuccessProps) => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
@@ -94,6 +120,30 @@ const StepSuccess = ({
   const serviceNames = [selectedServices[0]?.type, ...selectedExtraServices.map((s) => s.type)]
     .filter(Boolean)
     .join(', ');
+
+  const handleAddToCalendar = () => {
+    if (!startAt) return;
+
+    const pet = petName.trim();
+    const ics = buildIcs({
+      uid: `${orderId ?? String(startAt.getTime())}@bastidot`,
+      start: startAt,
+      durationMinutes: Math.max(durationMinutes, 15),
+      title: pet ? `Грумінг у ${SITE_NAME} — ${pet}` : `Грумінг у ${SITE_NAME}`,
+      description: [
+        serviceNames ? `Послуги: ${serviceNames}` : '',
+        selectedGroomer ? `Грумер: ${selectedGroomer.name}` : '',
+        totalPrice !== null ? `До сплати: ${totalPrice} грн` : '',
+        `Перенести або скасувати: ${BUSINESS_PHONE_DISPLAY}`,
+      ],
+      location: BUSINESS_ADDRESS,
+      url: SITE_URL,
+      remindBeforeMinutes: 120,
+    });
+
+    downloadIcs('bastidot-zapys.ics', ics);
+    track('booking_calendar_add', { order_id: orderId ?? undefined });
+  };
 
   return (
     <div className={styles.successContainer}>
@@ -134,7 +184,12 @@ const StepSuccess = ({
       <Button text="Записатися ще" size="medium" onClick={onBookAgain} />
 
       <div className={styles.successActions}>
-        <button type="button" className={styles.successActionBtn}>
+        <button
+          type="button"
+          className={styles.successActionBtn}
+          onClick={handleAddToCalendar}
+          disabled={!startAt}
+        >
           <Icon id={IconTypes.calendarAdd} width={16} height={16} color="var(--color-milano-red)" />
           Додати в календар
         </button>
@@ -144,7 +199,7 @@ const StepSuccess = ({
           onClick={() => setShowCancelConfirm(true)}
         >
           <Icon id={IconTypes.close} width={14} height={14} color="var(--color-woodsmoke)" />
-          Скасувати запис
+          Перенести або скасувати
         </button>
       </div>
 
@@ -152,13 +207,13 @@ const StepSuccess = ({
         <p className={styles.successContactsTitle}>Контакти Bastidot</p>
         <div className={styles.successContactRow}>
           <Icon id={IconTypes.point} width={16} height={16} color="var(--color-gray)" />
-          <p className={styles.successContactText}>
-            Велика Васильківська, 23А, Київ, 02000, Україна
-          </p>
+          <p className={styles.successContactText}>{BUSINESS_ADDRESS}</p>
         </div>
         <div className={styles.successContactRow}>
           <Icon id={IconTypes.phone} width={16} height={16} color="var(--color-gray)" />
-          <p className={styles.successContactText}>+380 (50) 173-91-78</p>
+          <a className={styles.successContactLink} href={`tel:${BUSINESS.phone}`}>
+            {BUSINESS_PHONE_DISPLAY}
+          </a>
         </div>
         <div className={styles.successMap}>
           <iframe
@@ -177,20 +232,48 @@ const StepSuccess = ({
           <div className={styles.cancelPopup}>
             <p className={styles.cancelTitle}>Ви впевнені, що хочете скасувати запис?</p>
             <p className={styles.cancelSubtitle}>
-              Його не можна буде відновити. Ви зможете зробити новий запис
+              {formattedDateTimeRange ?? 'Цей візит'} буде скасовано. Якщо просто не підходить час —
+              краще перенести, тоді не доведеться обирати все заново
             </p>
+
+            {actionError && <p className={styles.actionError}>{actionError}</p>}
+
             <div className={styles.cancelActions}>
-              <button type="button" className={styles.cancelConfirmBtn} onClick={onClose}>
-                Скасувати
+              <button
+                type="button"
+                className={styles.cancelConfirmBtn}
+                onClick={onCancelOrder}
+                disabled={isActionPending || !canManage}
+              >
+                {isActionPending ? 'Скасовуємо…' : 'Так, скасувати'}
               </button>
               <button
                 type="button"
                 className={styles.cancelDenyBtn}
-                onClick={() => setShowCancelConfirm(false)}
+                onClick={onReschedule}
+                disabled={isActionPending || !canManage}
               >
-                Не скасовувати
+                Перенести на інший час
               </button>
             </div>
+
+            <button
+              type="button"
+              className={styles.cancelDismissBtn}
+              onClick={() => setShowCancelConfirm(false)}
+              disabled={isActionPending}
+            >
+              Ні, залишити запис
+            </button>
+
+            {!canManage && (
+              <p className={styles.cancelSubtitle}>
+                Керувати записом онлайн зараз не вийде — зателефонуйте:{' '}
+                <a className={styles.successContactLink} href={`tel:${BUSINESS.phone}`}>
+                  {BUSINESS_PHONE_DISPLAY}
+                </a>
+              </p>
+            )}
           </div>
         </div>
       )}

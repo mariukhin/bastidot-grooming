@@ -21,7 +21,7 @@ try {
     if (skip === 'early') {
       logger.info('Ще рано за київським часом — цей запуск нічого не робить');
     } else if (skip === 'already-sent') {
-      logger.info('Дайджест сьогодні вже надсилали — цей запуск нічого не робить');
+      logger.info('Дайджест надсилали нещодавно — цей запуск нічого не робить');
     } else {
       const count = await runInactiveClientsDigest(db);
       logger.info('Manual digest run finished', { count });

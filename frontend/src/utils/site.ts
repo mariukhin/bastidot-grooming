@@ -30,3 +30,11 @@ export const BUSINESS = {
   closes: '20:00',
   mapUrl: 'https://maps.google.com/?cid=11378401866813677319',
 } as const;
+
+export const BUSINESS_ADDRESS = [
+  BUSINESS.streetAddress,
+  BUSINESS.addressLocality,
+  BUSINESS.postalCode,
+].join(', ');
+
+export const BUSINESS_PHONE_DISPLAY = '+380 (50) 173-91-78';

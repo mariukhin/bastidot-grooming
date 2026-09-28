@@ -27,6 +27,9 @@ type StepDatetimeProps = {
   isSummaryExpanded: boolean;
   onToggleSummary: () => void;
   durationMinutes: number;
+  nextLabel?: string;
+  isNextPending?: boolean;
+  errorMessage?: string | null;
 };
 
 const StepDatetime = ({
@@ -46,6 +49,9 @@ const StepDatetime = ({
   isSummaryExpanded,
   onToggleSummary,
   durationMinutes,
+  nextLabel = 'Далі',
+  isNextPending = false,
+  errorMessage = null,
 }: StepDatetimeProps) => (
   <div className={styles.stepContainer}>
     <h2 className={styles.title}>Оберіть дату та час</h2>
@@ -130,7 +136,13 @@ const StepDatetime = ({
         isSummaryExpanded={isSummaryExpanded}
         onToggle={onToggleSummary}
       >
-        <Button text="Далі" size="large" disabled={!selectedSlot} onClick={onNext} />
+        {errorMessage && <p className={styles.actionError}>{errorMessage}</p>}
+        <Button
+          text={isNextPending ? 'Зачекайте…' : nextLabel}
+          size="large"
+          disabled={!selectedSlot || isNextPending}
+          onClick={onNext}
+        />
       </SummaryCard>
     </div>
   </div>

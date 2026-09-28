@@ -129,6 +129,66 @@ async function loadContext(db: Db, order: Order): Promise<NewOrderContext> {
   return { order, client, pet, breedName, groomer, services: ordered, previousOrders };
 }
 
+function buildChangeMessage(ctx: NewOrderContext, previousAt: Date | null): string {
+  const { order, client, pet, groomer } = ctx;
+  const cancelled = order.status === 'cancelled';
+  const start = order.scheduledAt;
+  const end = new Date(start.getTime() + order.durationMinutes * 60_000);
+
+  const blocks: string[] = [
+    cancelled ? '❌ <b>Запис скасовано клієнтом</b>' : '🔄 <b>Запис перенесено клієнтом</b>',
+  ];
+
+  const who = [`👤 <b>${escapeHtml(client?.name || 'Без імені')}</b>`];
+  if (client?.phone) who.push(`📞 ${escapeHtml(client.phone)}`);
+  if (pet) who.push(`🐶 ${escapeHtml(pet.name)}`);
+  blocks.push(who.join('\n'));
+
+  if (cancelled) {
+    blocks.push(
+      [
+        `🗓 Звільнився час: ${formatDay(start)}`,
+        `🕘 ${formatTime(start)}–${formatTime(end)} · ${formatDuration(order.durationMinutes)}`,
+        `✂️ Майстер: ${escapeHtml(groomer?.username ?? '—')}`,
+      ].join('\n')
+    );
+  } else {
+    const previousEnd = previousAt
+      ? new Date(previousAt.getTime() + order.durationMinutes * 60_000)
+      : null;
+    const lines: string[] = [];
+    if (previousAt && previousEnd) {
+      lines.push(`⬅️ Було: ${formatDay(previousAt)}, ${formatTime(previousAt)}–${formatTime(previousEnd)}`);
+    }
+    lines.push(`➡️ Стало: ${formatDay(start)}, ${formatTime(start)}–${formatTime(end)}`);
+    lines.push(`✂️ Майстер: ${escapeHtml(groomer?.username ?? '—')}`);
+    blocks.push(lines.join('\n'));
+  }
+
+  return blocks.join('\n\n');
+}
+
+/** Скасування і перенесення шлемо в той самий робочий чат, що й нові записи:
+ *  без цього звільнений слот нікому не видно, а перенесений візит чекають не тоді. */
+export async function notifyOrderChanged(
+  db: Db,
+  order: Order,
+  previousAt: Date | null = null
+): Promise<void> {
+  if (!isTelegramConfigured()) {
+    logger.warn('Order-change notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing');
+    return;
+  }
+
+  const context = await loadContext(db, order);
+  await sendTelegramMessage(buildChangeMessage(context, previousAt));
+
+  logger.info('Order-change notification sent', {
+    orderId: order._id?.toHexString(),
+    status: order.status,
+  });
+}
+
 export async function notifyNewOrder(db: Db, order: Order): Promise<void> {
   if (!isTelegramConfigured()) {
     logger.warn('New-order notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing');

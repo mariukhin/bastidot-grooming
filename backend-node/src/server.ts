@@ -6,6 +6,7 @@ import { createApp } from './app.ts';
 import { scheduleDaily } from './shared/scheduler.ts';
 import {
   runInactiveClientsDigest,
+  runScheduledDigest,
   shouldSkipScheduledRun,
   isDigestEnabled,
 } from './features/reminder/worker.ts';
@@ -22,7 +23,7 @@ const stopReminderJob = digestEnabled
       name: 'inactive-clients-digest',
       runAt: config.reminderRunAt,
       timeZone: config.reminderTimeZone,
-      task: () => runInactiveClientsDigest(db).then(() => undefined),
+      task: () => runScheduledDigest(db),
     })
   : null;
 
@@ -36,7 +37,7 @@ async function catchUpMissedDigest(): Promise<void> {
     return;
   }
 
-  logger.warn('Сьогоднішній дайджест пропущено — надсилаємо навздогін');
+  logger.warn('Черговий дайджест пропущено — надсилаємо навздогін');
   await runInactiveClientsDigest(db);
 }
 

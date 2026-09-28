@@ -8,6 +8,7 @@ export interface OrderStatusChange {
   status: OrderStatus;
   changedAt: Date;
   changedBy?: ObjectId;
+  note?: string;
 }
 
 export interface Order {
@@ -22,6 +23,9 @@ export interface Order {
   statusHistory: OrderStatusChange[];
   comment: string;
   serviceIds: ObjectId[];
+  // Секрет, виданий тому, хто створив запис. Замість логіна: дозволяє змінити
+  // саме своє замовлення, не даючи перебрати чужі за _id.
+  cancelToken?: string;
 }
 
 export interface BusySlot {
@@ -44,4 +48,26 @@ export interface CreateOrderInput {
   durationMinutes: number;
   comment?: string;
   serviceIds?: string[];
+}
+
+export interface RescheduleOrderInput {
+  scheduledAt: string;
+  durationMinutes?: number;
+}
+
+/** Коди, які контролер мапить на HTTP-статуси. */
+export type OrderActionError =
+  | 'not-found'
+  | 'forbidden'
+  | 'already-cancelled'
+  | 'too-late'
+  | 'slot-taken';
+
+export class OrderActionFailure extends Error {
+  readonly code: OrderActionError;
+
+  constructor(code: OrderActionError) {
+    super(code);
+    this.code = code;
+  }
 }

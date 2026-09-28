@@ -19,6 +19,8 @@ type ModalProps = {
   disableScrollbar?: boolean;
   backButton?: ReactNode;
   fitContent?: boolean;
+  /** Доступна назва діалогу для скрінрідера. */
+  label?: string;
 };
 
 const Modal: FC<ModalProps> = ({
@@ -29,6 +31,7 @@ const Modal: FC<ModalProps> = ({
   disableScrollbar,
   backButton,
   fitContent,
+  label,
   children,
 }) => {
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -101,6 +104,7 @@ const Modal: FC<ModalProps> = ({
         ref={modalRef}
         role="dialog"
         aria-modal="true"
+        aria-label={label}
         tabIndex={-1}
       >
         {disableScrollbar ? (

@@ -3,9 +3,16 @@ import type { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import type { Db } from 'mongodb';
 import OrderService from './service.ts';
-import { notifyNewOrder } from './notification.ts';
+import { notifyNewOrder, notifyOrderChanged } from './notification.ts';
 import { logger } from '../../shared/logger.ts';
-import type { Order, BusySlot, CreateOrderInput } from './types.ts';
+import { config } from '../../shared/config.ts';
+import {
+  OrderActionFailure,
+  type Order,
+  type BusySlot,
+  type CreateOrderInput,
+  type OrderActionError,
+} from './types.ts';
 
 function toOrderDTO(order: Order) {
   return {
@@ -25,6 +32,42 @@ function toOrderDTO(order: Order) {
     comment: order.comment,
     serviceIds: order.serviceIds.map((id) => id.toHexString()),
   };
+}
+
+// cancelToken віддаємо рівно один раз — у відповідь тому, хто щойно створив
+// запис. У решті відповідей його немає, інакше він перестав би бути секретом.
+function toCreatedOrderDTO(order: Order) {
+  return { ...toOrderDTO(order), cancelToken: order.cancelToken ?? null };
+}
+
+const ACTION_STATUS: Record<OrderActionError, number> = {
+  'not-found': 404,
+  forbidden: 403,
+  'already-cancelled': 409,
+  'too-late': 409,
+  'slot-taken': 409,
+};
+
+const ACTION_MESSAGE: Record<OrderActionError, string> = {
+  'not-found': 'Запис не знайдено',
+  forbidden: 'Немає доступу до цього запису',
+  'already-cancelled': 'Запис уже скасовано',
+  'too-late': `Змінити запис онлайн можна не пізніше ніж за ${config.orderSelfServiceCutoffHours} год до візиту. Зателефонуйте нам`,
+  'slot-taken': 'Цей час щойно зайняли. Оберіть інший',
+};
+
+function respondWithActionError(res: Response, err: unknown): void {
+  if (err instanceof OrderActionFailure) {
+    res.status(ACTION_STATUS[err.code]).json({ error: ACTION_MESSAGE[err.code], code: err.code });
+    return;
+  }
+  res.status(400).json({ error: err instanceof Error ? err.message : 'Не вдалося змінити запис' });
+}
+
+function readToken(body: unknown): string {
+  if (typeof body !== 'object' || body === null) return '';
+  const token = (body as Record<string, unknown>).token;
+  return typeof token === 'string' ? token : '';
 }
 
 function toBusySlotDTO(slot: BusySlot) {
@@ -98,7 +141,7 @@ export function createOrderRouter(db: Db): Router {
     // — це помилки вводу, тому мапимо на 400, а не даємо їм стати 500.
     try {
       const order = await OrderService.createOrder(db, result.input);
-      res.status(201).json(toOrderDTO(order));
+      res.status(201).json(toCreatedOrderDTO(order));
 
       // Запис уже збережений, тож відповідь клієнту не чекає на Telegram:
       // недоступний бот не має ні гальмувати форму, ні ламати запис.
@@ -130,6 +173,56 @@ export function createOrderRouter(db: Db): Router {
 
     const slots = await OrderService.fetchBusySlots(db, groomerId, from, to);
     res.json(slots.map(toBusySlotDTO));
+  });
+
+  // POST /order/:id/cancel  { token }
+  router.post('/:id/cancel', async (req: Request, res: Response) => {
+    try {
+      const order = await OrderService.cancelOrder(db, String(req.params.id ?? ''), readToken(req.body));
+      res.json(toOrderDTO(order));
+
+      notifyOrderChanged(db, order).catch((err: unknown) => {
+        logger.error('Failed to send cancel notification', {
+          orderId: order._id?.toHexString(),
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    } catch (err) {
+      respondWithActionError(res, err);
+    }
+  });
+
+  // PATCH /order/:id/schedule  { token, scheduledAt, durationMinutes? }
+  router.patch('/:id/schedule', async (req: Request, res: Response) => {
+    const body = (req.body ?? {}) as Record<string, unknown>;
+
+    if (typeof body.scheduledAt !== 'string' || Number.isNaN(Date.parse(body.scheduledAt))) {
+      res.status(400).json({ error: 'Новий час візиту обовʼязковий і має бути валідним' });
+      return;
+    }
+    if (body.durationMinutes !== undefined && typeof body.durationMinutes !== 'number') {
+      res.status(400).json({ error: 'durationMinutes має бути числом' });
+      return;
+    }
+
+    try {
+      const { order, previousAt } = await OrderService.rescheduleOrder(
+        db,
+        String(req.params.id ?? ''),
+        readToken(body),
+        { scheduledAt: body.scheduledAt, durationMinutes: body.durationMinutes }
+      );
+      res.json(toOrderDTO(order));
+
+      notifyOrderChanged(db, order, previousAt).catch((err: unknown) => {
+        logger.error('Failed to send reschedule notification', {
+          orderId: order._id?.toHexString(),
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    } catch (err) {
+      respondWithActionError(res, err);
+    }
   });
 
   return router;
