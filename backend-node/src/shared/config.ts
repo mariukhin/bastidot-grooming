@@ -17,9 +17,10 @@ function optionalString(name: string, fallback: string): string {
 }
 
 const timeZone = optionalString('TIME_ZONE', 'Europe/Kyiv');
+const appEnv = optionalString('APP_ENV', 'development');
 
 export const config = {
-  appEnv: optionalString('APP_ENV', 'development'),
+  appEnv,
   port: optionalInt('PORT', 8081),
   contextTimeoutSec: optionalInt('CONTEXT_TIMEOUT', 2),
   timeZone,
@@ -39,6 +40,12 @@ export const config = {
     .split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin !== ''),
+  // Шлемо лише з продакшну. Локальний прогін тестів не має прилітати в робочий
+  // чат салону — саме так туди й потрапили тестові записи. TELEGRAM_ENABLED
+  // дозволяє перевизначити це явно в обидва боки.
+  // Порожнє значення = «не задано»: у .env.example змінна стоїть порожньою, і
+  // трактувати її як false означало б тихо вимкнути сповіщення на проді.
+  telegramEnabled: optionalString('TELEGRAM_ENABLED', appEnv === 'production' ? 'true' : 'false') === 'true',
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
   telegramChatId: process.env.TELEGRAM_CHAT_ID ?? '',
 

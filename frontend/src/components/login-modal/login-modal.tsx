@@ -1,5 +1,6 @@
 import { FC, MouseEvent, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import { useGoogleLogin } from '@react-oauth/google';
 
 import { Button } from '@/components/button';
@@ -13,12 +14,9 @@ import { object, ObjectSchema, string } from 'yup';
 import { IconTypes } from '@/components/icon';
 import { authClient, authClientGoogle, signUp } from '@/api/auth';
 import useUserStore from '@/store/useUserStore';
+import useLoginStore from '@/store/useLoginStore';
+import { hydrateProfile } from '@/utils/session';
 import { PhoneInput } from '@/components/phone-input';
-
-type LoginModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-};
 
 export type LoginFormData = {
   email: string;
@@ -37,14 +35,18 @@ const loginValidationSchema = (isSignup: boolean): ObjectSchema<LoginFormData> =
       : string().optional(),
   }) as ObjectSchema<LoginFormData>;
 
-const LoginModal: FC<LoginModalProps> = ({ onClose, isOpen }) => {
+const LoginModal: FC = () => {
+  const router = useRouter();
+  const { isOpen, redirectTo, closeLogin } = useLoginStore();
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const { login, setAccessToken } = useUserStore();
+  const { setSession } = useUserStore();
 
   const [mounted, setMounted] = useState(false);
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validationSchema = loginValidationSchema(isSignUp);
 
@@ -71,7 +73,17 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, isOpen }) => {
 
   const closeModal = () => {
     reset();
-    onClose();
+    setAuthError(null);
+    closeLogin();
+  };
+
+  // Після входу повертаємо туди, куди людина йшла до того, як її розвернув guard.
+  const finishLogin = () => {
+    const target = redirectTo;
+    closeModal();
+    if (target) {
+      router.push(target);
+    }
   };
 
   useFocusTrapping({ ref: modalRef, open: true, onEscape: closeModal });
@@ -99,32 +111,68 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, isOpen }) => {
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      const userData = await authClientGoogle(tokenResponse.access_token);
-      login(userData);
-      closeModal();
+      setAuthError(null);
+      const result = await authClientGoogle(tokenResponse.access_token);
+
+      if (!result.ok) {
+        setAuthError(result.message);
+        return;
+      }
+
+      // Цей ендпоінт токенів не видає — зберігаємо лише профіль.
+      setSession(
+        { ...result.profile, role: result.tokens.role },
+        result.tokens.accessToken,
+        result.tokens.refreshToken
+      );
+      void hydrateProfile();
+      finishLogin();
     },
-    onError: (errorResponse) => console.log('Помилка авторизації:', errorResponse),
+    onError: () => setAuthError('Не вдалося увійти через Google. Спробуйте ще раз'),
   });
 
   const handleSubmitLoginModal = async (values: LoginFormData) => {
-    console.log('here', values);
+    setAuthError(null);
+    setIsSubmitting(true);
     const result = isSignUp ? await signUp(values) : await authClient(values);
-    if (result.error) {
-      console.log('error', result.error);
-    } else {
-      login(values);
-      setAccessToken(result.accessToken);
-      closeModal();
+    setIsSubmitting(false);
+
+    if (!result.ok) {
+      setAuthError(result.message);
+      return;
     }
+
+    // Пароль у стан застосунку не кладемо — зберігаємо лише те, що показуємо.
+    setSession(
+      {
+        name: values.username ?? '',
+        email: values.email,
+        photoUrl: '',
+        role: result.tokens.role,
+      },
+      result.tokens.accessToken,
+      result.tokens.refreshToken
+    );
+    void hydrateProfile();
+    finishLogin();
   };
 
   if (!isOpen || !mounted || !modalRoot) return null;
 
   return createPortal(
     <div className={styles.backdrop} onClick={handleBackdropClick}>
-      <div className={styles.modal} ref={modalRef} role="dialog" aria-modal="true" tabIndex={-1}>
+      <div
+        className={styles.modal}
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="login-modal-title"
+        tabIndex={-1}
+      >
         <div className={styles.content}>
-          <h2 className={styles.title}>{getTitle(isSignUp)}</h2>
+          <h2 className={styles.title} id="login-modal-title">
+            {getTitle(isSignUp)}
+          </h2>
           <form className={styles.form} onSubmit={handleSubmit(handleSubmitLoginModal)}>
             {isSignUp && (
               <>
@@ -186,7 +234,17 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, isOpen }) => {
                 />
               )}
             />
-            <Button type={'submit'} text={getTitle(isSignUp)} size={'large'} />
+            {authError && (
+              <p className={styles.formError} role="alert">
+                {authError}
+              </p>
+            )}
+            <Button
+              type={'submit'}
+              text={isSubmitting ? 'Зачекайте…' : getTitle(isSignUp)}
+              size={'large'}
+              disabled={isSubmitting}
+            />
           </form>
           <p className={styles.text}>або</p>
           <Button
@@ -204,7 +262,10 @@ const LoginModal: FC<LoginModalProps> = ({ onClose, isOpen }) => {
             variant={'link'}
             text={getTitle(!isSignUp)}
             size={'large'}
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              setAuthError(null);
+              setIsSignUp(!isSignUp);
+            }}
           />
         </div>
       </div>

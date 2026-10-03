@@ -4,6 +4,8 @@ import { ObjectId } from 'mongodb';
 import type { Db } from 'mongodb';
 import BreedService from './service.ts';
 import type { Breed } from './types.ts';
+import { requireAuth, requireRole } from '../../shared/auth-middleware.ts';
+import { config } from '../../shared/config.ts';
 
 function toBreedDTO(breed: Breed): { id: string; name: string } {
   return {
@@ -39,23 +41,29 @@ export function createBreedRouter(db: Db): Router {
     res.json(toBreedDTO(breed));
   });
 
-  // POST /breed
-  router.post('/', async (req: Request, res: Response) => {
-    const { name } = req.body ?? {};
+  // POST /breed — створення породи. Доступ лише адміну: раніше додати запис
+  // у каталог міг будь-хто з інтернету.
+  router.post(
+    '/',
+    requireAuth(config.accessTokenSecret),
+    requireRole('admin'),
+    async (req: Request, res: Response) => {
+      const { name } = req.body ?? {};
 
-    if (typeof name !== 'string' || name.trim() === '') {
-      res.status(400).json({ error: 'name is required' });
-      return;
+      if (typeof name !== 'string' || name.trim() === '') {
+        res.status(400).json({ error: 'name is required' });
+        return;
+      }
+
+      const created = await BreedService.create(db, name.trim());
+      if (!created) {
+        res.status(409).json({ error: 'Breed with this name already exists' });
+        return;
+      }
+
+      res.status(201).json(toBreedDTO(created));
     }
-
-    const created = await BreedService.create(db, name.trim());
-    if (!created) {
-      res.status(409).json({ error: 'Breed with this name already exists' });
-      return;
-    }
-
-    res.status(201).json(toBreedDTO(created));
-  });
+  );
 
   return router;
 }

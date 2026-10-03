@@ -6,6 +6,7 @@ primary_region = 'ams'
 
 [env]
   APP_ENV = 'production'
+  TELEGRAM_ENABLED = 'true'
   PORT = '8000'
   CONTEXT_TIMEOUT = '2'
   CORS_ORIGINS = 'https://bastidot-grooming.vercel.app'

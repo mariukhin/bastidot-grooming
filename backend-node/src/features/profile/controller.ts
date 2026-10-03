@@ -3,6 +3,8 @@ import type { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import type { Db } from 'mongodb';
 import { USER_COLLECTION, type User } from '../../shared/user.ts';
+import { getRole } from '../../shared/role.ts';
+import { fetchAccountPets, fetchAccountVisits } from './account.ts';
 
 function toProfileDTO(user: User) {
   return {
@@ -11,6 +13,7 @@ function toProfileDTO(user: User) {
     email: user.email,
     phoneNumber: user.phoneNumber,
     photoUrl: user.photoUrl,
+    role: getRole(user),
     isAdmin: user.isAdmin,
     isGroomer: user.isGroomer,
     isVip: user.isVip,
@@ -38,6 +41,26 @@ export function createProfileRouter(db: Db): Router {
     }
 
     res.json(toProfileDTO(user));
+  });
+
+  // GET /protected/pets — улюбленці залогіненого користувача.
+  // clientId береться з токена, а не з query: публічний GET /pet?userId=…
+  // дозволяє перелічити чужих тварин, підібравши id, і в кабінеті так не можна.
+  router.get('/pets', async (req: Request, res: Response) => {
+    if (!req.userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    res.json(await fetchAccountPets(db, req.userId));
+  });
+
+  // GET /protected/visits — історія візитів залогіненого користувача.
+  router.get('/visits', async (req: Request, res: Response) => {
+    if (!req.userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    res.json(await fetchAccountVisits(db, req.userId));
   });
 
   return router;

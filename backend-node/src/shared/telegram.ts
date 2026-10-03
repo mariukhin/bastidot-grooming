@@ -13,7 +13,22 @@ export function isTelegramConfigured(): boolean {
   return Boolean(config.telegramBotToken && config.telegramChatId);
 }
 
+/** Чи можна реально щось надіслати: і налаштовано, і ввімкнено для цього середовища. */
+export function canSendTelegram(): boolean {
+  return config.telegramEnabled && isTelegramConfigured();
+}
+
 export async function sendTelegramMessage(text: string): Promise<void> {
+  // Остання застава перед мережею. Навіть якщо хтось покличе цю функцію повз
+  // перевірки вище, у не-продакшн середовищі повідомлення лише потрапить у лог.
+  if (!config.telegramEnabled) {
+    logger.info('Telegram вимкнено для цього середовища — повідомлення не надіслано', {
+      appEnv: config.appEnv,
+      preview: text.replace(/<[^>]+>/g, '').split('\n')[0]?.slice(0, 80),
+    });
+    return;
+  }
+
   if (!isTelegramConfigured()) {
     throw new Error('Telegram is not configured: set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID');
   }

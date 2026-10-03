@@ -1,7 +1,7 @@
 import type { Db } from 'mongodb';
 import { config } from '../../shared/config.ts';
 import { logger } from '../../shared/logger.ts';
-import { escapeHtml, isTelegramConfigured, sendTelegramMessage } from '../../shared/telegram.ts';
+import { canSendTelegram, escapeHtml, sendTelegramMessage } from '../../shared/telegram.ts';
 import { CLIENT_COLLECTION, type Client } from '../../shared/client.ts';
 import { USER_COLLECTION, type User } from '../../shared/user.ts';
 import { PET_COLLECTION, type Pet } from '../pet/types.ts';
@@ -175,7 +175,7 @@ export async function notifyOrderChanged(
   order: Order,
   previousAt: Date | null = null
 ): Promise<void> {
-  if (!isTelegramConfigured()) {
+  if (!canSendTelegram()) {
     logger.warn('Order-change notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing');
     return;
   }
@@ -190,7 +190,7 @@ export async function notifyOrderChanged(
 }
 
 export async function notifyNewOrder(db: Db, order: Order): Promise<void> {
-  if (!isTelegramConfigured()) {
+  if (!canSendTelegram()) {
     logger.warn('New-order notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing');
     return;
   }

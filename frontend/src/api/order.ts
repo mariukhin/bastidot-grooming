@@ -1,12 +1,18 @@
 import { OrderActionResult, OrderRequest } from '@/components/booking-modal/types';
 import { API_URL } from './config';
+import useUserStore from '@/store/useUserStore';
 
 export async function createOrder(payload: OrderRequest) {
   try {
+    // Токен необовʼязковий: запис працює і для незалогінених. Коли він є,
+    // бекенд зводить акаунт із карткою клієнта, яку створює цей запис.
+    const { accessToken } = useUserStore.getState();
+
     const response = await fetch(`${API_URL}/order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
       body: JSON.stringify(payload),
     });

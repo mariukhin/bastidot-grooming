@@ -36,7 +36,7 @@ const MobileMenu: FC<MobileMenuProps> = ({
   const [mounted, setMounted] = useState(false);
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
 
-  const { user } = useUserStore();
+  const { user, logout } = useUserStore();
 
   useFocusTrapping({ ref: panelRef, open: isOpen, onEscape: onClose });
 
@@ -120,7 +120,20 @@ const MobileMenu: FC<MobileMenuProps> = ({
               onOpenBooking();
             }}
           />
-          {!user && (
+          {user ? (
+            // Дропдаун профілю живе лише в десктопній шапці, тож на телефоні
+            // вихід має бути тут — інакше вийти неможливо взагалі.
+            <Button
+              type={'button'}
+              text={'Вийти'}
+              variant={'secondary'}
+              block
+              onClick={() => {
+                onClose();
+                logout();
+              }}
+            />
+          ) : (
             <Button
               type={'button'}
               text={'Увійти'}

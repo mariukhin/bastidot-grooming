@@ -10,7 +10,7 @@ import { createPetRouter } from './features/pet/controller.ts';
 import { createOrderRouter } from './features/order/controller.ts';
 import { createAuthRouter } from './features/auth/controller.ts';
 import { createProfileRouter } from './features/profile/controller.ts';
-import { requireAuth } from './shared/auth-middleware.ts';
+import { optionalAuth, requireAuth } from './shared/auth-middleware.ts';
 import { config } from './shared/config.ts';
 
 // Збирання Express-застосунку відокремлене від запуску сервера (server.ts),
@@ -32,7 +32,7 @@ export function createApp(db: Db) {
   app.use('/service', createServiceRouter(db));
   app.use('/groomer', createGroomerRouter(db));
   app.use('/pet', createPetRouter(db));
-  app.use('/order', createOrderRouter(db));
+  app.use('/order', optionalAuth(config.accessTokenSecret), createOrderRouter(db));
   app.use('/public', createAuthRouter(db));
 
   app.use('/protected', requireAuth(config.accessTokenSecret), createProfileRouter(db));

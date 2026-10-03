@@ -15,6 +15,7 @@ import './globals.scss';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
+import { SessionGate } from '@/components/session-gate';
 
 dayjs.locale('uk');
 
@@ -79,6 +80,7 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
         />
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
           <div id="header-scroll-sentinel" />
+          <SessionGate />
           <Header />
           <main>{children}</main>
           <div id="modal-root" />

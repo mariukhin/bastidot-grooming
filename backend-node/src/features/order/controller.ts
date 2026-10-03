@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
 import type { Db } from 'mongodb';
 import OrderService from './service.ts';
+import AuthService from '../auth/service.ts';
 import { notifyNewOrder, notifyOrderChanged } from './notification.ts';
 import { logger } from '../../shared/logger.ts';
 import { config } from '../../shared/config.ts';
@@ -142,6 +143,29 @@ export function createOrderRouter(db: Db): Router {
     try {
       const order = await OrderService.createOrder(db, result.input);
       res.status(201).json(toCreatedOrderDTO(order));
+
+      // Момент запису — єдине місце, де одночасно відомі і залогінений
+      // користувач, і телефон, за яким живе його картка в CRM. Через Google
+      // телефону немає взагалі, тож для таких акаунтів це єдина нагода звести
+      // їх із карткою клієнта. Відповідь на це не чекає: не вийде звʼязати —
+      // запис усе одно створений.
+      if (req.userId) {
+        AuthService.linkClient(db, new ObjectId(req.userId), order.clientId)
+          .then((linked) => {
+            if (linked) {
+              logger.info('Акаунт звʼязано з карткою клієнта при записі', {
+                userId: req.userId,
+                clientId: order.clientId.toHexString(),
+              });
+            }
+          })
+          .catch((err: unknown) => {
+            logger.error('Не вдалося звʼязати акаунт із карткою клієнта', {
+              userId: req.userId,
+              error: err instanceof Error ? err.message : String(err),
+            });
+          });
+      }
 
       // Запис уже збережений, тож відповідь клієнту не чекає на Telegram:
       // недоступний бот не має ні гальмувати форму, ні ламати запис.

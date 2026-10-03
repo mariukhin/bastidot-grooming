@@ -3,7 +3,7 @@ import ReminderService from './service.ts';
 import type { LapsedClient, LapsedClientGroups } from './types.ts';
 import { config } from '../../shared/config.ts';
 import { logger } from '../../shared/logger.ts';
-import { escapeHtml, isTelegramConfigured, sendTelegramMessage } from '../../shared/telegram.ts';
+import { canSendTelegram, escapeHtml, sendTelegramMessage } from '../../shared/telegram.ts';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -253,8 +253,8 @@ export async function runScheduledDigest(db: Db, now: Date = new Date()): Promis
 }
 
 export function isDigestEnabled(): boolean {
-  if (!isTelegramConfigured()) {
-    logger.warn('Inactive clients worker is disabled: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing');
+  if (!canSendTelegram()) {
+    logger.warn('Воркер «сплячих» вимкнено: Telegram недоступний або вимкнений для цього середовища');
     return false;
   }
   return true;

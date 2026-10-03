@@ -6,6 +6,9 @@ export async function ensureIndexes(db: Db): Promise<void> {
     db.collection('user').createIndexes([
       { key: { email: 1 }, unique: true },
       { key: { phoneNumber: 1 }, unique: true },
+      // sparse — бо clientId є далеко не в кожного акаунта, а unique не дає
+      // привʼязати одну картку клієнта до двох різних акаунтів.
+      { key: { clientId: 1 }, unique: true, sparse: true },
     ]),
     db.collection('order').createIndexes([
       { key: { groomerId: 1, scheduledAt: 1 } },

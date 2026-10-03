@@ -15,4 +15,9 @@ export interface User {
   isGroomer: boolean;
   isVip: boolean;
   createdAt: Date;
+  // Картка клієнта в CRM (колекція client), якщо акаунт із нею звели. Звʼязок
+  // зберігається лише тут: дублювати його ще й у client означало б тримати два
+  // джерела правди, які рано чи пізно розійдуться. Зворотний пошук —
+  // user.findOne({ clientId }) по індексу.
+  clientId?: ObjectId;
 }

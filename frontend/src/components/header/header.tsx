@@ -15,24 +15,27 @@ import { LoginModal } from '@/components/login-modal';
 import { MobileMenu } from '@/components/mobile-menu';
 import useUserStore from '@/store/useUserStore';
 import useBookingStore from '@/store/useBookingStore';
+import useLoginStore from '@/store/useLoginStore';
 import { Icon, IconTypes } from '@/components/icon';
+import { UserMenu } from '@/components/user-menu';
 
 const SCROLL_THRESHOLD = 60;
 const SECTION_IDS = ['services', 'works', 'reviews', 'about', 'contacts'];
 
 const Header = () => {
   const pathname = usePathname();
-  const [isLoginModal, setIsLoginModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  // Прозора шапка з білим текстом розрахована на темне відео героя. На решті
+  // сторінок тло світле, і такий текст зникав би — там вона одразу суцільна.
+  const isSolid = pathname !== '/' || isScrolled;
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
-  const { user } = useUserStore();
+  const { user, isReady } = useUserStore();
   const openBooking = useBookingStore((state) => state.openBooking);
 
-  const handleOpenModal = () => {
-    setIsLoginModal(true);
-  };
+  const openLogin = useLoginStore((state) => state.openLogin);
+  const handleOpenModal = () => openLogin();
 
   useEffect(() => {
     const sentinel = document.getElementById('header-scroll-sentinel');
@@ -92,9 +95,9 @@ const Header = () => {
   }, [pathname]);
 
   return (
-    <header className={classNames(styles.wrapper, isScrolled && styles.scrolled)}>
+    <header className={classNames(styles.wrapper, isSolid && styles.scrolled)}>
       <Image
-        className={classNames(styles.logo, isScrolled && styles.logoScrolled)}
+        className={classNames(styles.logo, isSolid && styles.logoScrolled)}
         src={'/big-logo.svg'}
         alt="Bastidot Grooming"
         width={169}
@@ -128,11 +131,16 @@ const Header = () => {
           text={'Записатися'}
           onClick={() => openBooking()}
         />
-        {user ? (
-          <Icon
-            className={classNames(styles.userButton, styles.desktopOnly)}
-            id={IconTypes.userCircle}
+        {!isReady ? (
+          // Доки збережена сесія не відновилась, не вгадуємо: і «Увійти», і
+          // аватарка були б здогадкою. Тримаємо місце того самого розміру —
+          // інакше шапка смикається, коли зʼявиться справжній елемент.
+          <div
+            className={classNames(styles.authPlaceholder, styles.desktopOnly)}
+            aria-hidden="true"
           />
+        ) : user ? (
+          <UserMenu user={user} className={styles.desktopOnly} />
         ) : (
           <Button
             className={classNames(styles.signInButton, styles.desktopOnly)}
@@ -157,7 +165,7 @@ const Header = () => {
           />
         </button>
       </div>
-      <LoginModal isOpen={isLoginModal} onClose={() => setIsLoginModal(false)} />
+      <LoginModal />
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}

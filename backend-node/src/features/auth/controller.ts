@@ -5,6 +5,7 @@ import AuthService, { type SignupInput } from './service.ts';
 import { verifyPassword } from '../../shared/password.ts';
 import { verifyToken } from '../../shared/jwt.ts';
 import { config } from '../../shared/config.ts';
+import { logger } from '../../shared/logger.ts';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -57,6 +58,15 @@ export function createAuthRouter(db: Db): Router {
     }
 
     const user = await AuthService.createUser(db, input);
+
+    const clientId = await AuthService.findClientByPhone(db, input.phoneNumber);
+    if (clientId && (await AuthService.linkClient(db, user._id!, clientId))) {
+      logger.info('Акаунт звʼязано з карткою клієнта', {
+        userId: user._id!.toHexString(),
+        clientId: clientId.toHexString(),
+      });
+    }
+
     const tokens = AuthService.createTokens(user);
 
     res.status(201).json(tokens);
@@ -113,9 +123,9 @@ export function createAuthRouter(db: Db): Router {
     res.status(200).json(AuthService.createTokens(user));
   });
 
-  // POST /public/login/google — верифікує Google access-token через
-  // Google userinfo API і повертає дані профілю. Дзеркало Go-версії:
-  // токенів НЕ видає, лише повертає профіль (фронтенд далі сам логінить).
+  // POST /public/login/google — верифікує Google access-token через Google
+  // userinfo API, заводить (або знаходить) користувача за поштою і видає ту саму
+  // пару токенів, що й звичайний логін, плюс профіль для аватарки в шапці.
   router.post('/login/google', async (req: Request, res: Response) => {
     const body = (req.body ?? {}) as Record<string, unknown>;
     if (typeof body.token !== 'string' || body.token === '') {
@@ -137,13 +147,34 @@ export function createAuthRouter(db: Db): Router {
       given_name?: string;
       family_name?: string;
       email?: string;
+      verified_email?: boolean;
       picture?: string;
     };
 
-    res.status(200).json({
-      name: `${info.given_name ?? ''} ${info.family_name ?? ''}`.trim(),
-      email: info.email ?? '',
+    const email = info.email ?? '';
+    if (email === '') {
+      res.status(401).json({ error: 'Google не повернув пошту' });
+      return;
+    }
+
+    if (info.verified_email === false) {
+      res.status(401).json({ error: 'Пошту в Google не підтверджено' });
+      return;
+    }
+
+    const user = await AuthService.findOrCreateGoogleUser(db, {
+      username: `${info.given_name ?? ''} ${info.family_name ?? ''}`.trim(),
+      email,
       photoUrl: info.picture ?? '',
+    });
+
+    res.status(200).json({
+      ...AuthService.createTokens(user),
+      profile: {
+        name: user.username,
+        email: user.email,
+        photoUrl: user.photoUrl,
+      },
     });
   });
 

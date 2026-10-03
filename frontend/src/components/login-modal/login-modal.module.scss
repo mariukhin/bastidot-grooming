@@ -56,6 +56,18 @@
   margin-bottom: 12px;
 }
 
+.formError {
+  margin: -4px 0 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background-color: var(--color-hint-of-red);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-milano-red);
+}
+
 .loginGoogleButton {
   width: 100%;
   margin-bottom: 24px;

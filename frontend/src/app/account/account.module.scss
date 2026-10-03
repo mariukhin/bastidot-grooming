@@ -1,0 +1,291 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+.container {
+  // Розтягуємо секцію на всю висоту main, щоб її тло дійшло до футера.
+  flex: 1;
+  width: 100%;
+  background-color: var(--color-hint-of-red);
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  margin: 0 auto;
+  // Верхній відступ більший за висоту фіксованої шапки — інакше вона накриває
+  // заголовок кабінету.
+  padding: 110px 12px 80px;
+
+  @include breakpoints.md {
+    padding: 140px 24px 110px;
+  }
+}
+
+/* ---------- шапка кабінету ---------- */
+
+.head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 26px;
+
+  @include breakpoints.sm {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.photo,
+.photoFallback {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.photoFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--color-ebb);
+  background-color: var(--color-white);
+  font-size: 25px;
+  font-weight: 700;
+  color: var(--color-dark-burgundy);
+}
+
+.identityText {
+  min-width: 0;
+}
+
+.title {
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 800;
+  color: var(--color-dark-burgundy);
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @include breakpoints.md {
+    font-size: 30px;
+    line-height: 38px;
+  }
+}
+
+.email {
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--color-submarine-blue);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.logout {
+  flex: none;
+}
+
+/* ---------- вкладки ---------- */
+
+.tabs {
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-ebb);
+}
+
+.tabsList {
+  display: flex;
+  gap: 4px;
+  list-style: none;
+  // На вузьких екранах вкладки їдуть у горизонтальний скрол замість переносу:
+  // перенесений рядок відривав би підкреслення активної вкладки від контенту.
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab {
+  display: block;
+  padding: 11px 16px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-size: 14.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--color-submarine-blue);
+  transition:
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+
+  &:hover {
+    color: var(--color-woodsmoke);
+  }
+}
+
+.tabActive {
+  border-bottom-color: var(--color-milano-red);
+  color: var(--color-dark-burgundy);
+}
+
+.panel {
+  min-height: 220px;
+}
+
+/* ---------- профіль ---------- */
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  border: 1px solid var(--color-ebb);
+  border-radius: 14px;
+  background-color: var(--color-ebb);
+}
+
+.detailsRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  background-color: var(--color-white);
+
+  @include breakpoints.sm {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 16px;
+  }
+}
+
+.detailsLabel {
+  flex: none;
+  width: 140px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-submarine-blue);
+}
+
+.detailsValue {
+  font-size: 15px;
+  font-weight: 600;
+  word-break: break-word;
+  color: var(--color-woodsmoke);
+}
+
+/* ---------- картки улюбленців і візитів ---------- */
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 14px;
+  background-color: var(--color-white);
+}
+
+.cardPhoto,
+.cardPhotoFallback {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cardPhotoFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-hint-of-red);
+  font-size: 20px;
+}
+
+.cardBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 15.5px;
+  line-height: 22px;
+  font-weight: 700;
+  color: var(--color-woodsmoke);
+}
+
+.cardSub {
+  font-size: 13.5px;
+  line-height: 20px;
+  color: var(--color-submarine-blue);
+}
+
+.cardNote {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--color-gray-chateau);
+}
+
+.cardAside {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.cardPrice {
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: var(--color-woodsmoke);
+}
+
+/* ---------- статуси візиту ---------- */
+
+.status_pending,
+.status_completed,
+.status_cancelled,
+.status_no_show {
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status_pending {
+  background-color: var(--color-link-water);
+  color: var(--color-pickled-bluewood);
+}
+
+.status_completed {
+  background-color: #e3f3e7;
+  color: #1f6b35;
+}
+
+.status_cancelled,
+.status_no_show {
+  background-color: var(--color-hint-of-red);
+  color: var(--color-milano-red);
+}

@@ -12,6 +12,10 @@ html {
 
 body {
   font-family: var(--font-montserrat), sans-serif;
+  // Колонка на всю висоту вікна, щоб футер не висів посеред короткої сторінки.
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 
   & * {
     box-sizing: border-box;
@@ -53,4 +57,13 @@ body {
     margin: 0;
     padding: 0;
   }
+}
+
+// main росте і займає вільне місце — саме це притискає футер до низу.
+// Колонка — щоб сторінка могла розтягнути свою секцію на всю цю висоту; інакше
+// під короткою секцією прозирало б біле тло body аж до футера.
+main {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
 }

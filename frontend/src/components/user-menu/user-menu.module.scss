@@ -1,0 +1,118 @@
+.wrapper {
+  position: relative;
+  display: flex;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // Той самий розмір, що й min-height кнопки «Записатися» в шапці.
+  width: 48px;
+  height: 48px;
+  flex: none;
+  padding: 0;
+  border: 1.5px solid var(--color-ebb);
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--color-white);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease);
+
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: var(--color-milano-red);
+  }
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.initials {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-dark-burgundy);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 210px;
+  padding: 8px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 14px;
+  background-color: var(--color-white);
+  filter: drop-shadow(0 6px 18px rgb(19 2 2 / 12%));
+}
+
+.identity {
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid var(--color-ebb);
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--color-woodsmoke);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.email {
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--color-submarine-blue);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--color-woodsmoke);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-hint-of-red);
+  }
+
+  &:disabled {
+    color: var(--color-submarine-blue);
+    cursor: default;
+  }
+}
+
+.soon {
+  margin-left: auto;
+  padding: 2px 7px;
+  border-radius: var(--r-pill);
+  background-color: var(--color-hint-of-red);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-submarine-blue);
+}
