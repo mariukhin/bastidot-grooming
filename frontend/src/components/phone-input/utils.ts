@@ -16,7 +16,11 @@ export const applyMask = (digits: string) => {
   return masked;
 };
 
-export const extractDigits = (input: string) => input.replace(/\D/g, '').slice(0, 9);
+export const extractDigits = (input: string) =>
+  input
+    .replace(/\D/g, '')
+    .replace(/^380(?=\d{9}$)/, '')
+    .slice(0, 9);
 
 export const getCursorPosFromDigits = (digits: string) => {
   let count = 0;

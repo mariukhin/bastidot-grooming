@@ -15,7 +15,10 @@ export async function ensureIndexes(db: Db): Promise<void> {
       { key: { clientId: 1 } },
       { key: { petId: 1, status: 1 } },
     ]),
-    db.collection('pet').createIndexes([{ key: { userId: 1 } }]),
+    db.collection('pet').createIndexes([
+      { key: { userId: 1 } },
+      { key: { userId: 1, archivedAt: 1 } },
+    ]),
     db.collection('client').createIndexes([
       { key: { doNotContact: 1, lastVisitAt: -1 } },
       { key: { lastNotifiedAt: 1 } },

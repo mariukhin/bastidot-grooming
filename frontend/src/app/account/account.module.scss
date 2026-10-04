@@ -144,43 +144,23 @@
 
 /* ---------- профіль ---------- */
 
-.details {
+.form {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  overflow: hidden;
-  border: 1px solid var(--color-ebb);
-  border-radius: 14px;
-  background-color: var(--color-ebb);
+  gap: 18px;
+  max-width: 440px;
 }
 
-.detailsRow {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 14px 16px;
-  background-color: var(--color-white);
-
-  @include breakpoints.sm {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 16px;
-  }
-}
-
-.detailsLabel {
-  flex: none;
-  width: 140px;
-  font-size: 13px;
-  font-weight: 600;
+.fieldHint {
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 18px;
   color: var(--color-submarine-blue);
 }
 
-.detailsValue {
-  font-size: 15px;
-  font-weight: 600;
-  word-break: break-word;
-  color: var(--color-woodsmoke);
+.save {
+  align-self: flex-start;
+  margin-top: 4px;
 }
 
 /* ---------- картки улюбленців і візитів ---------- */
@@ -241,7 +221,7 @@
   margin-top: 2px;
   font-size: 13px;
   line-height: 19px;
-  color: var(--color-gray-chateau);
+  color: var(--color-submarine-blue);
 }
 
 .cardAside {
@@ -288,4 +268,200 @@
 .status_no_show {
   background-color: var(--color-hint-of-red);
   color: var(--color-milano-red);
+}
+
+/* ---------- сітка улюбленців ---------- */
+
+.emptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.petGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  list-style: none;
+
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include breakpoints.md {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.petCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 16px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 16px;
+  background-color: var(--color-white);
+}
+
+.petHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.petPhoto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--color-hint-of-red);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.petPlaceholder {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.petBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.petName {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 700;
+  color: var(--color-woodsmoke);
+}
+
+.petFacts {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--color-submarine-blue);
+}
+
+.petActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.petBook {
+  width: 100%;
+}
+
+.petSecondary {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.petIconButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--color-ebb);
+  border-radius: 10px;
+  background: none;
+  color: var(--color-submarine-blue);
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease),
+    color 0.2s var(--ease);
+
+  &:hover {
+    border-color: var(--color-dark-burgundy);
+    color: var(--color-dark-burgundy);
+  }
+}
+
+.petIconButtonDanger:hover {
+  border-color: var(--color-milano-red);
+  color: var(--color-milano-red);
+}
+
+// Тултіп із data-tooltip. Нативний title зʼявляється із затримкою близько
+// секунди і не показується з клавіатури — тут і те, і те виправлено.
+.petIconButton::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background-color: var(--color-woodsmoke);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+  color: var(--color-white);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s var(--ease);
+}
+
+.petIconButton:hover::after,
+.petIconButton:focus-visible::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .petIconButton::after {
+    transition: none;
+  }
+}
+
+// Остання картка сітки: та сама висота, але пунктир — щоб читалась як дія,
+// а не як ще один улюбленець.
+.petAdd {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 100%;
+  padding: 28px 16px;
+  border: 1px dashed var(--color-cold-turkey);
+  border-radius: 16px;
+  background: none;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-dark-burgundy);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease);
+
+  &:hover {
+    border-color: var(--color-dark-burgundy);
+  }
+}
+
+.petAddIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-hint-of-red);
+  font-size: 22px;
+  line-height: 1;
 }

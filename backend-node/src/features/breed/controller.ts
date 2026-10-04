@@ -18,7 +18,17 @@ export function createBreedRouter(db: Db): Router {
   const router = Router();
 
   // GET /breed
+  // GET /breed?q= — пошук для combobox. «Кіт» завжди перший: це не порода, а
+  // окремий вид, і шукати його серед собачих порід за алфавітом незручно.
   router.get('/', async (req: Request, res: Response) => {
+    const { q } = req.query;
+
+    if (typeof q === 'string' && q.trim() !== '') {
+      const found = await BreedService.search(db, q.trim());
+      res.json(found.map(toBreedDTO));
+      return;
+    }
+
     const breeds = await BreedService.fetchAll(db);
     res.json(breeds.map(toBreedDTO));
   });

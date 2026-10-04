@@ -2,21 +2,31 @@ import type { ObjectId } from 'mongodb';
 
 export const PET_COLLECTION = 'pet';
 
+export interface PetTraitValue {
+  traitKey: string;
+  value: number;
+}
+
 export interface Pet {
   _id?: ObjectId;
   name: string;
-  age: number;
-  weight: number;
-  photoUrl: string;
-  userId: ObjectId;
   breedId?: ObjectId | null;
+  breedCustom?: string | null;
+  weight: number;
+  birthDate?: Date | null;
+  photoUrl: string;
+  wishes?: string;
+  traits?: PetTraitValue[];
+  archivedAt?: Date | null;
+  userId: ObjectId;
   createdAt: Date;
-  comment: string;
+  age?: number;
+  comment?: string;
 }
 
 export interface CreatePetInput {
   name: string;
-  age: number;
+  age?: number;
   weight: number;
   photoUrl?: string;
   userId: string;

@@ -49,6 +49,8 @@ export const config = {
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
   telegramChatId: process.env.TELEGRAM_CHAT_ID ?? '',
 
+  catBreedId: optionalString('CAT_BREED_ID', ''),
+
   orderSelfServiceCutoffHours: optionalInt('ORDER_SELF_SERVICE_CUTOFF_HOURS', 3),
 
   reminderInactiveDays: optionalInt('REMINDER_INACTIVE_DAYS', 60),

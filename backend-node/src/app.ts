@@ -12,6 +12,7 @@ import { createAuthRouter } from './features/auth/controller.ts';
 import { createProfileRouter } from './features/profile/controller.ts';
 import { optionalAuth, requireAuth } from './shared/auth-middleware.ts';
 import { config } from './shared/config.ts';
+import { fetchActiveTraits, toTraitDTO } from './features/pet/traits.ts';
 
 // Збирання Express-застосунку відокремлене від запуску сервера (server.ts),
 // щоб в інтеграційних тестах можна було створити app без відкриття порту.
@@ -32,6 +33,9 @@ export function createApp(db: Db) {
   app.use('/service', createServiceRouter(db));
   app.use('/groomer', createGroomerRouter(db));
   app.use('/pet', createPetRouter(db));
+  app.get('/pet-traits', async (_req: Request, res: Response) => {
+    res.json((await fetchActiveTraits(db)).map(toTraitDTO));
+  });
   app.use('/order', optionalAuth(config.accessTokenSecret), createOrderRouter(db));
   app.use('/public', createAuthRouter(db));
 

@@ -41,6 +41,7 @@ type BookingModalProps = {
   isOpen: boolean;
   onClose: () => void;
   initialBreed?: string;
+  initialPetName?: string;
   initialService?: ServiceProps;
   initialGroomer?: Groomer;
 };
@@ -59,10 +60,11 @@ const BookingModal = ({
   isOpen,
   onClose,
   initialBreed,
+  initialPetName,
   initialService,
   initialGroomer,
 }: BookingModalProps) => {
-  const { groomerList } = useGroomerStore();
+  const { groomerList, fetchGroomers } = useGroomerStore();
   const { createOrder } = useOrderStore();
   const [step, setStep] = useState<BookingStep>('services');
 
@@ -103,7 +105,7 @@ const BookingModal = ({
     // і при onChange поле спалахувало помилкою ще до того, як користувач
     // щось увів. Тепер перевірка — після першого blur.
     mode: 'onTouched',
-    defaultValues: { phone: '', name: '', email: '', petName: '', comment: '' },
+    defaultValues: { phone: '', name: '', email: '', petName: initialPetName ?? '', comment: '' },
   });
 
   const now = useMemo(() => dayjs(), [step]);
@@ -145,6 +147,13 @@ const BookingModal = ({
     return `${capitalize(selectedDate.format('dddd D MMMM'))}, ${start.format('HH:mm')}–${end.format('HH:mm')}`;
   }, [selectedSlot, selectedDate, totalDurationMin]);
 
+  // Стор грумерів наповнює блок «Команда» на головній. На сторінках без нього
+  // (кабінет) список лишався порожнім, і запис упирався в крок «Оберіть майстра».
+  useEffect(() => {
+    if (!isOpen || groomerList.length > 0) return;
+    void fetchGroomers();
+  }, [isOpen, groomerList.length, fetchGroomers]);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -158,7 +167,15 @@ const BookingModal = ({
     setSelectedSlot(null);
     setSelectedExtraServices([]);
     setIsSummaryExpanded(true);
-    reset();
+    // Явні значення, а не reset(): defaultValues захоплені при першому рендері,
+    // коли переданої клички ще не існувало, і вона б щоразу затиралась.
+    reset({
+      phone: '',
+      name: '',
+      email: '',
+      petName: initialPetName ?? '',
+      comment: '',
+    });
 
     (async () => {
       const result = await getBreedList();

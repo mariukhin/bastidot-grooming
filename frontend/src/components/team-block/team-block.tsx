@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/button';
 import Image from 'next/image';
 import { Icon, IconTypes } from '@/components/icon';
@@ -23,9 +23,6 @@ const TeamBlock = ({ groomers }: TeamBlockProps) => {
   const loadNearestSlots = useGroomerStore((state) => state.loadNearestSlots);
   const openBooking = useBookingStore((state) => state.openBooking);
   const revealRef = useReveal<HTMLDivElement>();
-  const [atStart, setAtStart] = useState(true);
-  const [atEnd, setAtEnd] = useState(false);
-  const railRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   // Server-rendered list until the store enriches it with the nearest free slot.
@@ -53,31 +50,6 @@ const TeamBlock = ({ groomers }: TeamBlockProps) => {
     return () => observer.disconnect();
   }, [loadNearestSlots, teamList.length]);
 
-  const updateEdges = () => {
-    const rail = railRef.current;
-    if (!rail) return;
-
-    setAtStart(rail.scrollLeft <= 0);
-    setAtEnd(rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 1);
-  };
-
-  useEffect(() => {
-    updateEdges();
-
-    window.addEventListener('resize', updateEdges);
-    return () => window.removeEventListener('resize', updateEdges);
-  }, [teamList]);
-
-  const scrollByCard = (direction: 1 | -1) => {
-    const rail = railRef.current;
-    if (!rail) return;
-
-    const card = rail.firstElementChild as HTMLElement | null;
-    const amount = card ? card.offsetWidth + 16 : rail.clientWidth * 0.8;
-    rail.scrollBy({ left: direction * amount, behavior: 'instant' });
-    updateEdges();
-  };
-
   return (
     <div className={styles.teamContainer} ref={sectionRef}>
       <div className={styles.teamWrapper}>
@@ -85,7 +57,7 @@ const TeamBlock = ({ groomers }: TeamBlockProps) => {
         <h2 className={styles.title}>Команда</h2>
         <p className={styles.subtitle}>Досвідчені майстри, яким можна довірити улюбленця</p>
         <div className={styles.teamRailWrapper}>
-          <div className={styles.teamBlock} ref={railRef}>
+          <div className={styles.teamBlock}>
             {teamList.map((item, index) => (
               <div
                 className={`${styles.teamItem} reveal`}
@@ -130,27 +102,6 @@ const TeamBlock = ({ groomers }: TeamBlockProps) => {
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className={styles.railNav}>
-            <button
-              type={'button'}
-              className={styles.railNavButton}
-              onClick={() => scrollByCard(-1)}
-              disabled={atStart}
-              aria-label={'Попередні майстри'}
-            >
-              <Icon id={IconTypes.chevronLeft} width={18} height={18} />
-            </button>
-            <button
-              type={'button'}
-              className={styles.railNavButton}
-              onClick={() => scrollByCard(1)}
-              disabled={atEnd}
-              aria-label={'Наступні майстри'}
-            >
-              <Icon id={IconTypes.chevroneRight} width={18} height={18} />
-            </button>
           </div>
         </div>
       </div>

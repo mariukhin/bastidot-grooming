@@ -106,6 +106,9 @@ const StepForm = ({
               label="Ім'я улюбленця"
               required
               placeholder="Наприклад, Рекс"
+              // Без defaultValue поле не показує значення форми, і кличка,
+              // передзаповнена з картки улюбленця, лишалась невидимою.
+              defaultValue={field.value}
               onChange={field.onChange}
               onBlur={field.onBlur}
               error={errors.petName?.message}

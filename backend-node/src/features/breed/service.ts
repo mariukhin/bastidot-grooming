@@ -1,6 +1,7 @@
 import type { Db } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import { BREED_COLLECTION, type Breed } from './types.ts';
+import { CAT_BREED_NAME } from './cat.ts';
 
 async function fetchAll(db: Db): Promise<Breed[]> {
   const collection = db.collection<Breed>(BREED_COLLECTION);
@@ -45,11 +46,27 @@ async function resolveId(db: Db, id: string | null | undefined): Promise<ObjectI
   return _id;
 }
 
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+async function search(db: Db, query: string): Promise<Breed[]> {
+  const found = await db
+    .collection<Breed>(BREED_COLLECTION)
+    .find({ name: { $regex: escapeRegex(query), $options: 'i' } })
+    .sort({ name: 1 })
+    .toArray();
+  return found.sort(
+    (a, b) => Number(b.name === CAT_BREED_NAME) - Number(a.name === CAT_BREED_NAME)
+  );
+}
+
 const BreedService = {
   fetchAll: fetchAll,
   getById: getById,
   create: create,
-  resolveId: resolveId
+  resolveId: resolveId,
+  search: search,
 }
 
 export default BreedService;

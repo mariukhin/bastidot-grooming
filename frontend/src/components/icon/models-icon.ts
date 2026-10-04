@@ -21,6 +21,7 @@ export enum IconTypes {
   hamburger = 'hamburger',
   eye = 'eye',
   edit = 'edit',
+  trash = 'trash',
   close = 'close',
   clock = 'clock',
   circleCheck = 'circle-check',

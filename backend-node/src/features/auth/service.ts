@@ -90,6 +90,73 @@ async function findClientByPhone(db: Db, phoneNumber: string): Promise<ObjectId 
   return client?._id ?? null;
 }
 
+/**
+ * Повертає картку клієнта акаунта, створюючи її за потреби.
+ *
+ * Раніше картка зʼявлялася лише при першому записі, тож додати улюбленця в
+ * кабінеті до першого візиту було неможливо. Тепер її заводить будь-яка дія,
+ * якій вона потрібна.
+ *
+ * Нова картка не псує роботу салону: воркер нагадувань відбирає лише тих, у
+ * кого є lastVisitAt і телефон, а тут lastVisitAt порожній.
+ */
+async function ensureClientId(db: Db, userId: ObjectId): Promise<ObjectId> {
+  const users = db.collection<User>(USER_COLLECTION);
+  const user = await users.findOne({ _id: userId });
+
+  if (!user) {
+    throw new Error('user not found');
+  }
+  if (user.clientId) {
+    return user.clientId;
+  }
+
+  // Спершу шукаємо наявну картку за телефоном — щоб не плодити другу тому,
+  // хто вже є клієнтом салону.
+  if (user.phoneNumber) {
+    const existing = await findClientByPhone(db, user.phoneNumber);
+    if (existing && (await linkClient(db, userId, existing))) {
+      return existing;
+    }
+  }
+
+  const phone = user.phoneNumber ? normalizePhone(user.phoneNumber) : null;
+  const now = new Date();
+
+  const { insertedId } = await db.collection<Client>(CLIENT_COLLECTION).insertOne({
+    phone: phone?.phone ?? '',
+    phoneRaw: phone?.phoneRaw ?? '',
+    name: user.username,
+    email: user.email,
+    lastVisitAt: null,
+    visitsCount: 0,
+    totalSpent: 0,
+    crmGroup: 'Новий',
+    // Щоб персонал відрізняв картки, заведені з кабінету, від тих, що прийшли
+    // із записів і старої CRM.
+    dateSource: 'кабінет',
+    isForeign: phone?.isForeign ?? false,
+    doNotContact: false,
+    lastNotifiedAt: null,
+    notifyHistory: [],
+    importedAt: now,
+  });
+
+  if (await linkClient(db, userId, insertedId)) {
+    return insertedId;
+  }
+
+  // Паралельний запит устиг привʼязати іншу картку — свою щойно створену
+  // прибираємо, щоб не лишати сироту в CRM.
+  await db.collection<Client>(CLIENT_COLLECTION).deleteOne({ _id: insertedId });
+  const fresh = await users.findOne({ _id: userId }, { projection: { clientId: 1 } });
+
+  if (!fresh?.clientId) {
+    throw new Error('failed to link client');
+  }
+  return fresh.clientId;
+}
+
 export interface GoogleProfileInput {
   username: string;
   email: string;
@@ -161,6 +228,7 @@ const AuthService = {
   findOrCreateGoogleUser,
   linkClient,
   findClientByPhone,
+  ensureClientId,
   createTokens,
 };
 

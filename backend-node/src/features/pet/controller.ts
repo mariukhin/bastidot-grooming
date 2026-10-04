@@ -21,13 +21,13 @@ function toPetDTO(pet: Pet): PetDTO {
   return {
     id: pet._id ? pet._id.toHexString() : '',
     name: pet.name,
-    age: pet.age,
+    age: pet.age ?? 0,
     weight: pet.weight,
     photoUrl: pet.photoUrl,
     userId: pet.userId.toHexString(),
     breedId: pet.breedId ? pet.breedId.toHexString() : null,
     createdAt: pet.createdAt.toISOString(),
-    comment: pet.comment,
+    comment: pet.wishes ?? pet.comment ?? '',
   };
 }
 
@@ -94,16 +94,11 @@ export function createPetRouter(db: Db): Router {
   });
 
   // GET /pet?userId=...
-  router.get('/', async (req: Request, res: Response) => {
-    const { userId } = req.query;
-
-    if (typeof userId !== 'string' || !ObjectId.isValid(userId)) {
-      res.status(400).json({ error: 'valid userId query param is required' });
-      return;
-    }
-
-    const pets = await PetService.fetchByUserId(db, userId);
-    res.json(pets.map(toPetDTO));
+  // GET /pet?userId= прибрано: він віддавав улюбленців будь-якого клієнта тому,
+  // хто підбере id. Свої улюбленці тепер лише через GET /protected/pets, де
+  // clientId береться з токена.
+  router.get('/', (_req: Request, res: Response) => {
+    res.status(410).json({ error: 'Використовуйте GET /protected/pets' });
   });
 
   // GET /pet/:id

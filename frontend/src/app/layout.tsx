@@ -16,6 +16,7 @@ import './globals.scss';
 import dayjs from 'dayjs';
 import 'dayjs/locale/uk';
 import { SessionGate } from '@/components/session-gate';
+import { Toast } from '@/components/toast';
 
 dayjs.locale('uk');
 
@@ -86,6 +87,7 @@ const RootLayout = ({ children }: Readonly<RootLayoutProps>) => {
           <div id="modal-root" />
           <BookingModalHost />
           <Footer />
+          <Toast />
           <Analytics />
         </GoogleOAuthProvider>
       </body>

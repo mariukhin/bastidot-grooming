@@ -75,8 +75,15 @@
   grid-auto-columns: minmax(260px, 320px);
   align-items: stretch;
   gap: 16px;
-  overflow-x: hidden;
   overflow-y: hidden;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   @include breakpoints.md {
     grid-auto-columns: calc((100% - 16px) / 2);
@@ -88,6 +95,7 @@
 }
 
 .reviewItem {
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -178,9 +186,13 @@
 }
 
 .railNav {
-  display: flex;
+  display: none;
   align-self: flex-end;
   gap: 8px;
+
+  @include breakpoints.md {
+    display: flex;
+  }
 }
 
 .railNavButton {

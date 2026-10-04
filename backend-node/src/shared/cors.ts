@@ -17,7 +17,7 @@ export function cors(req: Request, res: Response, next: NextFunction): void {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
 
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Accept, Authorization, Content-Type, X-CSRF-Token, Origin, X-Requested-With'

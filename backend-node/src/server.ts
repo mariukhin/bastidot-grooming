@@ -2,6 +2,7 @@ import { config } from './shared/config.ts';
 import { logger } from './shared/logger.ts';
 import { connectToDatabase, closeDatabase } from './shared/db.ts';
 import { ensureIndexes } from './shared/indexes.ts';
+import { ensurePetTraits } from './features/pet/traits.ts';
 import { createApp } from './app.ts';
 import { scheduleDaily } from './shared/scheduler.ts';
 import {
@@ -13,6 +14,7 @@ import {
 
 const db = await connectToDatabase();
 await ensureIndexes(db);
+await ensurePetTraits(db);
 
 const app = createApp(db);
 

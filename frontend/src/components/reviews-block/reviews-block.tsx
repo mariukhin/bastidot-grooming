@@ -105,10 +105,10 @@ type ReviewsBlockProps = {
 };
 
 const ReviewsBlock = ({ reviews }: ReviewsBlockProps) => {
+  const revealRef = useReveal<HTMLElement>();
+  const railRef = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
-  const railRef = useRef<HTMLDivElement>(null);
-  const revealRef = useReveal<HTMLElement>();
 
   const updateEdges = () => {
     const rail = railRef.current;
@@ -121,8 +121,14 @@ const ReviewsBlock = ({ reviews }: ReviewsBlockProps) => {
   useEffect(() => {
     updateEdges();
 
+    const rail = railRef.current;
+    rail?.addEventListener('scroll', updateEdges, { passive: true });
     window.addEventListener('resize', updateEdges);
-    return () => window.removeEventListener('resize', updateEdges);
+
+    return () => {
+      rail?.removeEventListener('scroll', updateEdges);
+      window.removeEventListener('resize', updateEdges);
+    };
   }, [reviews]);
 
   const scrollByCard = (direction: 1 | -1) => {

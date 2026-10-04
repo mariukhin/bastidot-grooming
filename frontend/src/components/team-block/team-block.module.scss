@@ -103,7 +103,14 @@
   align-items: stretch;
   gap: 16px;
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   @include breakpoints.md {
     display: flex;
@@ -111,10 +118,12 @@
     flex-wrap: wrap;
     justify-content: space-between;
     overflow-x: visible;
+    scroll-snap-type: none;
   }
 }
 
 .teamItem {
+  scroll-snap-align: start;
   display: flex;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);

@@ -7,6 +7,7 @@ export type BookingIntent = {
   groomer?: Groomer;
   service?: ServiceProps;
   breedName?: string;
+  petName?: string;
 };
 
 interface BookingState extends BookingIntent {
@@ -20,6 +21,7 @@ const useBookingStore = create<BookingState>((set) => ({
   groomer: undefined,
   service: undefined,
   breedName: undefined,
+  petName: undefined,
   openBooking: (intent) => {
     track('booking_open', {
       source: intent?.groomer ? 'groomer' : intent?.service ? 'service' : 'button',
@@ -29,6 +31,7 @@ const useBookingStore = create<BookingState>((set) => ({
       groomer: intent?.groomer,
       service: intent?.service,
       breedName: intent?.breedName,
+      petName: intent?.petName,
     });
   },
   closeBooking: () => set({ isOpen: false }),

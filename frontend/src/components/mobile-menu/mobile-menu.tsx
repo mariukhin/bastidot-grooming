@@ -121,18 +121,21 @@ const MobileMenu: FC<MobileMenuProps> = ({
             }}
           />
           {user ? (
-            // Дропдаун профілю живе лише в десктопній шапці, тож на телефоні
-            // вихід має бути тут — інакше вийти неможливо взагалі.
-            <Button
-              type={'button'}
-              text={'Вийти'}
-              variant={'secondary'}
-              block
-              onClick={() => {
-                onClose();
-                logout();
-              }}
-            />
+            <>
+              <Link href="/account" className={styles.accountLink} onClick={onClose}>
+                Особистий кабінет
+              </Link>
+              <Button
+                type={'button'}
+                text={'Вийти'}
+                variant={'secondary'}
+                block
+                onClick={() => {
+                  onClose();
+                  logout();
+                }}
+              />
+            </>
           ) : (
             <Button
               type={'button'}

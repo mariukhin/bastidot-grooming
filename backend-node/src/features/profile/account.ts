@@ -7,16 +7,6 @@ import { BREED_COLLECTION, type Breed } from '../breed/types.ts';
 import { SERVICE_COLLECTION, type Service } from '../service/types.ts';
 import { ORDER_COLLECTION, type Order } from '../order/types.ts';
 
-export interface AccountPet {
-  id: string;
-  name: string;
-  age: number;
-  weight: number;
-  photoUrl: string;
-  breedName: string | null;
-  comment: string;
-}
-
 export interface AccountVisit {
   id: string;
   scheduledAt: string;
@@ -40,35 +30,6 @@ async function getClientId(db: Db, userId: string): Promise<ObjectId | null> {
     .findOne({ _id: new ObjectId(userId) }, { projection: { clientId: 1 } });
 
   return user?.clientId ?? null;
-}
-
-export async function fetchAccountPets(db: Db, userId: string): Promise<AccountPet[]> {
-  const clientId = await getClientId(db, userId);
-  if (!clientId) return [];
-
-  // pet.userId попри назву посилається на client, а не на user.
-  const pets = await db.collection<Pet>(PET_COLLECTION).find({ userId: clientId }).toArray();
-  if (pets.length === 0) return [];
-
-  const breedIds = pets.map((pet) => pet.breedId).filter((id): id is ObjectId => Boolean(id));
-  const breeds =
-    breedIds.length > 0
-      ? await db
-          .collection<Breed>(BREED_COLLECTION)
-          .find({ _id: { $in: breedIds } })
-          .toArray()
-      : [];
-  const breedById = new Map(breeds.map((breed) => [breed._id.toHexString(), breed.name]));
-
-  return pets.map((pet) => ({
-    id: pet._id!.toHexString(),
-    name: pet.name,
-    age: pet.age,
-    weight: pet.weight,
-    photoUrl: pet.photoUrl,
-    breedName: pet.breedId ? (breedById.get(pet.breedId.toHexString()) ?? null) : null,
-    comment: pet.comment,
-  }));
 }
 
 export async function fetchAccountVisits(db: Db, userId: string): Promise<AccountVisit[]> {
