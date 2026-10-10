@@ -41,10 +41,13 @@ export function parseProfileUpdate(body: unknown): ProfileUpdateInput {
   }
 
   if (b.email !== undefined) {
-    if (typeof b.email !== 'string' || !EMAIL_RE.test(b.email.trim())) {
+    const email = typeof b.email === 'string' ? b.email.trim() : '';
+    // Порожнє поле — це «пошти в мене немає», а не помилка: з нею акаунт
+    // заводять за бажанням.
+    if (email !== '' && !EMAIL_RE.test(email)) {
       throw new ProfileUpdateError('Невірний формат пошти', 400, 'email');
     }
-    input.email = b.email.trim().toLowerCase();
+    input.email = email.toLowerCase();
   }
 
   if (b.phoneNumber !== undefined) {
@@ -80,23 +83,34 @@ export async function updateProfile(
   }
 
   const patch: Partial<User> = {};
+  // Пошту не просто перезаписуємо: порожня означає прибрати поле, бо саме його
+  // відсутність (а не '') не конфліктує в унікальному sparse-індексі.
+  let dropEmail = false;
+
   if (input.name !== undefined && input.name !== user.username) {
     patch.username = input.name;
   }
-  if (input.email !== undefined && input.email !== user.email) {
-    const taken = await users.findOne({ email: input.email, _id: { $ne: _id } });
-    if (taken) {
-      throw new ProfileUpdateError('Ця пошта вже зайнята', 409, 'email');
+  if (input.email !== undefined && input.email !== (user.email ?? '')) {
+    if (input.email === '') {
+      dropEmail = true;
+    } else {
+      const taken = await users.findOne({ email: input.email, _id: { $ne: _id } });
+      if (taken) {
+        throw new ProfileUpdateError('Ця пошта вже зайнята', 409, 'email');
+      }
+      patch.email = input.email;
     }
-    patch.email = input.email;
   }
 
-  if (Object.keys(patch).length === 0) {
+  if (Object.keys(patch).length === 0 && !dropEmail) {
     return user;
   }
 
   try {
-    await users.updateOne({ _id }, { $set: patch });
+    await users.updateOne({ _id }, {
+      ...(Object.keys(patch).length > 0 ? { $set: patch } : {}),
+      ...(dropEmail ? { $unset: { email: '' } } : {}),
+    });
   } catch (err) {
     // Унікальний індекс на email міг спрацювати між перевіркою і записом.
     if (/duplicate key/i.test(String(err))) {
@@ -105,9 +119,11 @@ export async function updateProfile(
     throw err;
   }
 
-  await syncClientCard(db, user.clientId, patch);
+  // У картку клієнта прибрана пошта їде порожнім рядком: там це просто поле
+  // контакту, і лишати в CRM адресу, від якої людина відмовилась, не можна.
+  await syncClientCard(db, user.clientId, dropEmail ? { ...patch, email: '' } : patch);
 
-  return { ...user, ...patch };
+  return dropEmail ? { ...user, ...patch, email: undefined } : { ...user, ...patch };
 }
 
 async function syncClientCard(

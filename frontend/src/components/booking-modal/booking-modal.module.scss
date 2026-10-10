@@ -613,6 +613,13 @@
   padding-right: 4px;
 }
 
+.profileHint {
+  margin: -8px 6px 0 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-gray);
+}
+
 .bookingSummarySection {
   display: flex;
   flex-direction: column;

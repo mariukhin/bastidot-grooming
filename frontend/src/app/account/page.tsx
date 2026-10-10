@@ -22,7 +22,9 @@ type ProfileFormData = {
 
 const schema: ObjectSchema<ProfileFormData> = object({
   name: string().trim().required("Ім'я обов'язкове"),
-  email: string().trim().email('Невірний формат пошти').required("Пошта обов'язкова"),
+  // Пошта необовʼязкова — акаунт звʼязаний із салоном телефоном. Порожнє поле
+  // бекенд розуміє як «прибрати пошту».
+  email: string().trim().email('Невірний формат пошти').default(''),
   // Поле вимкнене, тож лишаємо його у формі лише щоб показувати значення
   // й серверну помилку під ним.
   phoneNumber: string().default(''),
@@ -98,7 +100,6 @@ const ProfileTab = () => {
         render={({ field }) => (
           <TextInput
             label="Електронна пошта"
-            required
             type="email"
             defaultValue={field.value}
             onChange={field.onChange}

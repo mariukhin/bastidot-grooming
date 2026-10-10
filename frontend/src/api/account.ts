@@ -48,10 +48,16 @@ export type AccountVisit = {
   scheduledAt: string;
   durationMinutes: number;
   status: VisitStatus;
-  groomerName: string | null;
-  serviceNames: string[];
-  price: number | null;
+  comment: string;
+  pet: { id: string; name: string; photoUrl: string | null; breedName: string | null } | null;
+  groomer: { id: string; name: string; photoUrl: string | null; isActive: boolean } | null;
+  services: { id: string; name: string; price: number; isActive: boolean }[];
+  total: number;
+  canCancel: boolean;
+  canReschedule: boolean;
 };
+
+export type OrdersPage = { items: AccountVisit[]; nextCursor: string | null };
 
 export type AccountResult<T> = { ok: true; data: T } | { ok: false; message: string };
 
@@ -87,7 +93,23 @@ async function getProtected<T>(path: string): Promise<AccountResult<T>> {
 }
 
 export const fetchAccountPets = () => getProtected<AccountPet[]>('/pets');
-export const fetchAccountVisits = () => getProtected<AccountVisit[]>('/visits');
+export const fetchAccountOrders = (scope: 'upcoming' | 'past', cursor?: string | null) =>
+  getProtected<OrdersPage>(
+    `/orders?scope=${scope}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`
+  );
+
+/** Вкладка «Візити» показує і майбутні, і минулі — спершу найближчі. */
+export async function fetchAccountVisits(): Promise<AccountResult<AccountVisit[]>> {
+  const [upcoming, past] = await Promise.all([
+    fetchAccountOrders('upcoming'),
+    fetchAccountOrders('past'),
+  ]);
+
+  if (!upcoming.ok) return upcoming;
+  if (!past.ok) return past;
+
+  return { ok: true, data: [...upcoming.data.items, ...past.data.items] };
+}
 
 export type AccountProfile = {
   id: string;

@@ -26,7 +26,7 @@ type PhoneInputProps = {
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
 const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
-  ({ label, error, required, defaultValue = '', onChange, disabled, ...rest }, ref) => {
+  ({ label, error, required, defaultValue = '', onChange, disabled, readOnly, ...rest }, ref) => {
     const id = useId();
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,8 +35,20 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 
     useImperativeHandle(ref, () => inputRef.current!);
 
+    // Останнє, що ми самі віддали назовні. Без цього два ефекти нижче ходили б
+    // по колу: вхідне значення вмикає setDigits, а той самий рендер устигав
+    // відрапортувати ще старі цифри — і щойно підставлений номер затирався.
+    const emitted = useRef<string | null>(null);
+
+    // Маска тримає цифри у власному стані, тож номер, підставлений ззовні вже
+    // після монтування (reset форми), сам у поле не потрапляє.
+    useEffect(() => {
+      if (defaultValue === emitted.current) return;
+      setDigits(extractDigits(defaultValue));
+    }, [defaultValue]);
+
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-      if (!inputRef.current) return;
+      if (!inputRef.current || readOnly) return;
 
       if (/^\d$/.test(e.key)) {
         if (digits.length < 9) {
@@ -58,7 +70,11 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     };
 
     useEffect(() => {
-      onChange?.(`+380${digits}`);
+      const value = `+380${digits}`;
+      if (value === emitted.current) return;
+
+      emitted.current = value;
+      onChange?.(value);
     }, [digits, onChange]);
 
     useLayoutEffect(() => {
@@ -84,6 +100,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
           id={id}
           ref={inputRef}
           disabled={disabled}
+          readOnly={readOnly}
           inputMode="numeric"
           autoComplete="off"
           value={applyMask(digits)}
@@ -91,7 +108,7 @@ const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
           onChange={(e) => e.preventDefault()}
           className={classNames(styles.input, {
             [styles.error]: !!error,
-            [styles.disabled]: disabled,
+            [styles.disabled]: disabled || readOnly,
           })}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}

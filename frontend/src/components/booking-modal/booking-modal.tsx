@@ -34,6 +34,7 @@ import StepCancelled from './step-cancelled';
 import styles from './booking-modal.module.scss';
 import useGroomerStore from '@/store/useGroomerStore';
 import useOrderStore from '@/store/useOrderStore';
+import useUserStore from '@/store/useUserStore';
 
 dayjs.locale('uk');
 
@@ -66,6 +67,7 @@ const BookingModal = ({
 }: BookingModalProps) => {
   const { groomerList, fetchGroomers } = useGroomerStore();
   const { createOrder } = useOrderStore();
+  const user = useUserStore((state) => state.user);
   const [step, setStep] = useState<BookingStep>('services');
 
   const [breedList, setBreedList] = useState<BreedProps[]>([]);
@@ -98,6 +100,7 @@ const BookingModal = ({
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isValid },
   } = useForm<BookingFormData>({
     resolver: yupResolver(formSchema) as Resolver<BookingFormData>,
@@ -147,6 +150,17 @@ const BookingModal = ({
     return `${capitalize(selectedDate.format('dddd D MMMM'))}, ${start.format('HH:mm')}–${end.format('HH:mm')}`;
   }, [selectedSlot, selectedDate, totalDurationMin]);
 
+  // Профіль дотягується окремим запитом (hydrateProfile), тож на момент
+  // відкриття контактів у сторі може ще не бути. Підставляємо їх і коли вони
+  // доїдуть пізніше — інакше поле лишалося б порожнім, та ще й нередагованим.
+  useEffect(() => {
+    if (!isOpen || !user) return;
+
+    if (user.phoneNumber) setValue('phone', user.phoneNumber, { shouldValidate: true });
+    if (user.name) setValue('name', user.name, { shouldValidate: true });
+    if (user.email) setValue('email', user.email, { shouldValidate: true });
+  }, [isOpen, user?.phoneNumber, user?.name, user?.email, setValue]);
+
   // Стор грумерів наповнює блок «Команда» на головній. На сторінках без нього
   // (кабінет) список лишався порожнім, і запис упирався в крок «Оберіть майстра».
   useEffect(() => {
@@ -169,10 +183,12 @@ const BookingModal = ({
     setIsSummaryExpanded(true);
     // Явні значення, а не reset(): defaultValues захоплені при першому рендері,
     // коли переданої клички ще не існувало, і вона б щоразу затиралась.
+    // Для залогіненого контакти беремо з профілю: він їх уже лишав, і дублювати
+    // введення немає сенсу. Ці самі поля форма показує нередагованими.
     reset({
-      phone: '',
-      name: '',
-      email: '',
+      phone: user?.phoneNumber ?? '',
+      name: user?.name ?? '',
+      email: user?.email ?? '',
       petName: initialPetName ?? '',
       comment: '',
     });
@@ -510,6 +526,13 @@ const BookingModal = ({
           selectedGroomer={selectedGroomer}
           formattedDateTime={formattedDateTime}
           onGoToStep={setStep}
+          // Замикаємо лише те, що справді взяли з профілю: пошти там може не
+          // бути, і тоді поле лишається вільним — саме тут її й вкажуть.
+          lockedFields={{
+            phone: Boolean(user?.phoneNumber),
+            name: Boolean(user?.name),
+            email: Boolean(user?.email),
+          }}
         />
       )}
 

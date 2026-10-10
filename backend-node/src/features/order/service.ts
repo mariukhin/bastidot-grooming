@@ -171,9 +171,20 @@ async function fetchBusySlots(
 // скасує за 10 хвилин до початку, коли грумер уже тримає під нього час.
 const SELF_SERVICE_CUTOFF_MS = config.orderSelfServiceCutoffHours * 60 * 60 * 1000;
 
-// Токен видається лише тому, хто створив запис: замість логіна він доводить,
-// що замовлення своє. Без нього підібраний чужий _id нічого не дає.
-async function loadOwnOrder(db: Db, orderId: string, token: string): Promise<Order> {
+/**
+ * Доводить, що запис належить тому, хто його змінює.
+ *
+ * Два рівноправні шляхи: токен (видається при створенні, працює без входу —
+ * одразу на екрані підтвердження) і clientId залогіненого користувача. Другий
+ * надійніший і не залежить від того, чи жива вкладка, тож у кабінеті
+ * користуємось ним.
+ */
+async function loadOwnOrder(
+  db: Db,
+  orderId: string,
+  token: string,
+  clientId?: ObjectId | null
+): Promise<Order> {
   if (!ObjectId.isValid(orderId)) {
     throw new OrderActionFailure('not-found');
   }
@@ -183,7 +194,11 @@ async function loadOwnOrder(db: Db, orderId: string, token: string): Promise<Ord
   if (!order) {
     throw new OrderActionFailure('not-found');
   }
-  if (!order.cancelToken || !token || order.cancelToken !== token) {
+
+  const byOwner = Boolean(clientId && order.clientId.equals(clientId));
+  const byToken = Boolean(order.cancelToken && token && order.cancelToken === token);
+
+  if (!byOwner && !byToken) {
     throw new OrderActionFailure('forbidden');
   }
   return order;
@@ -223,8 +238,13 @@ async function hasConflict(
   return nearby.some((o) => new Date(o.scheduledAt.getTime() + o.durationMinutes * 60_000) > start);
 }
 
-async function cancelOrder(db: Db, orderId: string, token: string): Promise<Order> {
-  const order = await loadOwnOrder(db, orderId, token);
+async function cancelOrder(
+  db: Db,
+  orderId: string,
+  token: string,
+  clientId?: ObjectId | null
+): Promise<Order> {
+  const order = await loadOwnOrder(db, orderId, token, clientId);
   const now = new Date();
   assertChangeable(order, now);
 
@@ -240,9 +260,10 @@ async function rescheduleOrder(
   db: Db,
   orderId: string,
   token: string,
-  input: RescheduleOrderInput
+  input: RescheduleOrderInput,
+  clientId?: ObjectId | null
 ): Promise<{ order: Order; previousAt: Date }> {
-  const order = await loadOwnOrder(db, orderId, token);
+  const order = await loadOwnOrder(db, orderId, token, clientId);
   const now = new Date();
   assertChangeable(order, now);
 

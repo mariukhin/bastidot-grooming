@@ -6,6 +6,7 @@ import { verifyPassword } from '../../shared/password.ts';
 import { verifyToken } from '../../shared/jwt.ts';
 import { config } from '../../shared/config.ts';
 import { logger } from '../../shared/logger.ts';
+import { normalizePhone } from '../../shared/phone.ts';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -15,11 +16,18 @@ function validateSignup(body: unknown): { error: string } | { input: SignupInput
   }
   const b = body as Record<string, unknown>;
 
-  if (typeof b.email !== 'string' || !EMAIL_RE.test(b.email)) {
-    return { error: 'Valid email is required' };
+  // Пошта необовʼязкова: акаунт тримається на телефоні. Але якщо її вказали —
+  // мусить бути схожою на пошту, інакше людина не зможе нею ж і увійти.
+  const email = typeof b.email === 'string' ? b.email.trim() : '';
+  if (email !== '' && !EMAIL_RE.test(email)) {
+    return { error: 'Невірний формат пошти' };
   }
-  if (typeof b.phoneNumber !== 'string' || b.phoneNumber.trim() === '') {
-    return { error: 'phoneNumber is required' };
+  // Телефон тепер єдине обовʼязкове поле, за яким акаунт знаходять при вході,
+  // тож перевіряємо не «непорожній рядок», а справжній номер: маска на фронті
+  // надсилає «+380» навіть коли цифр не ввели.
+  const phone = normalizePhone(typeof b.phoneNumber === 'string' ? b.phoneNumber : '');
+  if (!phone) {
+    return { error: 'Вкажіть коректний номер телефону' };
   }
   if (typeof b.password !== 'string' || b.password.length < 6) {
     return { error: 'password must be at least 6 characters' };
@@ -29,8 +37,8 @@ function validateSignup(body: unknown): { error: string } | { input: SignupInput
     input: {
       // username опційне у формі реєстрації — дефолт порожній рядок
       username: typeof b.username === 'string' ? b.username : '',
-      email: b.email,
-      phoneNumber: b.phoneNumber.trim(),
+      ...(email !== '' ? { email } : {}),
+      phoneNumber: phone.phone,
       password: b.password,
     },
   };
@@ -48,7 +56,7 @@ export function createAuthRouter(db: Db): Router {
     }
     const input = result.input;
 
-    if (await AuthService.getByEmail(db, input.email)) {
+    if (input.email && (await AuthService.getByEmail(db, input.email))) {
       res.status(409).json({ error: 'Хвостик з такою поштою вже існує' });
       return;
     }
@@ -72,16 +80,23 @@ export function createAuthRouter(db: Db): Router {
     res.status(201).json(tokens);
   });
 
-  // POST /public/login
+  // POST /public/login — логін це пошта АБО телефон. Поле login нове, email
+  // лишили заради вже випущеного фронта й зовнішніх викликів.
   router.post('/login', async (req: Request, res: Response) => {
     const body = (req.body ?? {}) as Record<string, unknown>;
 
-    if (typeof body.email !== 'string' || typeof body.password !== 'string') {
-      res.status(400).json({ error: 'email and password are required' });
+    const login = typeof body.login === 'string' ? body.login.trim() : '';
+    const fallback = typeof body.email === 'string' ? body.email.trim() : '';
+    const identifier = login !== '' ? login : fallback;
+
+    if (identifier === '' || typeof body.password !== 'string') {
+      res.status(400).json({ error: 'Вкажіть пошту або телефон і пароль' });
       return;
     }
 
-    const user = await AuthService.getByEmail(db, body.email);
+    const user = identifier.includes('@')
+      ? await AuthService.getByEmail(db, identifier)
+      : await AuthService.getByPhone(db, identifier);
 
     if (!user || !(await verifyPassword(body.password, user.password))) {
       res.status(401).json({ error: 'Невірний логін чи пароль' });

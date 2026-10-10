@@ -19,6 +19,9 @@ import { hydrateProfile } from '@/utils/session';
 import { PhoneInput } from '@/components/phone-input';
 
 export type LoginFormData = {
+  /** Чим входять: пошта або телефон. Заповнюється лише на формі входу. */
+  login: string;
+  /** Пошта при реєстрації — необовʼязкова. */
   email: string;
   password: string;
   phoneNumber?: string;
@@ -27,11 +30,14 @@ export type LoginFormData = {
 
 const loginValidationSchema = (isSignup: boolean): ObjectSchema<LoginFormData> =>
   object({
-    email: string().email('Invalid email format').required('Email is required'),
-    password: string().required('Password is required'),
-    username: isSignup ? string().required('Username is required for signup') : string().optional(),
+    login: isSignup ? string().optional() : string().required('Вкажіть пошту або телефон'),
+    // Акаунт тримається на телефоні, тож пошту питаємо, але не вимагаємо;
+    // перевіряємо формат лише коли її таки ввели.
+    email: string().email('Невірний формат пошти').optional(),
+    password: string().required('Вкажіть пароль'),
+    username: isSignup ? string().required("Вкажіть ім'я") : string().optional(),
     phoneNumber: isSignup
-      ? string().required('Phone number is required for signup')
+      ? string().matches(/^\+380\d{9}$/, 'Вкажіть номер повністю')
       : string().optional(),
   }) as ObjectSchema<LoginFormData>;
 
@@ -58,6 +64,7 @@ const LoginModal: FC = () => {
   } = useForm<LoginFormData>({
     resolver: yupResolver(validationSchema),
     defaultValues: {
+      login: '',
       email: '',
       password: '',
       phoneNumber: '',
@@ -74,6 +81,9 @@ const LoginModal: FC = () => {
   const closeModal = () => {
     reset();
     setAuthError(null);
+    // Модалка лишається змонтованою, тож без скидання кнопка «Увійти» в шапці
+    // відкривала б форму реєстрації — ту, на якій її закрили минулого разу.
+    setIsSignUp(false);
     closeLogin();
   };
 
@@ -143,10 +153,11 @@ const LoginModal: FC = () => {
     }
 
     // Пароль у стан застосунку не кладемо — зберігаємо лише те, що показуємо.
+    // Решту профілю (зокрема пошту, якщо її не вводили) підтягне hydrateProfile.
     setSession(
       {
         name: values.username ?? '',
-        email: values.email,
+        email: values.email ?? '',
         photoUrl: '',
         role: result.tokens.role,
       },
@@ -203,22 +214,37 @@ const LoginModal: FC = () => {
                     />
                   )}
                 />
+                <Controller
+                  control={control}
+                  name={'email'}
+                  render={({ field }) => (
+                    <TextInput
+                      label={'Ваша електронна пошта'}
+                      defaultValue={field.value}
+                      placeholder={'Наприклад: anna@gmail.com'}
+                      onChange={field.onChange}
+                      error={errors?.email?.message}
+                    />
+                  )}
+                />
               </>
             )}
-            <Controller
-              control={control}
-              name={'email'}
-              render={({ field }) => (
-                <TextInput
-                  label={'Ваша електронна пошта'}
-                  defaultValue={field.value}
-                  required
-                  placeholder={'Наприклад: anna@gmail.com'}
-                  onChange={field.onChange}
-                  error={errors?.email?.message}
-                />
-              )}
-            />
+            {!isSignUp && (
+              <Controller
+                control={control}
+                name={'login'}
+                render={({ field }) => (
+                  <TextInput
+                    label={'Пошта або телефон'}
+                    defaultValue={field.value}
+                    required
+                    placeholder={'anna@gmail.com або +380671234567'}
+                    onChange={field.onChange}
+                    error={errors?.login?.message}
+                  />
+                )}
+              />
+            )}
             <Controller
               control={control}
               name={'password'}

@@ -16,10 +16,13 @@ export const applyMask = (digits: string) => {
   return masked;
 };
 
+// Код країни зрізаємо не лише в повного номера: порожнє поле форма зберігає як
+// «+380», і без {0,9} ці три цифри поверталися б як національна частина — при
+// наступному монтуванні маска показувала б «+380 (38) 0…».
 export const extractDigits = (input: string) =>
   input
     .replace(/\D/g, '')
-    .replace(/^380(?=\d{9}$)/, '')
+    .replace(/^380(?=\d{0,9}$)/, '')
     .slice(0, 9);
 
 export const getCursorPosFromDigits = (digits: string) => {

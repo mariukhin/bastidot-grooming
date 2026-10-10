@@ -72,10 +72,17 @@ async function authWithTokens(path: string, body: unknown): Promise<AuthResult> 
 }
 
 export const authClient = (userData: LoginFormData): Promise<AuthResult> =>
-  authWithTokens('/public/login', { email: userData.email, password: userData.password });
+  authWithTokens('/public/login', { login: userData.login, password: userData.password });
 
+// Пошту шлемо лише коли її ввели: порожній рядок бекенд мусив би відрізняти
+// від «не вказували», а так питання не виникає.
 export const signUp = (userData: LoginFormData): Promise<AuthResult> =>
-  authWithTokens('/public/signup', userData);
+  authWithTokens('/public/signup', {
+    username: userData.username,
+    phoneNumber: userData.phoneNumber,
+    password: userData.password,
+    ...(userData.email?.trim() ? { email: userData.email.trim() } : {}),
+  });
 
 export const refreshSession = (refreshToken: string): Promise<AuthResult> =>
   authWithTokens('/public/refresh', { refreshToken });

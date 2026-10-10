@@ -31,9 +31,16 @@ export async function createOrder(payload: OrderRequest) {
 // не ковтаємо, а піднімаємо нагору — її треба показати клієнту дослівно.
 async function orderAction(path: string, body: unknown): Promise<OrderActionResult> {
   try {
+    // Заголовок додаємо, коли є сесія: тоді право на запис підтверджує акаунт.
+    // Для незалогіненого лишається cancelToken у тілі — обидва шляхи рівноправні.
+    const { accessToken } = useUserStore.getState();
+
     const response = await fetch(`${API_URL}/order/${path}`, {
       method: path.endsWith('/cancel') ? 'POST' : 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
       body: JSON.stringify(body),
     });
 
@@ -49,12 +56,12 @@ async function orderAction(path: string, body: unknown): Promise<OrderActionResu
   }
 }
 
-export const cancelOrder = (orderId: string, token: string): Promise<OrderActionResult> =>
+export const cancelOrder = (orderId: string, token = ''): Promise<OrderActionResult> =>
   orderAction(`${orderId}/cancel`, { token });
 
 export const rescheduleOrder = (
   orderId: string,
-  token: string,
+  token: string | '',
   scheduledAt: string,
   durationMinutes: number
 ): Promise<OrderActionResult> =>

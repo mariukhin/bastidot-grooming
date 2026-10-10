@@ -10,7 +10,7 @@ import { config } from '../../shared/config.ts';
 
 export interface SignupInput {
   username: string;
-  email: string;
+  email?: string;
   phoneNumber: string;
   password: string;
 }
@@ -23,11 +23,31 @@ export interface AuthTokens {
 }
 
 async function getByEmail(db: Db, email: string): Promise<User | null> {
+  // Порожній рядок мусить не знаходити нікого: акаунти без пошти зберігають її
+  // відсутньою, але підстрахуватись від історичних '' дешевше, ніж потім
+  // зʼясовувати, чому вхід із порожнім полем пустив у чужий кабінет.
+  if (email.trim() === '') return null;
   return await db.collection<User>(USER_COLLECTION).findOne({ email });
 }
 
+/**
+ * Телефон як логін.
+ *
+ * Шукаємо і за тим, що ввели, і за нормалізованими формами: у базі номери
+ * лежать як «+380…», але людина може написати «067…» чи «380…».
+ */
 async function getByPhone(db: Db, phoneNumber: string): Promise<User | null> {
-  return await db.collection<User>(USER_COLLECTION).findOne({ phoneNumber });
+  const raw = phoneNumber.trim();
+  if (raw === '') return null;
+
+  const normalized = normalizePhone(raw);
+  const variants = [raw, normalized?.phone, normalized?.phoneRaw].filter(
+    (value): value is string => typeof value === 'string' && value !== ''
+  );
+
+  return await db
+    .collection<User>(USER_COLLECTION)
+    .findOne({ phoneNumber: { $in: [...new Set(variants)] } });
 }
 
 async function getById(db: Db, id: string): Promise<User | null> {
@@ -40,7 +60,8 @@ async function getById(db: Db, id: string): Promise<User | null> {
 async function createUser(db: Db, input: SignupInput): Promise<User> {
   const user: User = {
     username: input.username,
-    email: input.email,
+    // Пошти може не бути — тоді поля в документі теж немає (див. User.email).
+    ...(input.email ? { email: input.email } : {}),
     phoneNumber: input.phoneNumber,
     password: await hashPassword(input.password),
     photoUrl: '',
@@ -127,7 +148,7 @@ async function ensureClientId(db: Db, userId: ObjectId): Promise<ObjectId> {
     phone: phone?.phone ?? '',
     phoneRaw: phone?.phoneRaw ?? '',
     name: user.username,
-    email: user.email,
+    email: user.email ?? '',
     lastVisitAt: null,
     visitsCount: 0,
     totalSpent: 0,

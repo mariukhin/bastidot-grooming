@@ -7,7 +7,10 @@ export const USER_COLLECTION = 'user';
 export interface User {
   _id?: ObjectId;
   username: string;
-  email: string;
+  // Пошта необовʼязкова: акаунт тримається на телефоні. Якщо її немає, поля
+  // немає зовсім — порожній рядок зламав би унікальний індекс уже на другому
+  // такому акаунті.
+  email?: string;
   phoneNumber: string;
   photoUrl: string;
   password: string;

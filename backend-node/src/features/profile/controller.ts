@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import type { Db } from 'mongodb';
 import { USER_COLLECTION, type User } from '../../shared/user.ts';
 import { getRole } from '../../shared/role.ts';
-import { fetchAccountVisits } from './account.ts';
+import { listAccountOrders, type OrderScope } from '../order/account-orders.ts';
 import {
   archivePet,
   createPet,
@@ -22,7 +22,7 @@ function toProfileDTO(user: User) {
   return {
     id: user._id ? user._id.toHexString() : '',
     name: user.username,
-    email: user.email,
+    email: user.email ?? '',
     phoneNumber: user.phoneNumber,
     photoUrl: user.photoUrl,
     role: getRole(user),
@@ -135,13 +135,27 @@ export function createProfileRouter(db: Db): Router {
     })
   );
 
-  // GET /protected/visits — історія візитів залогіненого користувача.
-  router.get('/visits', async (req: Request, res: Response) => {
+  // GET /protected/orders?scope=upcoming|past&cursor=&limit=
+  router.get('/orders', async (req: Request, res: Response) => {
     if (!req.userId) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
-    res.json(await fetchAccountVisits(db, req.userId));
+
+    const scope: OrderScope = req.query.scope === 'past' ? 'past' : 'upcoming';
+    const cursor = typeof req.query.cursor === 'string' && req.query.cursor !== '' ? req.query.cursor : null;
+    const limit = Number.parseInt(String(req.query.limit ?? ''), 10);
+
+    const clientId = await findClientId(db, req.userId);
+    if (!clientId) {
+      // Картки клієнта ще немає — записів теж, і це не помилка.
+      res.json({ items: [], nextCursor: null });
+      return;
+    }
+
+    res.json(
+      await listAccountOrders(db, clientId, scope, cursor, Number.isFinite(limit) ? limit : undefined)
+    );
   });
 
   return router;

@@ -7,6 +7,7 @@ import AuthService from '../auth/service.ts';
 import { notifyNewOrder, notifyOrderChanged } from './notification.ts';
 import { logger } from '../../shared/logger.ts';
 import { config } from '../../shared/config.ts';
+import { USER_COLLECTION, type User } from '../../shared/user.ts';
 import {
   OrderActionFailure,
   type Order,
@@ -63,6 +64,17 @@ function respondWithActionError(res: Response, err: unknown): void {
     return;
   }
   res.status(400).json({ error: err instanceof Error ? err.message : 'Не вдалося змінити запис' });
+}
+
+/** Картка клієнта залогіненого користувача, якщо запит узагалі з токеном. */
+async function resolveClientId(db: Db, userId: string | undefined): Promise<ObjectId | null> {
+  if (!userId || !ObjectId.isValid(userId)) return null;
+
+  const user = await db
+    .collection<User>(USER_COLLECTION)
+    .findOne({ _id: new ObjectId(userId) }, { projection: { clientId: 1 } });
+
+  return user?.clientId ?? null;
 }
 
 function readToken(body: unknown): string {
@@ -199,10 +211,17 @@ export function createOrderRouter(db: Db): Router {
     res.json(slots.map(toBusySlotDTO));
   });
 
-  // POST /order/:id/cancel  { token }
+  // POST /order/:id/cancel  { token } — або з Bearer-токеном, і тоді право
+  // підтверджує сам акаунт, а не разовий cancelToken.
   router.post('/:id/cancel', async (req: Request, res: Response) => {
     try {
-      const order = await OrderService.cancelOrder(db, String(req.params.id ?? ''), readToken(req.body));
+      const clientId = await resolveClientId(db, req.userId);
+      const order = await OrderService.cancelOrder(
+        db,
+        String(req.params.id ?? ''),
+        readToken(req.body),
+        clientId
+      );
       res.json(toOrderDTO(order));
 
       notifyOrderChanged(db, order).catch((err: unknown) => {
@@ -230,11 +249,13 @@ export function createOrderRouter(db: Db): Router {
     }
 
     try {
+      const clientId = await resolveClientId(db, req.userId);
       const { order, previousAt } = await OrderService.rescheduleOrder(
         db,
         String(req.params.id ?? ''),
         readToken(body),
-        { scheduledAt: body.scheduledAt, durationMinutes: body.durationMinutes }
+        { scheduledAt: body.scheduledAt, durationMinutes: body.durationMinutes },
+        clientId
       );
       res.json(toOrderDTO(order));
 

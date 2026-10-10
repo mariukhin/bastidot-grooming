@@ -24,7 +24,10 @@ type TextInputProps = {
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'>;
 
 const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
-  ({ label, error, required, disabled, className, defaultValue = '', onChange, ...rest }, ref) => {
+  (
+    { label, error, required, disabled, readOnly, className, defaultValue = '', onChange, ...rest },
+    ref
+  ) => {
     const inputId = useId();
     const innerRef = useRef<HTMLInputElement>(null);
     const [value, setValue] = useState(defaultValue);
@@ -52,10 +55,13 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           id={inputId}
           className={classNames(styles.input, {
             [styles.error]: !!error,
-            [styles.disabled]: disabled,
+            // Readonly виглядає так само, як вимкнене: для людини різниці немає,
+            // а значення лишається видимим для копіювання і зчитувачів екрана.
+            [styles.disabled]: disabled || readOnly,
           })}
           ref={innerRef}
           disabled={disabled}
+          readOnly={readOnly}
           value={value}
           onChange={handleChange}
           aria-invalid={!!error}

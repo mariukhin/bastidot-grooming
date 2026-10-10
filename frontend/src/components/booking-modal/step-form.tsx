@@ -24,6 +24,8 @@ type StepFormProps = {
   selectedGroomer: Groomer | null;
   formattedDateTime: string | null;
   onGoToStep: (step: 'services' | 'groomer' | 'datetime') => void;
+  /** Поля, підставлені з профілю: їх показуємо лише для читання. */
+  lockedFields?: { phone?: boolean; name?: boolean; email?: boolean };
 };
 
 const StepForm = ({
@@ -37,12 +39,15 @@ const StepForm = ({
   selectedGroomer,
   formattedDateTime,
   onGoToStep,
+  lockedFields,
 }: StepFormProps) => {
   const { price, extraTotal, durationMinutes } = getBookingTotals(
     selectedServices,
     selectedExtraServices,
     selectedGroomer
   );
+
+  const hasLocked = Boolean(lockedFields?.phone || lockedFields?.name || lockedFields?.email);
 
   const serviceNames = [selectedServices[0]?.type, ...selectedExtraServices.map((s) => s.type)]
     .filter(Boolean)
@@ -64,6 +69,10 @@ const StepForm = ({
             <PhoneInput
               label="Телефон"
               required
+              // Маска тримає цифри у власному стані й на маунті повідомляє
+              // форму — без defaultValue підставлений номер вона б затерла.
+              defaultValue={field.value}
+              readOnly={lockedFields?.phone}
               onChange={field.onChange}
               onBlur={field.onBlur}
               error={errors.phone?.message}
@@ -78,6 +87,8 @@ const StepForm = ({
               label="Ваше ім'я"
               required
               placeholder="Наприклад: Анна"
+              defaultValue={field.value}
+              readOnly={lockedFields?.name}
               onChange={field.onChange}
               onBlur={field.onBlur}
               error={errors.name?.message}
@@ -92,12 +103,19 @@ const StepForm = ({
               label="Електронна пошта"
               placeholder="Наприклад: anna@gmail.com"
               type="email"
+              defaultValue={field.value}
+              readOnly={lockedFields?.email}
               onChange={field.onChange}
               onBlur={field.onBlur}
               error={errors.email?.message}
             />
           )}
         />
+        {hasLocked && (
+          <p className={styles.profileHint}>
+            Контакти підставлені з вашого профілю. Змінити їх можна в кабінеті.
+          </p>
+        )}
         <Controller
           control={control}
           name="petName"
