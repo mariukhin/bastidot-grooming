@@ -33,18 +33,17 @@ import StepCancelled from './step-cancelled';
 
 import styles from './booking-modal.module.scss';
 import useGroomerStore from '@/store/useGroomerStore';
+import type { BookingIntent } from '@/store/useBookingStore';
 import useOrderStore from '@/store/useOrderStore';
 import useUserStore from '@/store/useUserStore';
+import { fetchAccountPets } from '@/api/account';
 
 dayjs.locale('uk');
 
 type BookingModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  initialBreed?: string;
-  initialPetName?: string;
-  initialService?: ServiceProps;
-  initialGroomer?: Groomer;
+  intent?: BookingIntent;
 };
 
 const STEP_LABEL: Record<BookingStep, string> = {
@@ -57,14 +56,11 @@ const STEP_LABEL: Record<BookingStep, string> = {
   cancelled: 'Запис скасовано',
 };
 
-const BookingModal = ({
-  isOpen,
-  onClose,
-  initialBreed,
-  initialPetName,
-  initialService,
-  initialGroomer,
-}: BookingModalProps) => {
+const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
+  const initialBreed = intent?.breedName;
+  const initialPetName = intent?.pet?.name;
+  const initialService = intent?.service;
+  const initialGroomer = intent?.groomer;
   const { groomerList, fetchGroomers } = useGroomerStore();
   const { createOrder } = useOrderStore();
   const user = useUserStore((state) => state.user);
@@ -95,6 +91,8 @@ const BookingModal = ({
   const [selectedExtraServices, setSelectedExtraServices] = useState<ServiceProps[]>([]);
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
+  const [repeatNotice, setRepeatNotice] = useState<string | null>(null);
+  const [accountPets, setAccountPets] = useState<{ id: string; name: string }[]>([]);
 
   const {
     control,
@@ -150,9 +148,6 @@ const BookingModal = ({
     return `${capitalize(selectedDate.format('dddd D MMMM'))}, ${start.format('HH:mm')}–${end.format('HH:mm')}`;
   }, [selectedSlot, selectedDate, totalDurationMin]);
 
-  // Профіль дотягується окремим запитом (hydrateProfile), тож на момент
-  // відкриття контактів у сторі може ще не бути. Підставляємо їх і коли вони
-  // доїдуть пізніше — інакше поле лишалося б порожнім, та ще й нередагованим.
   useEffect(() => {
     if (!isOpen || !user) return;
 
@@ -160,6 +155,21 @@ const BookingModal = ({
     if (user.name) setValue('name', user.name, { shouldValidate: true });
     if (user.email) setValue('email', user.email, { shouldValidate: true });
   }, [isOpen, user?.phoneNumber, user?.name, user?.email, setValue]);
+
+  useEffect(() => {
+    if (!isOpen || !user?.phoneVerified) return;
+
+    let cancelled = false;
+    void fetchAccountPets().then((result) => {
+      if (!cancelled && result.ok) {
+        setAccountPets(result.data.map((pet) => ({ id: pet.id, name: pet.name })));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, user?.phoneVerified]);
 
   // Стор грумерів наповнює блок «Команда» на головній. На сторінках без нього
   // (кабінет) список лишався порожнім, і запис упирався в крок «Оберіть майстра».
@@ -181,10 +191,9 @@ const BookingModal = ({
     setSelectedSlot(null);
     setSelectedExtraServices([]);
     setIsSummaryExpanded(true);
-    // Явні значення, а не reset(): defaultValues захоплені при першому рендері,
-    // коли переданої клички ще не існувало, і вона б щоразу затиралась.
-    // Для залогіненого контакти беремо з профілю: він їх уже лишав, і дублювати
-    // введення немає сенсу. Ці самі поля форма показує нередагованими.
+    setRepeatNotice(null);
+    setAccountPets([]);
+
     reset({
       phone: user?.phoneNumber ?? '',
       name: user?.name ?? '',
@@ -199,22 +208,74 @@ const BookingModal = ({
       setBreedList(normalized);
 
       const targetBreedName = initialBreed ?? 'Мальтіпу';
-      const defaultBreed = normalized.find((b) => b.value === targetBreedName) ?? normalized[0];
+      const defaultBreed =
+        (intent?.breedId ? normalized.find((b) => b.id === intent.breedId) : undefined) ??
+        normalized.find((b) => b.value === targetBreedName) ??
+        normalized[0];
 
+      let mainServices: ServiceProps[] = [];
       if (defaultBreed) {
         setSelectedBreed(defaultBreed);
-        const services = await getServiceList(defaultBreed.id);
-        setServiceList(services);
+        mainServices = await getServiceList(defaultBreed.id);
+        setServiceList(mainServices);
       }
 
-      const extraServices = normalized.find((b) => b.value === 'Додаткові послуги');
+      let extraServices: ServiceProps[] = [];
+      const extraBreed = normalized.find((b) => b.value === 'Додаткові послуги');
 
-      if (extraServices) {
-        const services = await getServiceList(extraServices.id);
-        setExtraServiceList(services);
+      if (extraBreed) {
+        extraServices = await getServiceList(extraBreed.id);
+        setExtraServiceList(extraServices);
       }
+
+      if (!intent?.serviceIds?.length) return;
+
+      await applyRepeat(intent.serviceIds, mainServices, extraServices);
     })();
   }, [isOpen]);
+
+  const applyRepeat = async (
+    serviceIds: string[],
+    mainServices: ServiceProps[],
+    extraServices: ServiceProps[]
+  ) => {
+    const main = serviceIds
+      .map((id) => mainServices.find((s) => s.id === id))
+      .filter((s): s is ServiceProps => Boolean(s));
+    const extra = serviceIds
+      .map((id) => extraServices.find((s) => s.id === id))
+      .filter((s): s is ServiceProps => Boolean(s));
+
+    setSelectedServices(main);
+    setSelectedExtraServices(extra);
+
+    let groomers = useGroomerStore.getState().groomerList;
+    if (groomers.length === 0) {
+      await fetchGroomers();
+      groomers = useGroomerStore.getState().groomerList;
+    }
+
+    const groomer = intent?.groomerId
+      ? (groomers.find((g) => g.id === intent.groomerId) ?? null)
+      : null;
+    if (groomer) setSelectedGroomer(groomer);
+
+    if (main.length + extra.length < serviceIds.length || main.length === 0) {
+      setRepeatNotice(
+        'Частину послуг того візиту ми більше не надаємо. Перевірте, що лишилось, і додайте потрібне'
+      );
+      setStep('services');
+      return;
+    }
+
+    if (!groomer) {
+      setRepeatNotice('Майстра того візиту зараз немає в записі онлайн. Оберіть, до кого йдемо');
+      setStep('groomer');
+      return;
+    }
+
+    setStep(intent?.startStep ?? 'datetime');
+  };
 
   useEffect(() => {
     if (!isOpen || !selectedGroomer || step !== 'datetime') {
@@ -435,6 +496,7 @@ const BookingModal = ({
           serviceList={serviceList}
           selectedBreed={selectedBreed}
           selectedServices={selectedServices}
+          notice={repeatNotice}
           onBreedChange={handleBreedChange}
           onToggleService={toggleService}
           onNext={() => {
@@ -456,6 +518,7 @@ const BookingModal = ({
           selectedExtraServices={selectedExtraServices}
           isSummaryExpanded={isSummaryExpanded}
           onToggleSummary={() => setIsSummaryExpanded((prev) => !prev)}
+          notice={repeatNotice}
           onSelectGroomer={setSelectedGroomer}
           onNext={() => {
             track('groomer_selected', {
@@ -533,6 +596,10 @@ const BookingModal = ({
             name: Boolean(user?.name),
             email: Boolean(user?.email),
           }}
+          pets={accountPets}
+          profile={
+            user?.name && user?.phoneNumber ? { name: user.name, phone: user.phoneNumber } : null
+          }
         />
       )}
 

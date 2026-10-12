@@ -1034,3 +1034,51 @@
 .footer .summaryTotalRow {
   padding-bottom: 10px;
 }
+
+.stepNotice {
+  margin: -4px 0 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: var(--color-hint-of-red);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-dark-burgundy);
+}
+
+.contactsFields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.contactsSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 12px;
+}
+
+.contactsSummaryText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-woodsmoke);
+}
+
+.contactsSummaryButton {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-milano-red);
+  cursor: pointer;
+}

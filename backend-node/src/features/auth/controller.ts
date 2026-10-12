@@ -12,7 +12,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateSignup(body: unknown): { error: string } | { input: SignupInput } {
   if (typeof body !== 'object' || body === null) {
-    return { error: 'Request body must be an object' };
+    return { error: 'Некоректний запит' };
   }
   const b = body as Record<string, unknown>;
 
@@ -22,15 +22,12 @@ function validateSignup(body: unknown): { error: string } | { input: SignupInput
   if (email !== '' && !EMAIL_RE.test(email)) {
     return { error: 'Невірний формат пошти' };
   }
-  // Телефон тепер єдине обовʼязкове поле, за яким акаунт знаходять при вході,
-  // тож перевіряємо не «непорожній рядок», а справжній номер: маска на фронті
-  // надсилає «+380» навіть коли цифр не ввели.
   const phone = normalizePhone(typeof b.phoneNumber === 'string' ? b.phoneNumber : '');
   if (!phone) {
     return { error: 'Вкажіть коректний номер телефону' };
   }
   if (typeof b.password !== 'string' || b.password.length < 6) {
-    return { error: 'password must be at least 6 characters' };
+    return { error: 'Пароль має містити щонайменше 6 символів' };
   }
 
   return {
@@ -66,15 +63,6 @@ export function createAuthRouter(db: Db): Router {
     }
 
     const user = await AuthService.createUser(db, input);
-
-    const clientId = await AuthService.findClientByPhone(db, input.phoneNumber);
-    if (clientId && (await AuthService.linkClient(db, user._id!, clientId))) {
-      logger.info('Акаунт звʼязано з карткою клієнта', {
-        userId: user._id!.toHexString(),
-        clientId: clientId.toHexString(),
-      });
-    }
-
     const tokens = AuthService.createTokens(user);
 
     res.status(201).json(tokens);

@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb';
 import type { Db } from 'mongodb';
 
 import { USER_COLLECTION, type User } from '../../shared/user.ts';
-import AuthService from '../auth/service.ts';
+import AuthService, { PhoneNotVerifiedError } from '../auth/service.ts';
 import { BREED_COLLECTION, type Breed } from '../breed/types.ts';
 import { resolveSpecies } from '../breed/cat.ts';
 import { PET_COLLECTION, type Pet, type PetTraitValue } from './types.ts';
@@ -196,7 +196,10 @@ export async function requireClientId(db: Db, userId: string): Promise<ObjectId>
 
   try {
     return await AuthService.ensureClientId(db, new ObjectId(userId));
-  } catch {
+  } catch (err) {
+    if (err instanceof PhoneNotVerifiedError) {
+      throw new PetError('Підтвердіть номер телефону — і зможете додати улюбленця', 403);
+    }
     throw new PetError('Не вдалося створити картку клієнта', 500);
   }
 }

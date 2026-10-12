@@ -13,6 +13,7 @@ import { deletePet, fetchAccountPets, type AccountPet } from '@/api/account';
 import { useConfirmModal } from '@/hooks/use-confirm-modal';
 import useBookingStore from '@/store/useBookingStore';
 import useToastStore from '@/store/useToastStore';
+import useUserStore from '@/store/useUserStore';
 import { formatAgeShort } from '@/utils/pet-age';
 import { useAccountData } from '../use-account-data';
 
@@ -31,6 +32,7 @@ const PetsTab = () => {
   const { state, data, message, reload } = useAccountData(fetchAccountPets);
   const openBooking = useBookingStore((store) => store.openBooking);
   const showToast = useToastStore((store) => store.showToast);
+  const user = useUserStore((store) => store.user);
   const { confirm, modal } = useConfirmModal();
 
   const [editing, setEditing] = useState<{ pet: AccountPet | null } | null>(null);
@@ -58,7 +60,12 @@ const PetsTab = () => {
 
   return (
     <>
-      {data.length === 0 ? (
+      {data.length === 0 && !user?.phoneVerified ? (
+        <EmptyState
+          title="Спершу підтвердіть номер"
+          text="Улюбленці звʼязані з вашою карткою в салоні, а вона — з номером телефону. Підтвердьте його у блоці вище."
+        />
+      ) : data.length === 0 ? (
         <EmptyState
           title="Додайте першого улюбленця"
           text="Розкажіть про нього один раз — і грумер знатиме про вагу, породу й звички ще до візиту."
@@ -128,7 +135,8 @@ const PetsTab = () => {
                   onClick={() =>
                     openBooking({
                       breedName: pet.breedName ?? undefined,
-                      petName: pet.name,
+                      pet: { id: pet.id, name: pet.name },
+                      source: 'pet',
                     })
                   }
                 />

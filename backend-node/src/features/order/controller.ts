@@ -150,19 +150,12 @@ export function createOrderRouter(db: Db): Router {
       return;
     }
 
-    // Помилки createOrder (грумер не знайдений, не грумер, кривий serviceId)
-    // — це помилки вводу, тому мапимо на 400, а не даємо їм стати 500.
     try {
       const order = await OrderService.createOrder(db, result.input);
       res.status(201).json(toCreatedOrderDTO(order));
 
-      // Момент запису — єдине місце, де одночасно відомі і залогінений
-      // користувач, і телефон, за яким живе його картка в CRM. Через Google
-      // телефону немає взагалі, тож для таких акаунтів це єдина нагода звести
-      // їх із карткою клієнта. Відповідь на це не чекає: не вийде звʼязати —
-      // запис усе одно створений.
       if (req.userId) {
-        AuthService.linkClient(db, new ObjectId(req.userId), order.clientId)
+        AuthService.linkOrderClient(db, new ObjectId(req.userId), order.clientId)
           .then((linked) => {
             if (linked) {
               logger.info('Акаунт звʼязано з карткою клієнта при записі', {

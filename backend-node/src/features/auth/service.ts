@@ -111,16 +111,12 @@ async function findClientByPhone(db: Db, phoneNumber: string): Promise<ObjectId 
   return client?._id ?? null;
 }
 
-/**
- * Повертає картку клієнта акаунта, створюючи її за потреби.
- *
- * Раніше картка зʼявлялася лише при першому записі, тож додати улюбленця в
- * кабінеті до першого візиту було неможливо. Тепер її заводить будь-яка дія,
- * якій вона потрібна.
- *
- * Нова картка не псує роботу салону: воркер нагадувань відбирає лише тих, у
- * кого є lastVisitAt і телефон, а тут lastVisitAt порожній.
- */
+export class PhoneNotVerifiedError extends Error {
+  constructor() {
+    super('phone not verified');
+  }
+}
+
 async function ensureClientId(db: Db, userId: ObjectId): Promise<ObjectId> {
   const users = db.collection<User>(USER_COLLECTION);
   const user = await users.findOne({ _id: userId });
@@ -132,15 +128,11 @@ async function ensureClientId(db: Db, userId: ObjectId): Promise<ObjectId> {
     return user.clientId;
   }
 
-  // Спершу шукаємо наявну картку за телефоном — щоб не плодити другу тому,
-  // хто вже є клієнтом салону.
-  if (user.phoneNumber) {
-    const existing = await findClientByPhone(db, user.phoneNumber);
-    if (existing && (await linkClient(db, userId, existing))) {
-      return existing;
-    }
-  }
+  throw new PhoneNotVerifiedError();
+}
 
+async function createClientCard(db: Db, user: User): Promise<ObjectId> {
+  const userId = user._id!;
   const phone = user.phoneNumber ? normalizePhone(user.phoneNumber) : null;
   const now = new Date();
 
@@ -170,12 +162,63 @@ async function ensureClientId(db: Db, userId: ObjectId): Promise<ObjectId> {
   // Паралельний запит устиг привʼязати іншу картку — свою щойно створену
   // прибираємо, щоб не лишати сироту в CRM.
   await db.collection<Client>(CLIENT_COLLECTION).deleteOne({ _id: insertedId });
-  const fresh = await users.findOne({ _id: userId }, { projection: { clientId: 1 } });
+  const fresh = await db
+    .collection<User>(USER_COLLECTION)
+    .findOne({ _id: userId }, { projection: { clientId: 1 } });
 
   if (!fresh?.clientId) {
     throw new Error('failed to link client');
   }
   return fresh.clientId;
+}
+
+export type LinkOutcome = 'linked-existing' | 'created' | 'taken';
+
+async function linkVerifiedPhone(
+  db: Db,
+  userId: ObjectId,
+  phone: string
+): Promise<LinkOutcome> {
+  const users = db.collection<User>(USER_COLLECTION);
+  const user = await users.findOne({ _id: userId });
+
+  if (!user) {
+    throw new Error('user not found');
+  }
+  if (user.clientId) {
+    return 'linked-existing';
+  }
+
+  const existing = await findClientByPhone(db, phone);
+
+  if (existing) {
+    if (await linkClient(db, userId, existing)) {
+      return 'linked-existing';
+    }
+    return 'taken';
+  }
+
+  await createClientCard(db, user);
+  return 'created';
+}
+
+async function linkOrderClient(db: Db, userId: ObjectId, clientId: ObjectId): Promise<boolean> {
+  const user = await db.collection<User>(USER_COLLECTION).findOne({ _id: userId });
+
+  if (!user || user.clientId || !user.phoneVerifiedAt || !user.phoneNumber) {
+    return false;
+  }
+
+  const client = await db
+    .collection<Client>(CLIENT_COLLECTION)
+    .findOne({ _id: clientId }, { projection: { phone: 1 } });
+
+  const own = normalizePhone(user.phoneNumber);
+  if (!client || !own || client.phone !== own.phone) {
+    return false;
+  }
+
+  return await linkClient(db, userId, clientId);
 }
 
 export interface GoogleProfileInput {
@@ -250,6 +293,8 @@ const AuthService = {
   linkClient,
   findClientByPhone,
   ensureClientId,
+  linkVerifiedPhone,
+  linkOrderClient,
   createTokens,
 };
 

@@ -52,6 +52,7 @@ export type AccountVisit = {
   pet: { id: string; name: string; photoUrl: string | null; breedName: string | null } | null;
   groomer: { id: string; name: string; photoUrl: string | null; isActive: boolean } | null;
   services: { id: string; name: string; price: number; isActive: boolean }[];
+  breedId: string | null;
   total: number;
   canCancel: boolean;
   canReschedule: boolean;
@@ -116,6 +117,7 @@ export type AccountProfile = {
   name: string;
   email: string;
   phoneNumber: string;
+  phoneVerified: boolean;
   photoUrl: string;
   role: 'client' | 'groomer' | 'admin';
 };

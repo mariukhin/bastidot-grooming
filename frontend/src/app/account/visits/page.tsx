@@ -10,6 +10,8 @@ import { useConfirmModal } from '@/hooks/use-confirm-modal';
 import { cancelOrder } from '@/api/order';
 import { fetchAccountOrders, type AccountVisit, type VisitStatus } from '@/api/account';
 import useToastStore from '@/store/useToastStore';
+import useBookingStore from '@/store/useBookingStore';
+import useUserStore from '@/store/useUserStore';
 import { BUSINESS, BUSINESS_PHONE_DISPLAY } from '@/utils/site';
 import { formatDuration } from '@/components/booking-modal/utils';
 
@@ -46,8 +48,13 @@ const formatRange = (visit: AccountVisit): string => {
 
 const serviceLine = (visit: AccountVisit): string => visit.services.map((s) => s.name).join(', ');
 
+const isAwaitingStatus = (visit: AccountVisit): boolean =>
+  visit.status === 'pending' && new Date(visit.scheduledAt).getTime() < Date.now();
+
 const VisitsTab = () => {
   const showToast = useToastStore((store) => store.showToast);
+  const user = useUserStore((store) => store.user);
+  const openBooking = useBookingStore((store) => store.openBooking);
   const { confirm, modal } = useConfirmModal();
 
   const [upcoming, setUpcoming] = useState<AccountVisit[]>([]);
@@ -88,7 +95,7 @@ const VisitsTab = () => {
     return () => {
       stale = true;
     };
-  }, [attempt]);
+  }, [attempt, user?.phoneVerified]);
 
   const reload = useCallback(() => setAttempt((n) => n + 1), []);
 
@@ -128,6 +135,17 @@ const VisitsTab = () => {
   const nextVisit = upcoming.filter(matchesFilter)[0] ?? null;
   const pastFiltered = past.filter(matchesFilter);
 
+  const repeat = (visit: AccountVisit) =>
+    openBooking({
+      breedId: visit.breedId ?? undefined,
+      breedName: visit.pet?.breedName ?? undefined,
+      serviceIds: visit.services.map((service) => service.id),
+      groomerId: visit.groomer?.id,
+      pet: visit.pet ? { id: visit.pet.id, name: visit.pet.name } : undefined,
+      startStep: 'datetime',
+      source: 'repeat',
+    });
+
   const handleCancel = async (visit: AccountVisit) => {
     const confirmed = await confirm({
       title: 'Скасувати візит?',
@@ -148,6 +166,15 @@ const VisitsTab = () => {
 
   if (state === 'loading') return <LoadingState label="Завантажуємо візити" />;
   if (state === 'error') return <ErrorState message={message} onRetry={reload} />;
+
+  if (upcoming.length === 0 && past.length === 0 && !user?.phoneVerified) {
+    return (
+      <EmptyState
+        title="Спершу підтвердіть номер"
+        text="Історія візитів зберігається в салоні за номером телефону. Підтвердьте його у блоці вище — і вона зʼявиться тут."
+      />
+    );
+  }
 
   if (upcoming.length === 0 && past.length === 0) {
     return (
@@ -295,15 +322,22 @@ const VisitsTab = () => {
                 </div>
 
                 <div className={styles.cardAside}>
-                  <span className={styles[`status_${visit.status}`]}>
-                    {STATUS_LABEL[visit.status]}
+                  <span
+                    className={
+                      isAwaitingStatus(visit)
+                        ? styles.status_past
+                        : styles[`status_${visit.status}`]
+                    }
+                  >
+                    {isAwaitingStatus(visit) ? 'Візит минув' : STATUS_LABEL[visit.status]}
                   </span>
                   {visit.total > 0 && <p className={styles.cardPrice}>{visit.total} грн</p>}
-                  {/* Сам повтор — окрема задача, тож кнопка поки показує намір,
-                      але нічого не робить. */}
-                  <button type="button" className={styles.repeatButton} disabled>
+                  <button
+                    type="button"
+                    className={styles.repeatButton}
+                    onClick={() => repeat(visit)}
+                  >
                     Повторити
-                    <span className={styles.repeatSoon}>скоро</span>
                   </button>
                 </div>
               </li>

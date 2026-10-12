@@ -10,6 +10,7 @@ import { createPetRouter } from './features/pet/controller.ts';
 import { createOrderRouter } from './features/order/controller.ts';
 import { createAuthRouter } from './features/auth/controller.ts';
 import { createProfileRouter } from './features/profile/controller.ts';
+import { createOtpRouter } from './features/otp/controller.ts';
 import { optionalAuth, requireAuth } from './shared/auth-middleware.ts';
 import { config } from './shared/config.ts';
 import { fetchActiveTraits, toTraitDTO } from './features/pet/traits.ts';
@@ -40,6 +41,7 @@ export function createApp(db: Db) {
   app.use('/public', createAuthRouter(db));
 
   app.use('/protected', requireAuth(config.accessTokenSecret), createProfileRouter(db));
+  app.use('/protected', requireAuth(config.accessTokenSecret), createOtpRouter(db));
 
   // 404 — після всіх роутів
   app.use((req, res) => {

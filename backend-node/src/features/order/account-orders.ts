@@ -22,6 +22,7 @@ export interface AccountOrderDTO {
   pet: { id: string; name: string; photoUrl: string | null; breedName: string | null } | null;
   groomer: { id: string; name: string; photoUrl: string | null; isActive: boolean } | null;
   services: { id: string; name: string; price: number; isActive: boolean }[];
+  breedId: string | null;
   total: number;
   canCancel: boolean;
   canReschedule: boolean;
@@ -179,6 +180,11 @@ async function enrich(db: Db, orders: Order[], now: Date): Promise<AccountOrderD
       };
     });
 
+    const breedId =
+      pet?.breedId ??
+      serviceById.get(order.serviceIds[0]?.toHexString() ?? '')?.breedId ??
+      null;
+
     const changeable =
       order.status === 'pending' && order.scheduledAt.getTime() - now.getTime() >= cutoffMs;
 
@@ -209,6 +215,7 @@ async function enrich(db: Db, orders: Order[], now: Date): Promise<AccountOrderD
           }
         : null,
       services: items,
+      breedId: breedId ? breedId.toHexString() : null,
       total: items.reduce((sum, item) => sum + item.price, 0),
       canCancel: changeable,
       canReschedule: changeable,

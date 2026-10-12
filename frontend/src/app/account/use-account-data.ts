@@ -3,15 +3,16 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import type { AccountResult } from '@/api/account';
+import useUserStore from '@/store/useUserStore';
 
 type State = 'loading' | 'ready' | 'error';
 
-/** Один цикл «завантаження → дані або помилка» з можливістю повторити. */
 export function useAccountData<T>(load: () => Promise<AccountResult<T[]>>) {
   const [state, setState] = useState<State>('loading');
   const [data, setData] = useState<T[]>([]);
   const [message, setMessage] = useState('');
   const [attempt, setAttempt] = useState(0);
+  const phoneVerified = useUserStore((store) => store.user?.phoneVerified);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,10 +32,7 @@ export function useAccountData<T>(load: () => Promise<AccountResult<T[]>>) {
     return () => {
       cancelled = true;
     };
-    // load приходить як стабільне посилання на функцію модуля; перезапуск
-    // робиться через attempt, щоб кнопка «спробувати ще раз» була передбачуваною.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attempt]);
+  }, [attempt, phoneVerified]);
 
   const reload = useCallback(() => setAttempt((n) => n + 1), []);
 

@@ -34,7 +34,9 @@ const loginValidationSchema = (isSignup: boolean): ObjectSchema<LoginFormData> =
     // Акаунт тримається на телефоні, тож пошту питаємо, але не вимагаємо;
     // перевіряємо формат лише коли її таки ввели.
     email: string().email('Невірний формат пошти').optional(),
-    password: string().required('Вкажіть пароль'),
+    password: isSignup
+      ? string().min(6, 'Пароль від 6 символів').required('Вкажіть пароль')
+      : string().required('Вкажіть пароль'),
     username: isSignup ? string().required("Вкажіть ім'я") : string().optional(),
     phoneNumber: isSignup
       ? string().matches(/^\+380\d{9}$/, 'Вкажіть номер повністю')

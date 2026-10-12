@@ -24,6 +24,7 @@ function toProfileDTO(user: User) {
     name: user.username,
     email: user.email ?? '',
     phoneNumber: user.phoneNumber,
+    phoneVerified: Boolean(user.phoneVerifiedAt),
     photoUrl: user.photoUrl,
     role: getRole(user),
     isAdmin: user.isAdmin,

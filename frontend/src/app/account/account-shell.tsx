@@ -8,6 +8,7 @@ import classNames from 'classnames';
 
 import { Button } from '@/components/button';
 import useUserStore from '@/store/useUserStore';
+import VerifyPhone from './verify-phone';
 
 import styles from './account.module.scss';
 
@@ -56,23 +57,34 @@ const AccountShell = ({ children }: { children: ReactNode }) => {
         <nav className={styles.tabs} aria-label="Розділи кабінету">
           <ul className={styles.tabsList}>
             {TABS.map(({ href, label }) => {
-              // /account збігається з усім, тож точний матч — тільки для нього.
               const isActive = href === '/account' ? pathname === href : pathname.startsWith(href);
+              const isLocked = !user.phoneVerified && href !== '/account';
+
               return (
                 <li key={href}>
-                  <Link
-                    href={href}
-                    className={classNames(styles.tab, isActive && styles.tabActive)}
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    {label}
-                  </Link>
+                  {isLocked ? (
+                    <span
+                      className={classNames(styles.tab, styles.tabLocked)}
+                      aria-disabled="true"
+                      title="Доступно після підтвердження номера"
+                    >
+                      {label}
+                    </span>
+                  ) : (
+                    <Link
+                      href={href}
+                      className={classNames(styles.tab, isActive && styles.tabActive)}
+                      aria-current={isActive ? 'page' : undefined}
+                    >
+                      {label}
+                    </Link>
+                  )}
                 </li>
               );
             })}
           </ul>
         </nav>
-
+        <VerifyPhone />
         <div className={styles.panel}>{children}</div>
       </div>
     </div>

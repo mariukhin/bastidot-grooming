@@ -242,6 +242,7 @@
 /* ---------- статуси візиту ---------- */
 
 .status_pending,
+.status_past,
 .status_completed,
 .status_cancelled,
 .status_no_show {
@@ -257,6 +258,11 @@
 .status_pending {
   background-color: var(--color-link-water);
   color: var(--color-pickled-bluewood);
+}
+
+.status_past {
+  background-color: var(--color-ebb);
+  color: var(--color-submarine-blue);
 }
 
 .status_completed {
@@ -621,19 +627,14 @@
   color: var(--color-submarine-blue);
   cursor: pointer;
 
-  &:disabled {
-    cursor: default;
-  }
-}
+  transition:
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
 
-.repeatSoon {
-  padding: 1px 6px;
-  border-radius: var(--r-pill);
-  background-color: var(--color-hint-of-red);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  &:hover {
+    border-color: var(--color-milano-red);
+    color: var(--color-dark-burgundy);
+  }
 }
 
 .phoneLink {
@@ -651,4 +652,92 @@
   display: flex;
   justify-content: center;
   margin-top: 18px;
+}
+
+.verifyCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding: 20px;
+  border: 1px solid var(--color-ebb);
+  border-left: 4px solid var(--color-milano-red);
+  border-radius: 14px;
+  background-color: var(--color-white);
+}
+
+.verifyTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-mine-shaft);
+}
+
+.verifyText {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-gray);
+}
+
+.verifyPhone {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-mine-shaft);
+}
+
+.verifyRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.verifyActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.verifyLink {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-milano-red);
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--color-gray);
+    cursor: default;
+  }
+}
+
+.verifyError {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-milano-red);
+}
+
+@media (max-width: 560px) {
+  .verifyRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.tabLocked {
+  color: var(--color-gray);
+  cursor: not-allowed;
+
+  &:hover {
+    color: var(--color-gray);
+  }
 }

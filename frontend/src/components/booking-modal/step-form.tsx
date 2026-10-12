@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import classNames from 'classnames';
 import { Control, FieldErrors, UseFormHandleSubmit } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
@@ -5,6 +6,8 @@ import { Controller } from 'react-hook-form';
 import { Button } from '@/components/button';
 import { Icon, IconTypes } from '@/components/icon';
 import { TextInput } from '@/components/text-input';
+import { Select } from '@/components/select';
+import { applyMask, extractDigits } from '@/components/phone-input/utils';
 import { PhoneInput } from '@/components/phone-input';
 import { TextArea } from '@/components/text-area';
 import { ServiceProps } from '@/utils/function';
@@ -12,6 +15,8 @@ import { BookingFormData, Groomer } from './types';
 import { formatDuration, getBookingTotals } from './utils';
 
 import styles from './booking-modal.module.scss';
+
+const OTHER_PET = '__other__';
 
 type StepFormProps = {
   control: Control<BookingFormData>;
@@ -24,8 +29,9 @@ type StepFormProps = {
   selectedGroomer: Groomer | null;
   formattedDateTime: string | null;
   onGoToStep: (step: 'services' | 'groomer' | 'datetime') => void;
-  /** Поля, підставлені з профілю: їх показуємо лише для читання. */
   lockedFields?: { phone?: boolean; name?: boolean; email?: boolean };
+  pets?: { id: string; name: string }[];
+  profile?: { name: string; phone: string } | null;
 };
 
 const StepForm = ({
@@ -40,7 +46,11 @@ const StepForm = ({
   formattedDateTime,
   onGoToStep,
   lockedFields,
+  pets = [],
+  profile,
 }: StepFormProps) => {
+  const [isDetailsOpen, setIsDetailsOpen] = useState(!profile);
+  const [isOtherPet, setIsOtherPet] = useState(false);
   const { price, extraTotal, durationMinutes } = getBookingTotals(
     selectedServices,
     selectedExtraServices,
@@ -62,76 +72,120 @@ const StepForm = ({
         className={classNames(styles.section, styles.sectionGrow, styles.formSection)}
         onSubmit={handleSubmit(onSubmit)}
       >
-        <Controller
-          control={control}
-          name="phone"
-          render={({ field }) => (
-            <PhoneInput
-              label="Телефон"
-              required
-              // Маска тримає цифри у власному стані й на маунті повідомляє
-              // форму — без defaultValue підставлений номер вона б затерла.
-              defaultValue={field.value}
-              readOnly={lockedFields?.phone}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-              error={errors.phone?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="name"
-          render={({ field }) => (
-            <TextInput
-              label="Ваше ім'я"
-              required
-              placeholder="Наприклад: Анна"
-              defaultValue={field.value}
-              readOnly={lockedFields?.name}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-              error={errors.name?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="email"
-          render={({ field }) => (
-            <TextInput
-              label="Електронна пошта"
-              placeholder="Наприклад: anna@gmail.com"
-              type="email"
-              defaultValue={field.value}
-              readOnly={lockedFields?.email}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-              error={errors.email?.message}
-            />
-          )}
-        />
-        {hasLocked && (
-          <p className={styles.profileHint}>
-            Контакти підставлені з вашого профілю. Змінити їх можна в кабінеті.
-          </p>
+        {profile && !isDetailsOpen && (
+          <div className={styles.contactsSummary}>
+            <p className={styles.contactsSummaryText}>
+              Записуємо на імʼя <strong>{profile.name}</strong>,{' '}
+              {applyMask(extractDigits(profile.phone))}
+            </p>
+            <button
+              type="button"
+              className={styles.contactsSummaryButton}
+              onClick={() => setIsDetailsOpen(true)}
+            >
+              Змінити
+            </button>
+          </div>
         )}
+
+        <div className={styles.contactsFields} hidden={!isDetailsOpen}>
+          <Controller
+            control={control}
+            name="phone"
+            render={({ field }) => (
+              <PhoneInput
+                label="Телефон"
+                required
+                // Маска тримає цифри у власному стані й на маунті повідомляє
+                // форму — без defaultValue підставлений номер вона б затерла.
+                defaultValue={field.value}
+                readOnly={lockedFields?.phone}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                error={errors.phone?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="name"
+            render={({ field }) => (
+              <TextInput
+                label="Ваше ім'я"
+                required
+                placeholder="Наприклад: Анна"
+                defaultValue={field.value}
+                readOnly={lockedFields?.name}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                error={errors.name?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <TextInput
+                label="Електронна пошта"
+                placeholder="Наприклад: anna@gmail.com"
+                type="email"
+                defaultValue={field.value}
+                readOnly={lockedFields?.email}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                error={errors.email?.message}
+              />
+            )}
+          />
+          {hasLocked && (
+            <p className={styles.profileHint}>
+              Контакти підставлені з вашого профілю. Змінити їх можна в кабінеті.
+            </p>
+          )}
+        </div>
+
         <Controller
           control={control}
           name="petName"
-          render={({ field }) => (
-            <TextInput
-              label="Ім'я улюбленця"
-              required
-              placeholder="Наприклад, Рекс"
-              // Без defaultValue поле не показує значення форми, і кличка,
-              // передзаповнена з картки улюбленця, лишалась невидимою.
-              defaultValue={field.value}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-              error={errors.petName?.message}
-            />
-          )}
+          render={({ field }) => {
+            const isKnown = pets.some((pet) => pet.name === field.value);
+            const showInput = pets.length === 0 || isOtherPet || (!isKnown && field.value !== '');
+
+            return (
+              <>
+                {pets.length > 0 && (
+                  <Select
+                    label="Улюбленець"
+                    required
+                    options={[
+                      ...pets.map((pet) => ({ label: pet.name, value: pet.name })),
+                      { label: 'Інший улюбленець', value: OTHER_PET },
+                    ]}
+                    defaultValue={isKnown ? field.value : showInput ? OTHER_PET : ''}
+                    onChange={(value) => {
+                      setIsOtherPet(value === OTHER_PET);
+                      field.onChange(value === OTHER_PET ? '' : value);
+                    }}
+                  />
+                )}
+
+                {showInput && (
+                  <TextInput
+                    label="Ім'я улюбленця"
+                    required
+                    placeholder="Наприклад, Рекс"
+                    // Без defaultValue поле не показує значення форми, і кличка,
+                    // передзаповнена з картки улюбленця, лишалась невидимою.
+                    defaultValue={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    error={errors.petName?.message}
+                  />
+                )}
+              </>
+            );
+          }}
         />
         <Controller
           control={control}

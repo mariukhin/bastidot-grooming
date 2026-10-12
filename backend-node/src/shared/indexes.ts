@@ -1,17 +1,8 @@
 import type { Db } from 'mongodb';
 import { logger } from './logger.ts';
+import { OTP_COLLECTION, OTP_RETENTION_SEC } from '../features/otp/types.ts';
 
-/**
- * Знімає старий щільний індекс на пошті.
- *
- * Пошта стала необовʼязковою, тож індекс має бути sparse — інакше акаунти без
- * неї конфліктують один з одним. Mongo не вміє міняти опції наявного індексу:
- * createIndexes на той самий ключ з іншими опціями падає, тож старий спершу
- * прибираємо.
- */
 async function dropDenseEmailIndex(db: Db): Promise<void> {
-  // На порожній базі колекції ще немає, і indexes() на ній кидає помилку —
-  // перевіряємо наперед, щоб чистий старт не писав у лог страшилку.
   const exists = await db.listCollections({ name: 'user' }, { nameOnly: true }).hasNext();
   if (!exists) return;
 
@@ -47,6 +38,12 @@ export async function ensureIndexes(db: Db): Promise<void> {
     db.collection('pet').createIndexes([
       { key: { userId: 1 } },
       { key: { userId: 1, archivedAt: 1 } },
+    ]),
+    db.collection(OTP_COLLECTION).createIndexes([
+      { key: { userId: 1, createdAt: -1 } },
+      { key: { phone: 1, createdAt: -1 } },
+      { key: { ip: 1, createdAt: -1 } },
+      { key: { createdAt: 1 }, expireAfterSeconds: OTP_RETENTION_SEC },
     ]),
     db.collection('client').createIndexes([
       { key: { doNotContact: 1, lastVisitAt: -1 } },

@@ -40,14 +40,16 @@ export const config = {
     .split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin !== ''),
-  // Шлемо лише з продакшну. Локальний прогін тестів не має прилітати в робочий
-  // чат салону — саме так туди й потрапили тестові записи. TELEGRAM_ENABLED
-  // дозволяє перевизначити це явно в обидва боки.
-  // Порожнє значення = «не задано»: у .env.example змінна стоїть порожньою, і
-  // трактувати її як false означало б тихо вимкнути сповіщення на проді.
   telegramEnabled: optionalString('TELEGRAM_ENABLED', appEnv === 'production' ? 'true' : 'false') === 'true',
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
   telegramChatId: process.env.TELEGRAM_CHAT_ID ?? '',
+
+  otpDeliveryEnabled:
+    optionalString('OTP_DELIVERY_ENABLED', appEnv === 'production' ? 'true' : 'false') === 'true',
+  otpTtlMinutes: optionalInt('OTP_TTL_MINUTES', 5),
+  telegramGatewayToken: optionalString('TELEGRAM_GATEWAY_TOKEN', ''),
+  turbosmsToken: optionalString('TURBOSMS_TOKEN', ''),
+  turbosmsSender: optionalString('TURBOSMS_SENDER', ''),
 
   catBreedId: optionalString('CAT_BREED_ID', ''),
 

@@ -17,6 +17,7 @@ export async function hydrateProfile(): Promise<void> {
     email: result.data.email,
     photoUrl: result.data.photoUrl || '',
     phoneNumber: result.data.phoneNumber,
+    phoneVerified: result.data.phoneVerified,
     role: result.data.role,
   });
 }

@@ -15,6 +15,7 @@ type StepServicesProps = {
   onBreedChange: (value: string) => void;
   onToggleService: (service: ServiceProps) => void;
   onNext: () => void;
+  notice?: string | null;
 };
 
 const StepServices = ({
@@ -25,9 +26,12 @@ const StepServices = ({
   onBreedChange,
   onToggleService,
   onNext,
+  notice,
 }: StepServicesProps) => (
   <div className={styles.stepContainer}>
     <h2 className={styles.title}>Оберіть послугу</h2>
+
+    {notice && <p className={styles.stepNotice}>{notice}</p>}
 
     <div className={styles.section}>
       <p className={styles.sectionLabel}>Ваш улюбленець</p>

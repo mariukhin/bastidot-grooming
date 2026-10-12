@@ -9,13 +9,13 @@ export type SessionUser = {
   photoUrl: string;
   role: Role;
   phoneNumber?: string;
+  phoneVerified?: boolean;
 };
 
 interface UserState {
   user: SessionUser | null;
   accessToken: string;
   refreshToken: string;
-  /** false, доки збережена сесія не відновлена — щоб шапка не блимала «Увійти». */
   isReady: boolean;
   login: (user: SessionUser) => void;
   setAccessToken: (token: string) => void;

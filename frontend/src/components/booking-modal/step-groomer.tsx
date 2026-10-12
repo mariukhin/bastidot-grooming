@@ -18,6 +18,7 @@ type StepGroomerProps = {
   onToggleSummary: () => void;
   onSelectGroomer: (groomer: Groomer) => void;
   onNext: () => void;
+  notice?: string | null;
 };
 
 const StepGroomer = ({
@@ -29,9 +30,12 @@ const StepGroomer = ({
   onToggleSummary,
   onSelectGroomer,
   onNext,
+  notice,
 }: StepGroomerProps) => (
   <div className={styles.stepContainer}>
     <h2 className={styles.title}>Оберіть майстра</h2>
+
+    {notice && <p className={styles.stepNotice}>{notice}</p>}
 
     <div className={classNames(styles.section, styles.sectionGrow)}>
       <p className={styles.sectionLabel}>Майстер</p>
