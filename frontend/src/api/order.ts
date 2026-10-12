@@ -1,8 +1,10 @@
-import { OrderActionResult, OrderRequest } from '@/components/booking-modal/types';
+import { OrderActionResult, OrderRequest, OrderResponse } from '@/components/booking-modal/types';
 import { API_URL } from './config';
 import useUserStore from '@/store/useUserStore';
 
-export async function createOrder(payload: OrderRequest) {
+export type CreateOrderResult = { ok: true; order: OrderResponse } | { ok: false; message: string };
+
+export async function createOrder(payload: OrderRequest): Promise<CreateOrderResult> {
   try {
     // Токен необовʼязковий: запис працює і для незалогінених. Коли він є,
     // бекенд зводить акаунт із карткою клієнта, яку створює цей запис.
@@ -17,13 +19,18 @@ export async function createOrder(payload: OrderRequest) {
       body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
 
-    if (data) {
-      return data;
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: data?.error ?? 'Не вдалося створити запис. Спробуйте ще раз',
+      };
     }
-  } catch (err) {
-    console.error(err);
+
+    return { ok: true, order: data as OrderResponse };
+  } catch {
+    return { ok: false, message: "Немає зв'язку з сервером. Спробуйте ще раз" };
   }
 }
 

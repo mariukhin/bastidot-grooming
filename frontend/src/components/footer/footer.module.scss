@@ -141,3 +141,20 @@
     }
   }
 }
+
+.policyLink {
+  color: inherit;
+  text-decoration: underline;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  @include breakpoints.md {
+    &:before {
+      content: '•';
+      margin: 0 12px;
+      opacity: 0.5;
+    }
+  }
+}

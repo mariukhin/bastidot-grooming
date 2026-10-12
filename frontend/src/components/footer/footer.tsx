@@ -6,6 +6,7 @@ import classNames from 'classnames';
 
 import { Icon } from '@/components/icon';
 import { links, footerSocials } from '@/utils/const';
+import { PRIVACY_PATH } from '@/utils/privacy';
 
 import styles from './footer.module.scss';
 
@@ -59,6 +60,9 @@ const Footer = () => {
         </div>
         <div className={styles.bottomRow}>
           <span>© 2026 Bastidot. All rights reserved.</span>
+          <Link className={styles.policyLink} href={PRIVACY_PATH}>
+            Політика конфіденційності
+          </Link>
           <span className={styles.bottomRowAddress}>
             Велика Васильківська, 23А, Київ, 02000, Україна
           </span>

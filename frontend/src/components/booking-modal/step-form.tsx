@@ -11,6 +11,7 @@ import { applyMask, extractDigits } from '@/components/phone-input/utils';
 import { PhoneInput } from '@/components/phone-input';
 import { TextArea } from '@/components/text-area';
 import { ServiceProps } from '@/utils/function';
+import { PRIVACY_PATH } from '@/utils/privacy';
 import { BookingFormData, Groomer } from './types';
 import { formatDuration, getBookingTotals } from './utils';
 
@@ -28,6 +29,7 @@ type StepFormProps = {
   selectedExtraServices: ServiceProps[];
   selectedGroomer: Groomer | null;
   formattedDateTime: string | null;
+  errorMessage?: string | null;
   onGoToStep: (step: 'services' | 'groomer' | 'datetime') => void;
   lockedFields?: { phone?: boolean; name?: boolean; email?: boolean };
   pets?: { id: string; name: string }[];
@@ -44,6 +46,7 @@ const StepForm = ({
   selectedExtraServices,
   selectedGroomer,
   formattedDateTime,
+  errorMessage,
   onGoToStep,
   lockedFields,
   pets = [],
@@ -195,6 +198,51 @@ const StepForm = ({
           )}
         />
 
+        <Controller
+          control={control}
+          name="consent"
+          render={({ field }) => (
+            <div>
+              <label className={styles.consentRow}>
+                <input
+                  type="checkbox"
+                  className={styles.consentInput}
+                  checked={field.value === true}
+                  onChange={(event) => field.onChange(event.target.checked)}
+                  onBlur={field.onBlur}
+                  aria-invalid={Boolean(errors.consent)}
+                />
+                <span
+                  className={classNames(styles.checkbox, {
+                    [styles.checkboxChecked]: field.value === true,
+                  })}
+                  aria-hidden="true"
+                >
+                  {field.value === true && (
+                    <Icon id={IconTypes.check} width={12} height={12} color="#fff" />
+                  )}
+                </span>
+                <span className={styles.consentText}>
+                  Погоджуюсь на обробку персональних даних відповідно до{' '}
+                  <a
+                    className={styles.consentLink}
+                    href={PRIVACY_PATH}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    політики конфіденційності
+                  </a>
+                </span>
+              </label>
+              {errors.consent && (
+                <span className={styles.consentError} role="alert">
+                  {errors.consent.message}
+                </span>
+              )}
+            </div>
+          )}
+        />
+
         <div className={styles.bookingSummarySection}>
           <p className={styles.sectionLabel}>Запис</p>
           <div className={styles.bookingSummaryList}>
@@ -268,6 +316,11 @@ const StepForm = ({
               {extraTotal > 0 && <span className={styles.extraPriceHint}> (+{extraTotal})</span>}
             </p>
           </div>
+        )}
+        {errorMessage && (
+          <p className={styles.submitError} role="alert">
+            {errorMessage}
+          </p>
         )}
         <Button
           text="Записатися зараз"

@@ -1082,3 +1082,51 @@
   color: var(--color-milano-red);
   cursor: pointer;
 }
+
+.consentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+// Нативний інпут лишається в потоці, але невидимий: так працюють і клавіатура,
+// і зчитувачі екрана, а вигляд дає сусідній span.
+.consentInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+
+  &:focus-visible + .checkbox {
+    outline: 2px solid var(--color-milano-red);
+    outline-offset: 2px;
+  }
+}
+
+.consentText {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-submarine-blue);
+}
+
+.consentLink {
+  font-weight: 600;
+  color: var(--color-milano-red);
+  text-decoration: underline;
+}
+
+.consentError {
+  display: block;
+  margin: 6px 0 0 30px;
+  font-size: 12px;
+  color: var(--color-milano-red);
+}
+
+.submitError {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-milano-red);
+}
