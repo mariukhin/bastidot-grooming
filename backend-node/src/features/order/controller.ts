@@ -90,6 +90,19 @@ function toBusySlotDTO(slot: BusySlot) {
   };
 }
 
+/**
+ * Галочку згоди фіксуємо фактом і версією політики, а час ставимо серверний:
+ * дата з браузера тут нічого не доводить.
+ */
+function parseConsent(b: Record<string, unknown>): CreateOrderInput['consent'] {
+  if (b.consentAccepted !== true) return undefined;
+
+  return {
+    acceptedAt: new Date(),
+    policyVersion: typeof b.policyVersion === 'string' ? b.policyVersion : 'unknown',
+  };
+}
+
 function validateCreateOrder(body: unknown): { error: string } | { input: CreateOrderInput } {
   if (typeof body !== 'object' || body === null) {
     return { error: 'Request body must be an object' };
@@ -135,6 +148,7 @@ function validateCreateOrder(body: unknown): { error: string } | { input: Create
       serviceIds: Array.isArray(b.serviceIds)
         ? b.serviceIds.filter((s): s is string => typeof s === 'string')
         : undefined,
+      consent: parseConsent(b),
     },
   };
 }

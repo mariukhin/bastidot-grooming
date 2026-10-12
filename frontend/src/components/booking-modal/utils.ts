@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { object, string } from 'yup';
+import { boolean, object, string } from 'yup';
 import groomerPreview from '@/components/team-block/groomerPreview.png';
 import { ServiceProps } from '@/utils/function';
 import { BusySlot, Groomer, GroomerDbProps, TimeSlotPeriod } from './types';
@@ -92,6 +92,9 @@ export const formSchema = object({
   email: string().email('Невірний формат пошти').optional(),
   petName: string().required("Ім'я улюбленця обов'язкове"),
   comment: string().optional(),
+  consent: boolean()
+    .oneOf([true], 'Без згоди не можемо прийняти запис')
+    .required('Без згоди не можемо прийняти запис'),
 });
 
 export const getGroomerPrice = (

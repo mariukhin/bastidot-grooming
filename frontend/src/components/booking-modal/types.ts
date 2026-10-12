@@ -31,6 +31,7 @@ export type BookingFormData = {
   email: string | undefined;
   petName: string;
   comment: string | undefined;
+  consent: boolean;
 };
 
 export type OrderRequest = {
@@ -48,6 +49,8 @@ export type OrderRequest = {
   durationMinutes: number;
   comment: string;
   serviceIds: string[];
+  consentAccepted: boolean;
+  policyVersion: string;
 };
 
 export type BusySlot = {

@@ -23,6 +23,8 @@ export interface Order {
   statusHistory: OrderStatusChange[];
   comment: string;
   serviceIds: ObjectId[];
+  /** Згода на обробку персональних даних, дана під час запису. */
+  consent?: { acceptedAt: Date; policyVersion: string };
   // Секрет, виданий тому, хто створив запис. Замість логіна: дозволяє змінити
   // саме своє замовлення, не даючи перебрати чужі за _id.
   cancelToken?: string;
@@ -48,6 +50,7 @@ export interface CreateOrderInput {
   durationMinutes: number;
   comment?: string;
   serviceIds?: string[];
+  consent?: { acceptedAt: Date; policyVersion: string };
 }
 
 export interface RescheduleOrderInput {

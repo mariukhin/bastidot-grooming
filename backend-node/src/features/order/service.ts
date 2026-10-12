@@ -128,6 +128,7 @@ async function createOrder(db: Db, input: CreateOrderInput): Promise<Order> {
     statusHistory: [{ status: 'pending', changedAt: now }],
     comment: input.comment ?? '',
     serviceIds,
+    ...(input.consent ? { consent: input.consent } : {}),
     cancelToken: randomBytes(16).toString('hex'),
   };
 

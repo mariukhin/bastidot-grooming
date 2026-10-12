@@ -14,6 +14,7 @@ import { getBreedList } from '@/api/breed';
 import { getServiceList } from '@/api/service';
 import { cancelOrder, getBusySlots, rescheduleOrder } from '@/api/order';
 import { track } from '@/utils/analytics';
+import { PRIVACY_POLICY_VERSION } from '@/utils/privacy';
 
 import { BookingStep, BookingFormData, BusySlot, Groomer } from './types';
 import {
@@ -106,7 +107,14 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
     // і при onChange поле спалахувало помилкою ще до того, як користувач
     // щось увів. Тепер перевірка — після першого blur.
     mode: 'onTouched',
-    defaultValues: { phone: '', name: '', email: '', petName: initialPetName ?? '', comment: '' },
+    defaultValues: {
+      phone: '',
+      name: '',
+      email: '',
+      petName: initialPetName ?? '',
+      comment: '',
+      consent: false,
+    },
   });
 
   const now = useMemo(() => dayjs(), [step]);
@@ -200,6 +208,7 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
       email: user?.email ?? '',
       petName: initialPetName ?? '',
       comment: '',
+      consent: false,
     });
 
     (async () => {
@@ -327,7 +336,8 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
     const startAt = selectedDate.hour(hour).minute(minute).second(0);
     const scheduledAt = startAt.toISOString();
 
-    const order = await createOrder({
+    setActionError(null);
+    const result = await createOrder({
       clientName: data.name,
       clientPhone: data.phone,
       clientEmail: data.email?.trim() ?? '',
@@ -342,9 +352,18 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
       durationMinutes: totalDurationMin,
       comment: data.comment ?? '',
       serviceIds: [...selectedServices, ...selectedExtraServices].map((s) => s.id),
+      consentAccepted: data.consent === true,
+      policyVersion: PRIVACY_POLICY_VERSION,
     });
 
-    if (order) {
+    if (!result.ok) {
+      setActionError(result.message);
+      return;
+    }
+
+    const order = result.order;
+
+    {
       track('booking_success', {
         order_id: order.id,
         groomer: selectedGroomer.name,
@@ -588,6 +607,7 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
           selectedExtraServices={selectedExtraServices}
           selectedGroomer={selectedGroomer}
           formattedDateTime={formattedDateTime}
+          errorMessage={actionError}
           onGoToStep={setStep}
           // Замикаємо лише те, що справді взяли з профілю: пошти там може не
           // бути, і тоді поле лишається вільним — саме тут її й вкажуть.
