@@ -15,6 +15,7 @@ export interface Pet {
   weight: number;
   birthDate?: Date | null;
   photoUrl: string;
+  photoPreviewUrl?: string;
   wishes?: string;
   traits?: PetTraitValue[];
   archivedAt?: Date | null;

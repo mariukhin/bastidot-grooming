@@ -309,6 +309,7 @@ export async function toAccountPetDTO(db: Db, pet: Pet) {
     weight: pet.weight,
     birthDate: pet.birthDate ? pet.birthDate.toISOString() : null,
     photoUrl: pet.photoUrl || null,
+    photoPreviewUrl: pet.photoPreviewUrl || pet.photoUrl || null,
     wishes: pet.wishes ?? pet.comment ?? '',
     traits: pet.traits ?? [],
     createdAt: pet.createdAt.toISOString(),

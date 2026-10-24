@@ -9,6 +9,7 @@ export interface User {
   phoneNumber: string;
   phoneVerifiedAt?: Date;
   photoUrl: string;
+  photoPreviewUrl?: string;
   password: string;
   isAdmin: boolean;
   isGroomer: boolean;

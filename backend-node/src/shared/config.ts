@@ -51,6 +51,18 @@ export const config = {
   turbosmsToken: optionalString('TURBOSMS_TOKEN', ''),
   turbosmsSender: optionalString('TURBOSMS_SENDER', ''),
 
+  r2AccountId: optionalString('R2_ACCOUNT_ID', ''),
+  r2AccessKeyId: optionalString('R2_ACCESS_KEY_ID', ''),
+  r2SecretAccessKey: optionalString('R2_SECRET_ACCESS_KEY', ''),
+  r2Bucket: optionalString('R2_BUCKET', ''),
+  r2PublicUrl: optionalString('R2_PUBLIC_URL', 'http://localhost:8081/uploads'),
+  r2Configured: Boolean(
+    process.env.R2_ACCOUNT_ID &&
+      process.env.R2_ACCESS_KEY_ID &&
+      process.env.R2_SECRET_ACCESS_KEY &&
+      process.env.R2_BUCKET
+  ),
+
   catBreedId: optionalString('CAT_BREED_ID', ''),
 
   orderSelfServiceCutoffHours: optionalInt('ORDER_SELF_SERVICE_CUTOFF_HOURS', 3),

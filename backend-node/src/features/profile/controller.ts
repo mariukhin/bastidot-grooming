@@ -26,6 +26,7 @@ function toProfileDTO(user: User) {
     phoneNumber: user.phoneNumber,
     phoneVerified: Boolean(user.phoneVerifiedAt),
     photoUrl: user.photoUrl,
+    photoPreviewUrl: user.photoPreviewUrl ?? user.photoUrl,
     role: getRole(user),
     isAdmin: user.isAdmin,
     isGroomer: user.isGroomer,
