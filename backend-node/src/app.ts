@@ -12,8 +12,9 @@ import { createAuthRouter } from './features/auth/controller.ts';
 import { createProfileRouter } from './features/profile/controller.ts';
 import { createOtpRouter } from './features/otp/controller.ts';
 import { createUploadRouter } from './features/upload/controller.ts';
+import { createScheduleRouter } from './features/schedule/controller.ts';
 import { LOCAL_UPLOAD_DIR } from './features/upload/storage.ts';
-import { optionalAuth, requireAuth } from './shared/auth-middleware.ts';
+import { optionalAuth, requireAuth, requireRole } from './shared/auth-middleware.ts';
 import { config } from './shared/config.ts';
 import { fetchActiveTraits, toTraitDTO } from './features/pet/traits.ts';
 
@@ -45,6 +46,13 @@ export function createApp(db: Db) {
   app.use('/protected', requireAuth(config.accessTokenSecret), createProfileRouter(db));
   app.use('/protected', requireAuth(config.accessTokenSecret), createOtpRouter(db));
   app.use('/protected', requireAuth(config.accessTokenSecret), createUploadRouter(db));
+
+  app.use(
+    '/staff',
+    requireAuth(config.accessTokenSecret),
+    requireRole('admin', 'groomer'),
+    createScheduleRouter(db)
+  );
 
   // Без ключів R2 фото лежать поруч із сервером — роздаємо їх самі, щоб
   // локально працювали ті самі URL, що й на проді.

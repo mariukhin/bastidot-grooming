@@ -17,6 +17,7 @@ import { CLIENT_COLLECTION, type Client } from '../../shared/client.ts';
 import { PET_COLLECTION, type Pet } from '../pet/types.ts';
 import BreedService from '../breed/service.ts';
 import { normalizePhone } from '../../shared/phone.ts';
+import { offHoursSlots } from '../schedule/service.ts';
 
 async function findOrCreateClient(db: Db, input: CreateOrderInput): Promise<Client> {
   const clients = db.collection<Client>(CLIENT_COLLECTION);
@@ -162,10 +163,15 @@ async function fetchBusySlots(
     })
     .toArray();
 
-  return orders.map((o) => ({
-    scheduledAt: o.scheduledAt,
-    durationMinutes: o.durationMinutes,
-  }));
+  const offHours = await offHoursSlots(db, groomerId, from, to);
+
+  return [
+    ...offHours,
+    ...orders.map((o) => ({
+      scheduledAt: o.scheduledAt,
+      durationMinutes: o.durationMinutes,
+    })),
+  ];
 }
 
 // Самообслуговування закривається за CUTOFF годин до візиту: інакше клієнт

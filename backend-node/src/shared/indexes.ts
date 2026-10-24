@@ -1,6 +1,7 @@
 import type { Db } from 'mongodb';
 import { logger } from './logger.ts';
 import { OTP_COLLECTION, OTP_RETENTION_SEC } from '../features/otp/types.ts';
+import { SCHEDULE_COLLECTION } from '../features/schedule/types.ts';
 
 async function dropDenseEmailIndex(db: Db): Promise<void> {
   const exists = await db.listCollections({ name: 'user' }, { nameOnly: true }).hasNext();
@@ -45,6 +46,7 @@ export async function ensureIndexes(db: Db): Promise<void> {
       { key: { ip: 1, createdAt: -1 } },
       { key: { createdAt: 1 }, expireAfterSeconds: OTP_RETENTION_SEC },
     ]),
+    db.collection(SCHEDULE_COLLECTION).createIndexes([{ key: { groomerId: 1 }, unique: true }]),
     db.collection('client').createIndexes([
       { key: { doNotContact: 1, lastVisitAt: -1 } },
       { key: { lastNotifiedAt: 1 } },
