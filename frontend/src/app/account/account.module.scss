@@ -242,6 +242,7 @@
 /* ---------- статуси візиту ---------- */
 
 .status_pending,
+.status_came,
 .status_past,
 .status_completed,
 .status_cancelled,
@@ -740,4 +741,9 @@
   &:hover {
     color: var(--color-gray);
   }
+}
+
+.status_came {
+  background-color: var(--color-link-water);
+  color: var(--color-pickled-bluewood);
 }

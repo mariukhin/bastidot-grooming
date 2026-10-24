@@ -8,7 +8,7 @@ import { SERVICE_COLLECTION, type Service } from '../service/types.ts';
 import { PET_COLLECTION, type Pet } from '../pet/types.ts';
 import { fetchActiveTraits } from '../pet/traits.ts';
 import { dateInZone, isDateString, zonedToUtc } from '../schedule/time.ts';
-import { ORDER_COLLECTION, type Order } from './types.ts';
+import { ORDER_COLLECTION, type Order, type OrderStatus } from './types.ts';
 
 export interface GroomerOrderDTO {
   id: string;
@@ -16,6 +16,7 @@ export interface GroomerOrderDTO {
   durationMinutes: number;
   status: Order['status'];
   comment: string;
+  groomerNote: string;
   services: string[];
   ownerName: string;
   pet: {
@@ -26,8 +27,13 @@ export interface GroomerOrderDTO {
     wishes: string;
     traits: { key: string; label: string; minLabel: string; maxLabel: string; value: number }[];
   } | null;
-  /** Коментарі до минулих візитів цього ж улюбленця, найсвіжіші згори. */
-  history: { scheduledAt: string; status: Order['status']; comment: string }[];
+  /** Минулі візити цього ж улюбленця: коментар клієнта і нотатка грумера. */
+  history: {
+    scheduledAt: string;
+    status: Order['status'];
+    comment: string;
+    groomerNote: string;
+  }[];
 }
 
 export class GroomerDayError extends Error {
@@ -103,12 +109,17 @@ async function buildDTOs(db: Db, orders: Order[]): Promise<GroomerOrderDTO[]> {
   return orders.map((order) => {
     const pet = petById.get(order.petId.toHexString());
     const petHistory = past
-      .filter((o) => o.petId.equals(order.petId) && (o.comment ?? '').trim() !== '')
+      .filter(
+        (o) =>
+          o.petId.equals(order.petId) &&
+          ((o.comment ?? '').trim() !== '' || (o.groomerNote ?? '').trim() !== '')
+      )
       .slice(0, 5)
       .map((o) => ({
         scheduledAt: o.scheduledAt.toISOString(),
         status: o.status,
         comment: o.comment ?? '',
+        groomerNote: o.groomerNote ?? '',
       }));
 
     return {
@@ -117,6 +128,7 @@ async function buildDTOs(db: Db, orders: Order[]): Promise<GroomerOrderDTO[]> {
       durationMinutes: order.durationMinutes,
       status: order.status,
       comment: order.comment ?? '',
+      groomerNote: order.groomerNote ?? '',
       services: order.serviceIds
         .map((id) => serviceById.get(id.toHexString()))
         .filter((name): name is string => Boolean(name)),
@@ -211,4 +223,47 @@ export async function getGroomerOrder(
 
   const [dto] = await buildDTOs(db, [order]);
   return dto!;
+}
+
+/** Дозволені переходи. Решта — 409, щоб історія статусів лишалась правдивою. */
+const TRANSITIONS: Record<string, OrderStatus[]> = {
+  pending: ['came', 'no_show'],
+  came: ['completed'],
+};
+
+export const GROOMER_STATUSES: OrderStatus[] = ['came', 'completed', 'no_show'];
+
+export async function setOrderStatus(
+  db: Db,
+  userId: string,
+  orderId: string,
+  next: OrderStatus,
+  note: string | undefined
+): Promise<GroomerOrderDTO> {
+  const groomerId = await requireGroomerId(db, userId);
+
+  if (!GROOMER_STATUSES.includes(next)) {
+    throw new GroomerDayError('Статус має бути came, completed або no_show', 400);
+  }
+  if (!ObjectId.isValid(orderId)) {
+    throw new GroomerDayError('Запис не знайдено', 404);
+  }
+
+  const orders = db.collection<Order>(ORDER_COLLECTION);
+  const order = await orders.findOne({ _id: new ObjectId(orderId), groomerId });
+
+  if (!order) {
+    throw new GroomerDayError('Запис не знайдено', 404);
+  }
+  if (!(TRANSITIONS[order.status] ?? []).includes(next)) {
+    throw new GroomerDayError(`Зі статусу «${order.status}» не можна перейти в «${next}»`, 409);
+  }
+
+  const change = { status: next, changedAt: new Date(), changedBy: groomerId };
+  const patch: Partial<Order> = { status: next };
+  if (note !== undefined) patch.groomerNote = note;
+
+  await orders.updateOne({ _id: order._id! }, { $set: patch, $push: { statusHistory: change } });
+
+  return await getGroomerOrder(db, userId, orderId);
 }

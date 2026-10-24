@@ -2,7 +2,7 @@ import type { ObjectId } from 'mongodb';
 
 export const ORDER_COLLECTION = 'order';
 
-export type OrderStatus = 'pending' | 'completed' | 'cancelled' | 'no_show';
+export type OrderStatus = 'pending' | 'came' | 'completed' | 'cancelled' | 'no_show';
 
 export interface OrderStatusChange {
   status: OrderStatus;
@@ -25,6 +25,8 @@ export interface Order {
   serviceIds: ObjectId[];
   /** Згода на обробку персональних даних, дана під час запису. */
   consent?: { acceptedAt: Date; policyVersion: string };
+  /** Нотатка грумера після візиту. Клієнту не віддається. */
+  groomerNote?: string;
   // Секрет, виданий тому, хто створив запис. Замість логіна: дозволяє змінити
   // саме своє замовлення, не даючи перебрати чужі за _id.
   cancelToken?: string;

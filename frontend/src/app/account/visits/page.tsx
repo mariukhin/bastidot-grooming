@@ -19,6 +19,7 @@ import styles from '../account.module.scss';
 
 const STATUS_LABEL: Record<VisitStatus, string> = {
   pending: 'Заплановано',
+  came: 'Прийшли',
   completed: 'Виконано',
   cancelled: 'Скасовано',
   no_show: 'Не зʼявився',

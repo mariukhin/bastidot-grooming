@@ -41,7 +41,7 @@ export type PetField = 'name' | 'breedId' | 'breedCustom' | 'weight' | 'birthDat
 export type PetMutationResult =
   { ok: true; pet: AccountPet } | { ok: false; message: string; field?: PetField };
 
-export type VisitStatus = 'pending' | 'completed' | 'cancelled' | 'no_show';
+export type VisitStatus = 'pending' | 'came' | 'completed' | 'cancelled' | 'no_show';
 
 export type AccountVisit = {
   id: string;
