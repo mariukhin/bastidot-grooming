@@ -13,6 +13,7 @@ import { createProfileRouter } from './features/profile/controller.ts';
 import { createOtpRouter } from './features/otp/controller.ts';
 import { createUploadRouter } from './features/upload/controller.ts';
 import { createScheduleRouter } from './features/schedule/controller.ts';
+import { createGroomerOrdersRouter } from './features/order/groomer-controller.ts';
 import { LOCAL_UPLOAD_DIR } from './features/upload/storage.ts';
 import { optionalAuth, requireAuth, requireRole } from './shared/auth-middleware.ts';
 import { config } from './shared/config.ts';
@@ -52,6 +53,12 @@ export function createApp(db: Db) {
     requireAuth(config.accessTokenSecret),
     requireRole('admin', 'groomer'),
     createScheduleRouter(db)
+  );
+  app.use(
+    '/staff',
+    requireAuth(config.accessTokenSecret),
+    requireRole('admin', 'groomer'),
+    createGroomerOrdersRouter(db)
   );
 
   // Без ключів R2 фото лежать поруч із сервером — роздаємо їх самі, щоб
