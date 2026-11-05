@@ -8,6 +8,7 @@ import { Icon, IconTypes } from '@/components/icon';
 import useUserStore, { type SessionUser } from '@/store/useUserStore';
 
 import styles from './user-menu.module.scss';
+import { cabinetPath } from '@/utils/cabinet';
 
 type UserMenuProps = {
   user: SessionUser;
@@ -98,7 +99,7 @@ const UserMenu = ({ user, className }: UserMenuProps) => {
             </div>
 
             <Link
-              href="/account"
+              href={cabinetPath(user.role)}
               className={styles.item}
               role="menuitem"
               onClick={() => setIsOpen(false)}

@@ -12,6 +12,8 @@ type RequireAuthProps = {
   children: ReactNode;
   /** Якщо задано — пускаємо лише ці ролі. Порожнє означає «будь-хто залогінений». */
   roles?: Role[];
+  /** Куди відправити залогіненого з іншою роллю. */
+  fallback?: string;
 };
 
 /**
@@ -21,7 +23,7 @@ type RequireAuthProps = {
  * сесія підтягується вже на клієнті, і поспішний редирект викидав би
  * залогінену людину зі сторінки, на яку вона має право.
  */
-const RequireAuth = ({ children, roles }: RequireAuthProps) => {
+const RequireAuth = ({ children, roles, fallback = '/' }: RequireAuthProps) => {
   const { user, isReady } = useUserStore();
   const openLogin = useLoginStore((state) => state.openLogin);
   const router = useRouter();
@@ -41,8 +43,8 @@ const RequireAuth = ({ children, roles }: RequireAuthProps) => {
     }
 
     // Залогінений, але не тієї ролі — відправляти в модалку входу безглуздо.
-    router.replace('/');
-  }, [isReady, allowed, user, router, openLogin, pathname]);
+    router.replace(fallback);
+  }, [isReady, allowed, user, router, openLogin, pathname, fallback]);
 
   if (!isReady || !allowed) {
     return (

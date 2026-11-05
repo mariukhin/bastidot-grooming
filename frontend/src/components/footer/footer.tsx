@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import classNames from 'classnames';
 
@@ -10,7 +11,18 @@ import { PRIVACY_PATH } from '@/utils/privacy';
 
 import styles from './footer.module.scss';
 
+// Кабінети — і клієнта, і персоналу — живуть як окремий застосунок усередині
+// сайту: там своя навігація, а на мобільній ще й нижнє меню, під яким футер
+// лише заважає.
+const HIDDEN_ON = ['/account', '/staff'];
+
 const Footer = () => {
+  const pathname = usePathname();
+
+  if (HIDDEN_ON.some((path) => pathname === path || pathname.startsWith(path + '/'))) {
+    return null;
+  }
+
   return (
     <footer className={styles.container}>
       <div className={styles.wrapper}>

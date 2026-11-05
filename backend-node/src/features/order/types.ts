@@ -27,6 +27,9 @@ export interface Order {
   consent?: { acceptedAt: Date; policyVersion: string };
   /** Нотатка грумера після візиту. Клієнту не віддається. */
   groomerNote?: string;
+  /** Салон підтвердив запис. Статус при цьому лишається pending. */
+  confirmedAt?: Date;
+  confirmedBy?: ObjectId;
   // Секрет, виданий тому, хто створив запис. Замість логіна: дозволяє змінити
   // саме своє замовлення, не даючи перебрати чужі за _id.
   cancelToken?: string;

@@ -14,6 +14,7 @@ import { handleScroll, isNavLinkActive } from '@/utils/function';
 import useUserStore from '@/store/useUserStore';
 
 import styles from './mobile-menu.module.scss';
+import { cabinetLabel, cabinetPath } from '@/utils/cabinet';
 
 type MobileMenuProps = {
   isOpen: boolean;
@@ -122,8 +123,8 @@ const MobileMenu: FC<MobileMenuProps> = ({
           />
           {user ? (
             <>
-              <Link href="/account" className={styles.accountLink} onClick={onClose}>
-                Особистий кабінет
+              <Link href={cabinetPath(user.role)} className={styles.accountLink} onClick={onClose}>
+                {cabinetLabel(user.role)}
               </Link>
               <Button
                 type={'button'}

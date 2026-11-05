@@ -221,7 +221,7 @@ function assertChangeable(order: Order, now: Date): void {
 }
 
 /** Чи перетинається інтервал із уже зайнятим часом того самого грумера. */
-async function hasConflict(
+export async function hasConflict(
   db: Db,
   groomerId: ObjectId,
   start: Date,
