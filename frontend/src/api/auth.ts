@@ -14,14 +14,15 @@ export type GoogleProfile = {
   photoUrl: string;
 };
 
-export type AuthResult = { ok: true; tokens: AuthTokens } | { ok: false; message: string };
+export type AuthResult =
+  { ok: true; tokens: AuthTokens } | { ok: false; message: string; network?: boolean };
 export type GoogleAuthResult =
   { ok: true; tokens: AuthTokens; profile: GoogleProfile } | { ok: false; message: string };
 
 const FALLBACK_MESSAGE = 'Не вдалося увійти. Спробуйте ще раз';
 const NETWORK_MESSAGE = "Немає зв'язку з сервером. Перевірте інтернет і спробуйте ще раз";
 
-type JsonResult = { ok: true; data: unknown } | { ok: false; message: string };
+type JsonResult = { ok: true; data: unknown } | { ok: false; message: string; network?: boolean };
 
 async function postJson(path: string, body: unknown): Promise<JsonResult> {
   let response: Response;
@@ -33,7 +34,7 @@ async function postJson(path: string, body: unknown): Promise<JsonResult> {
       body: JSON.stringify(body),
     });
   } catch {
-    return { ok: false, message: NETWORK_MESSAGE };
+    return { ok: false, message: NETWORK_MESSAGE, network: true };
   }
 
   const data: unknown = await response.json().catch(() => null);

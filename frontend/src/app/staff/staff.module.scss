@@ -34,61 +34,6 @@
   color: var(--color-gray);
 }
 
-/* ---------- десктопна шапка ---------- */
-
-.head {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
-
-  @include breakpoints.md {
-    display: flex;
-  }
-}
-
-.identity {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.photo,
-.photoFallback {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.photoFallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--color-ebb);
-  background-color: var(--color-white);
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--color-milano-red);
-}
-
-.title {
-  margin: 0;
-  font-size: 26px;
-  color: var(--color-dark-burgundy);
-}
-
-.role {
-  margin: 2px 0 0;
-  font-size: 14px;
-  color: var(--color-gray);
-}
-
-.logout {
-  flex-shrink: 0;
-}
-
 /* ---------- вкладки ---------- */
 
 .tabs {
@@ -212,4 +157,76 @@
   font-size: 14px;
   line-height: 1.5;
   color: var(--color-gray);
+}
+
+.logout {
+  margin-top: 18px;
+}
+
+.scheduleHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.scheduleTitle {
+  // На мобільній цю ж назву вже показує компактна шапка кабінету.
+  display: none;
+  margin: 0;
+  font-size: 19px;
+  color: var(--color-mine-shaft);
+
+  @include breakpoints.md {
+    display: block;
+  }
+}
+
+.scheduleHead {
+  justify-content: flex-end;
+
+  @include breakpoints.md {
+    justify-content: space-between;
+  }
+}
+
+.datePicker {
+  padding: 7px 10px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 9px;
+  background-color: var(--color-white);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--color-mine-shaft);
+}
+
+.cardLine {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardWarn {
+  display: block;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-milano-red);
+}
+
+/* ---------- день: сітка + деталі ---------- */
+
+.dayLayout {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.dayGrid {
+  // min-width дозволяє сітці стискатись, коли праворуч відкрита панель.
+  flex: 1 1 auto;
+  min-width: 0;
 }

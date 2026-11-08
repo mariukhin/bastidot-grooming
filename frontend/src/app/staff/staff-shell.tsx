@@ -1,17 +1,15 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import classNames from 'classnames';
 
-import { Button } from '@/components/button';
 import { Icon } from '@/components/icon';
 import useUserStore from '@/store/useUserStore';
 import useBookingStore from '@/store/useBookingStore';
 
-import { ADMIN_ACTION, ROLE_LABEL, scheduleTitle, tabsFor, type StaffTab } from './nav';
+import { ADMIN_ACTION, scheduleTitle, tabsFor, type StaffTab } from './nav';
 import styles from './staff.module.scss';
 
 const todayLabel = (): string => {
@@ -25,14 +23,13 @@ const todayLabel = (): string => {
 };
 
 const StaffShell = ({ children }: { children: ReactNode }) => {
-  const { user, logout } = useUserStore();
+  const user = useUserStore((state) => state.user);
   const openBooking = useBookingStore((state) => state.openBooking);
   const pathname = usePathname();
 
   if (!user) return null;
 
   const tabs = tabsFor(user.role);
-  const initial = (user.name || user.email).trim().charAt(0).toUpperCase();
   const isActive = (href: string) =>
     href === '/staff' ? pathname === href : pathname.startsWith(href);
 
@@ -46,31 +43,6 @@ const StaffShell = ({ children }: { children: ReactNode }) => {
         <header className={styles.mobileHead}>
           <p className={styles.mobileTitle}>{scheduleTitle(user.role)}</p>
           <p className={styles.mobileDate}>{todayLabel()}</p>
-        </header>
-
-        <header className={styles.head}>
-          <div className={styles.identity}>
-            {user.photoUrl ? (
-              <Image className={styles.photo} src={user.photoUrl} alt="" width={128} height={128} />
-            ) : (
-              <span className={styles.photoFallback} aria-hidden="true">
-                {initial}
-              </span>
-            )}
-            <div>
-              <h1 className={styles.title}>{user.name || 'Кабінет персоналу'}</h1>
-              <p className={styles.role}>{ROLE_LABEL[user.role]}</p>
-            </div>
-          </div>
-
-          <Button
-            className={styles.logout}
-            type="button"
-            text="Вийти"
-            variant="secondary"
-            size="medium"
-            onClick={logout}
-          />
         </header>
 
         <nav className={styles.tabs} aria-label="Розділи">

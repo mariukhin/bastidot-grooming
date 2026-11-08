@@ -225,6 +225,30 @@ export async function getGroomerOrder(
   return dto!;
 }
 
+/** Нотатка зберігається окремо: грумер пише її до того, як міняти статус. */
+export async function saveGroomerNote(
+  db: Db,
+  userId: string,
+  orderId: string,
+  note: string
+): Promise<GroomerOrderDTO> {
+  const groomerId = await requireGroomerId(db, userId);
+
+  if (!ObjectId.isValid(orderId)) {
+    throw new GroomerDayError('Запис не знайдено', 404);
+  }
+
+  const result = await db
+    .collection<Order>(ORDER_COLLECTION)
+    .updateOne({ _id: new ObjectId(orderId), groomerId }, { $set: { groomerNote: note } });
+
+  if (result.matchedCount === 0) {
+    throw new GroomerDayError('Запис не знайдено', 404);
+  }
+
+  return await getGroomerOrder(db, userId, orderId);
+}
+
 /** Дозволені переходи. Решта — 409, щоб історія статусів лишалась правдивою. */
 const TRANSITIONS: Record<string, OrderStatus[]> = {
   pending: ['came', 'no_show'],

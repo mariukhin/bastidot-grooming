@@ -33,7 +33,10 @@ const SessionGate = () => {
           result.tokens.refreshToken
         );
         void hydrateProfile();
-      } else {
+      } else if (!result.network) {
+        // Сервер відповів відмовою — сесія справді недійсна. А коли він просто
+        // не відповів (перезапуск бекенда, пропав інтернет), людину викидати
+        // не можна: токени ще живі.
         current.logout();
       }
     });

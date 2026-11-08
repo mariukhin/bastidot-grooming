@@ -1,0 +1,322 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+// На мобільній це окремий екран поверх усього, разом із нижнім меню (1001).
+.panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1002;
+  display: flex;
+  overflow-y: auto;
+  flex-direction: column;
+  padding: 16px 20px 24px;
+  background-color: var(--color-white);
+
+  @include breakpoints.md {
+    position: sticky;
+    top: 92px;
+    inset: auto;
+    z-index: 1;
+    // Панель вища за екран: без власного скролу її низ із кнопками недосяжний.
+    overflow-y: auto;
+    max-height: calc(100vh - 112px);
+    width: 340px;
+    flex-shrink: 0;
+    padding: 18px 20px 20px;
+    border: 1px solid var(--color-ebb);
+    border-radius: 16px;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.back {
+  padding: 4px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-milano-red);
+  cursor: pointer;
+
+  @include breakpoints.md {
+    display: none;
+  }
+}
+
+.close {
+  display: none;
+  margin-left: auto;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--color-gray);
+  cursor: pointer;
+
+  @include breakpoints.md {
+    display: block;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.time {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-dark-burgundy);
+}
+
+.status {
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status_pending {
+  background-color: var(--color-link-water);
+  color: var(--color-pickled-bluewood);
+}
+
+.status_came {
+  background-color: #eaf6ee;
+  color: #1f6b35;
+}
+
+.status_completed {
+  background-color: var(--color-hint-of-red);
+  color: var(--color-submarine-blue);
+}
+
+.status_cancelled,
+.status_no_show {
+  background-color: var(--color-hint-of-red);
+  color: var(--color-milano-red);
+}
+
+.petName {
+  margin: 10px 0 2px;
+  font-size: 22px;
+  color: var(--color-mine-shaft);
+}
+
+.petMeta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-gray);
+}
+
+// Попередження про шкалу 8+ має читатись раніше за решту тексту.
+.alarm {
+  margin: 10px 0 0;
+  padding: 9px 12px;
+  border-left: 3px solid var(--color-milano-red);
+  border-radius: 8px;
+  background-color: var(--color-hint-of-red);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-milano-red);
+}
+
+.section {
+  margin-top: 18px;
+}
+
+.sectionTitle {
+  margin: 0 0 7px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-gray-chateau);
+}
+
+.text {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-mine-shaft);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.muted {
+  font-size: 14px;
+  color: var(--color-gray);
+}
+
+.error {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  color: var(--color-milano-red);
+}
+
+.services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+}
+
+.service {
+  padding: 4px 10px;
+  border: 1px solid var(--color-ebb);
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  color: var(--color-submarine-blue);
+}
+
+/* ---------- шкали характеру ---------- */
+
+.trait {
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.traitHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.traitLabel {
+  font-size: 13.5px;
+  color: var(--color-mine-shaft);
+}
+
+.traitValue {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-gray);
+}
+
+.traitTrack {
+  display: block;
+  overflow: hidden;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background-color: var(--color-ebb);
+}
+
+.traitFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+}
+
+.traitFill_calm {
+  background-color: #3f9d5c;
+}
+
+.traitFill_mid {
+  background-color: #d8a033;
+}
+
+.traitFill_alarm {
+  background-color: var(--color-milano-red);
+}
+
+.traitScale {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--color-gray-chateau);
+}
+
+/* ---------- історія ---------- */
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+}
+
+.historyItem {
+  padding: 9px 12px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 10px;
+}
+
+.historyDate {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-submarine-blue);
+}
+
+.historyNote {
+  margin: 4px 0 0;
+  padding-left: 9px;
+  border-left: 2px solid var(--color-ebb);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--color-gray);
+}
+
+/* ---------- нотатка ---------- */
+
+.note {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+  resize: vertical;
+  color: var(--color-mine-shaft);
+}
+
+.noteFoot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.saved {
+  font-size: 12.5px;
+  color: #1f6b35;
+}
+
+/* ---------- дії ---------- */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+
+  // На мобільній кнопки закріплені внизу екрана, щоб не шукати їх у скролі.
+  position: sticky;
+  bottom: 0;
+  padding: 12px 0 calc(8px + env(safe-area-inset-bottom));
+  background-color: var(--color-white);
+
+  @include breakpoints.md {
+    position: static;
+    padding: 0;
+  }
+}

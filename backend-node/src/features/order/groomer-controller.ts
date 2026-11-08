@@ -3,8 +3,16 @@ import type { Request, Response } from 'express';
 import type { Db } from 'mongodb';
 
 import { requireRole } from '../../shared/auth-middleware.ts';
-import { GroomerDayError, getGroomerOrder, listGroomerDay, setOrderStatus } from './groomer-day.ts';
+import {
+  GroomerDayError,
+  getGroomerOrder,
+  listGroomerDay,
+  saveGroomerNote,
+  setOrderStatus,
+} from './groomer-day.ts';
 import type { OrderStatus } from './types.ts';
+
+const NOTE_MAX = 2000;
 
 export function createGroomerOrdersRouter(db: Db): Router {
   const router = Router();
@@ -52,6 +60,22 @@ export function createGroomerOrdersRouter(db: Db): Router {
       res.json(
         await setOrderStatus(db, userId, String(req.params.id), body.status as OrderStatus, note)
       );
+    })
+  );
+
+  // PATCH /staff/groomer/orders/:id/note
+  router.patch(
+    '/groomer/orders/:id/note',
+    route(async (userId, req, res) => {
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const note = typeof body.groomerNote === 'string' ? body.groomerNote.trim() : '';
+
+      if (note.length > NOTE_MAX) {
+        res.status(400).json({ error: `Нотатка довша за ${NOTE_MAX} символів` });
+        return;
+      }
+
+      res.json(await saveGroomerNote(db, userId, String(req.params.id), note));
     })
   );
 
