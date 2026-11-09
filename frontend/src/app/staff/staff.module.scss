@@ -221,12 +221,248 @@
 
 .dayLayout {
   display: flex;
-  align-items: flex-start;
-  gap: 18px;
+  // На мобільній блоки стають один під одним: поруч вони обидва вузькі.
+  flex-direction: column;
+  gap: 14px;
+
+  @include breakpoints.md {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 18px;
+  }
 }
 
 .dayGrid {
   // min-width дозволяє сітці стискатись, коли праворуч відкрита панель.
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.daySide {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  @include breakpoints.md {
+    flex: 0 0 340px;
+    max-width: 340px;
+  }
+}
+
+/* ---------- панель керування днем ---------- */
+
+.views {
+  display: inline-flex;
+  margin-bottom: 14px;
+  border: 1px solid var(--color-ebb);
+  border-radius: var(--r-pill);
+  background-color: var(--color-white);
+}
+
+.view {
+  padding: 7px 16px;
+  border-radius: var(--r-pill);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-gray);
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+
+.viewActive {
+  background-color: var(--color-milano-red);
+  color: var(--color-white);
+}
+
+.kpi {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 0 0 14px;
+
+  @include breakpoints.sm {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.kpiTile {
+  padding: 11px 14px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 12px;
+  background-color: var(--color-white);
+}
+
+.kpiLabel {
+  font-size: 11.5px;
+  line-height: 1.25;
+  color: var(--color-gray);
+}
+
+.kpiValue {
+  margin: 3px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-dark-burgundy);
+}
+
+.chips {
+  display: flex;
+  overflow-x: auto;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.chip {
+  flex-shrink: 0;
+  padding: 6px 13px;
+  border: 1px solid var(--color-ebb);
+  border-radius: var(--r-pill);
+  background-color: var(--color-white);
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--color-submarine-blue);
+  cursor: pointer;
+}
+
+.chipActive {
+  border-color: var(--color-milano-red);
+  background-color: var(--color-milano-red);
+  color: var(--color-white);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 12px;
+  list-style: none;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-gray);
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.legendDot_pending {
+  background-color: var(--color-pickled-bluewood);
+}
+
+.legendDot_came {
+  background-color: #1f6b35;
+}
+
+.legendDot_completed {
+  background-color: var(--color-submarine-blue);
+}
+
+.legendDot_cancelled,
+.legendDot_no_show {
+  background-color: var(--color-milano-red);
+}
+
+/* ---------- потребують уваги ---------- */
+
+.attention {
+  padding: 14px 16px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 16px;
+  background-color: var(--color-white);
+}
+
+.attentionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-gray-chateau);
+}
+
+.attentionCount {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background-color: var(--color-milano-red);
+  font-size: 11px;
+  text-align: center;
+  color: var(--color-white);
+}
+
+.attentionList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+}
+
+.attentionItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 10px;
+}
+
+.attentionLink {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.attentionTime {
+  margin-right: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-mine-shaft);
+}
+
+.attentionName {
+  font-size: 13px;
+  color: var(--color-mine-shaft);
+}
+
+.attentionReason {
+  display: block;
+  font-size: 11.5px;
+  color: var(--color-milano-red);
+}
+
+.attentionAction {
+  flex-shrink: 0;
+  padding: 6px 11px;
+  border: 1px solid var(--color-milano-red);
+  border-radius: var(--r-pill);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-milano-red);
+  cursor: pointer;
+
+  &:disabled {
+    cursor: progress;
+    opacity: 0.5;
+  }
+}
+
+.attentionError {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--color-milano-red);
 }

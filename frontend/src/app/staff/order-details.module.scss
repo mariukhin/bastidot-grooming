@@ -19,8 +19,7 @@
     // Панель вища за екран: без власного скролу її низ із кнопками недосяжний.
     overflow-y: auto;
     max-height: calc(100vh - 112px);
-    width: 340px;
-    flex-shrink: 0;
+    width: 100%;
     padding: 18px 20px 20px;
     border: 1px solid var(--color-ebb);
     border-radius: 16px;
@@ -319,4 +318,61 @@
     position: static;
     padding: 0;
   }
+}
+
+/* ---------- панель адміна ---------- */
+
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 14px 0 0;
+  font-size: 13.5px;
+}
+
+.fact {
+  display: contents;
+
+  dt {
+    color: var(--color-gray);
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+    color: var(--color-mine-shaft);
+  }
+}
+
+.phone {
+  font-weight: 700;
+  color: var(--color-milano-red);
+}
+
+.select {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 10px;
+  background-color: var(--color-white);
+  font-size: 14px;
+  color: var(--color-mine-shaft);
+}
+
+.rescheduleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .select {
+    flex: 1 1 150px;
+    width: auto;
+  }
+}
+
+.hint {
+  margin: 0;
+  font-size: 12.5px;
+  text-align: center;
+  color: var(--color-gray);
 }

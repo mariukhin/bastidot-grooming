@@ -14,6 +14,10 @@ export type StaffOrder = {
   client?: { name: string; phone: string };
   groomer?: { id: string; name: string } | null;
   total?: number;
+  /** Підтвердження салону. Є лише у відповіді адміна. */
+  confirmedAt?: string | null;
+  /** Звідки прийшов клієнт: поле картки в CRM. */
+  source?: string;
   pet: {
     name: string;
     breedName: string | null;
@@ -56,6 +60,18 @@ export type GroomerOrderDetail = {
   }[];
 };
 
+export type AdminStats = {
+  date: string;
+  total: number;
+  cancelled: number;
+  unconfirmed: number;
+  bookedMinutes: number;
+  workingMinutes: number;
+  /** Частка зайнятого робочого часу, 0–1. */
+  utilization: number;
+  expectedRevenue: number;
+};
+
 export type DaySchedule = {
   groomerId: string;
   name: string;
@@ -66,13 +82,22 @@ export type DaySchedule = {
 const NETWORK = "Немає зв'язку з сервером. Перевірте інтернет";
 const FALLBACK = 'Не вдалося завантажити дані';
 
-async function get<T>(path: string): Promise<AccountResult<T>> {
+async function send<T>(
+  method: 'GET' | 'POST' | 'PATCH',
+  path: string,
+  body?: unknown
+): Promise<AccountResult<T>> {
   const { accessToken } = useUserStore.getState();
   if (!accessToken) return { ok: false, message: FALLBACK };
 
   try {
     const response = await fetch(`${API_URL}/staff${path}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
     const data: unknown = await response.json().catch(() => null);
 
@@ -85,6 +110,8 @@ async function get<T>(path: string): Promise<AccountResult<T>> {
     return { ok: false, message: NETWORK };
   }
 }
+
+const get = <T>(path: string) => send<T>('GET', path);
 
 export const fetchGroomerDay = (date: string) =>
   get<{ date: string; orders: StaffOrder[] }>(`/groomer/orders?date=${date}`);
@@ -92,38 +119,27 @@ export const fetchGroomerDay = (date: string) =>
 export const fetchAdminDay = (date: string) =>
   get<{ date: string; orders: StaffOrder[] }>(`/admin/orders?date=${date}`);
 
+export const fetchAdminStats = (date: string) => get<AdminStats>(`/admin/stats?date=${date}`);
+
 export const fetchDaySchedule = (date: string) =>
   get<{ date: string; groomers: DaySchedule[] }>(`/schedule?date=${date}`);
 
 export const fetchGroomerOrder = (id: string) => get<GroomerOrderDetail>(`/groomer/orders/${id}`);
 
-async function patch<T>(path: string, body: unknown): Promise<AccountResult<T>> {
-  const { accessToken } = useUserStore.getState();
-  if (!accessToken) return { ok: false, message: FALLBACK };
-
-  try {
-    const response = await fetch(`${API_URL}/staff${path}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(body),
-    });
-    const data: unknown = await response.json().catch(() => null);
-
-    if (!response.ok) {
-      const message = (data as { error?: string } | null)?.error;
-      return { ok: false, message: message ?? FALLBACK };
-    }
-    return { ok: true, data: data as T };
-  } catch {
-    return { ok: false, message: NETWORK };
-  }
-}
-
 export const setGroomerStatus = (id: string, status: 'came' | 'completed' | 'no_show') =>
-  patch<GroomerOrderDetail>(`/groomer/orders/${id}/status`, { status });
+  send<GroomerOrderDetail>('PATCH', `/groomer/orders/${id}/status`, { status });
 
 export const saveGroomerNote = (id: string, groomerNote: string) =>
-  patch<GroomerOrderDetail>(`/groomer/orders/${id}/note`, { groomerNote });
+  send<GroomerOrderDetail>('PATCH', `/groomer/orders/${id}/note`, { groomerNote });
+
+export const confirmAdminOrder = (id: string) =>
+  send<StaffOrder>('POST', `/admin/orders/${id}/confirm`);
+
+export const cancelAdminOrder = (id: string) =>
+  send<StaffOrder>('POST', `/admin/orders/${id}/cancel`);
+
+export const rescheduleAdminOrder = (id: string, scheduledAt: string) =>
+  send<StaffOrder>('PATCH', `/admin/orders/${id}/schedule`, { scheduledAt });
+
+export const reassignAdminOrder = (id: string, groomerId: string) =>
+  send<StaffOrder>('PATCH', `/admin/orders/${id}/groomer`, { groomerId });

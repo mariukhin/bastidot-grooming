@@ -11,14 +11,19 @@ import {
 } from '@/components/schedule-grid';
 import {
   fetchAdminDay,
+  fetchAdminStats,
   fetchDaySchedule,
   fetchGroomerDay,
+  type AdminStats,
   type DaySchedule,
   type GroomerOrderDetail,
   type StaffOrder,
 } from '@/api/staff';
 import useUserStore from '@/store/useUserStore';
 
+import AdminOrderPanel from './admin-order-panel';
+import Attention, { needsAttention } from './attention';
+import { DayKpi, GroomerChips, StatusLegend, ViewSwitch } from './admin-toolbar';
 import { scheduleTitle } from './nav';
 import OrderDetails from './order-details';
 import { alarmText, alarmingTraits } from './traits';
@@ -42,6 +47,8 @@ const StaffSchedule = () => {
   const [date, setDate] = useState(todayKey);
   const [orders, setOrders] = useState<StaffOrder[]>([]);
   const [schedule, setSchedule] = useState<DaySchedule[]>([]);
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [picked, setPicked] = useState<string[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [message, setMessage] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -57,7 +64,8 @@ const StaffSchedule = () => {
     void Promise.all([
       isAdmin ? fetchAdminDay(date) : fetchGroomerDay(date),
       fetchDaySchedule(date),
-    ]).then(([day, sched]) => {
+      isAdmin ? fetchAdminStats(date) : Promise.resolve(null),
+    ]).then(([day, sched, dayStats]) => {
       if (stale) return;
       if (!day.ok) {
         setMessage(day.message);
@@ -66,6 +74,7 @@ const StaffSchedule = () => {
       }
       setOrders(day.data.orders);
       setSchedule(sched.ok ? sched.data.groomers : []);
+      setStats(dayStats && dayStats.ok ? dayStats.data : null);
       setState('ready');
     });
 
@@ -74,9 +83,19 @@ const StaffSchedule = () => {
     };
   }, [date, isAdmin, user, attempt]);
 
+  // Чипи звужують видимі колонки; порожній вибір означає «всі грумери».
+  const visibleGroomers = useMemo(
+    () => (picked.length === 0 ? schedule : schedule.filter((g) => picked.includes(g.groomerId))),
+    [schedule, picked]
+  );
+
   const columns: GridColumn[] = useMemo(() => {
     if (isAdmin) {
-      return schedule.map((g) => ({ id: g.groomerId, title: g.name, intervals: g.intervals }));
+      return visibleGroomers.map((g) => ({
+        id: g.groomerId,
+        title: g.name,
+        intervals: g.intervals,
+      }));
     }
 
     const mine = schedule.find((g) => g.name === user?.name);
@@ -88,7 +107,7 @@ const StaffSchedule = () => {
         intervals: mine?.intervals ?? [],
       },
     ];
-  }, [isAdmin, schedule, user?.name, user?.photoUrl]);
+  }, [isAdmin, visibleGroomers, schedule, user?.name, user?.photoUrl]);
 
   const events: GridEvent[] = useMemo(
     () =>
@@ -107,6 +126,9 @@ const StaffSchedule = () => {
             <span className={styles.cardLine}>{serviceNames(order)}</span>
             {typeof order.total === 'number' && (
               <span className={styles.cardLine}>{order.total} грн</span>
+            )}
+            {!order.confirmedAt && order.status !== 'cancelled' && (
+              <span className={styles.cardWarn}>Не підтверджено</span>
             )}
           </>
         ) : (
@@ -127,17 +149,29 @@ const StaffSchedule = () => {
 
   const reload = useCallback(() => setAttempt((n) => n + 1), []);
 
-  // Статус і нотатку міняє панель деталей — список оновлюємо на місці,
-  // щоб не перезавантажувати весь день заради однієї картки.
-  const applyUpdate = useCallback((updated: GroomerOrderDetail) => {
-    setOrders((list) =>
-      list.map((order) =>
-        order.id === updated.id
-          ? { ...order, status: updated.status, groomerNote: updated.groomerNote }
-          : order
-      )
-    );
-  }, []);
+  // Дії панелі міняють один запис — список правимо на місці, а KPI
+  // перепитуємо, бо виручка й завантаженість залежать від усього дня.
+  const applyOrder = useCallback(
+    (updated: StaffOrder | GroomerOrderDetail) => {
+      setOrders((list) =>
+        list.map((order) =>
+          order.id === updated.id ? ({ ...order, ...updated } as StaffOrder) : order
+        )
+      );
+
+      if (isAdmin) {
+        void fetchAdminStats(date).then((result) => {
+          if (result.ok) setStats(result.data);
+        });
+      }
+    },
+    [date, isAdmin]
+  );
+
+  const selected = selectedId ? orders.find((order) => order.id === selectedId) : undefined;
+  // Бічна колонка існує, лише поки їй є що показати: порожня вона займала б
+  // третину ширини ні за що.
+  const hasSide = Boolean(selectedId) || (isAdmin && needsAttention(orders).length > 0);
 
   if (!user) return null;
   if (state === 'loading') return <LoadingState label="Завантажуємо розклад" />;
@@ -156,6 +190,15 @@ const StaffSchedule = () => {
         />
       </div>
 
+      {isAdmin && (
+        <>
+          <ViewSwitch />
+          <DayKpi stats={stats} />
+          <GroomerChips groomers={schedule} selected={picked} onChange={setPicked} />
+          <StatusLegend />
+        </>
+      )}
+
       {columns.length === 0 ? (
         <p className={styles.stubText}>На цей день грумерів у розкладі немає.</p>
       ) : (
@@ -171,12 +214,29 @@ const StaffSchedule = () => {
             />
           </div>
 
-          {!isAdmin && selectedId && (
-            <OrderDetails
-              orderId={selectedId}
-              onClose={() => setSelectedId(null)}
-              onUpdated={applyUpdate}
-            />
+          {hasSide && (
+            <div className={styles.daySide}>
+              {!isAdmin && selectedId && (
+                <OrderDetails
+                  orderId={selectedId}
+                  onClose={() => setSelectedId(null)}
+                  onUpdated={applyOrder}
+                />
+              )}
+
+              {isAdmin && selected && (
+                <AdminOrderPanel
+                  order={selected}
+                  groomers={schedule}
+                  onClose={() => setSelectedId(null)}
+                  onUpdated={applyOrder}
+                />
+              )}
+
+              {isAdmin && (
+                <Attention orders={orders} onSelect={setSelectedId} onUpdated={applyOrder} />
+              )}
+            </div>
           )}
         </div>
       )}
