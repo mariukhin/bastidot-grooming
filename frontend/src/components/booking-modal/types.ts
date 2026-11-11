@@ -3,7 +3,14 @@ import { BreedProps, ServiceProps } from '@/utils/function';
 import { StaticImageData } from 'next/image';
 
 export type BookingStep =
-  'services' | 'groomer' | 'extra-services' | 'datetime' | 'form' | 'success' | 'cancelled';
+  | 'services'
+  | 'groomer'
+  | 'extra-services'
+  | 'datetime'
+  | 'form'
+  | 'admin'
+  | 'success'
+  | 'cancelled';
 
 export type TimeSlotPeriod = {
   period: string;

@@ -72,6 +72,48 @@ export type AdminStats = {
   expectedRevenue: number;
 };
 
+export type AdminEventType = 'unassigned' | 'unconfirmed' | 'cancelled' | 'reminder';
+
+export type AdminEvent = {
+  id: string;
+  type: AdminEventType;
+  action: 'assign' | 'confirm' | 'remind' | null;
+  orderId: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  client: { name: string; phone: string };
+  petName: string | null;
+  groomer: { id: string; name: string } | null;
+  /** Вільний на цей час грумер — кого підставить кнопка «Призначити». */
+  suggestedGroomer: { id: string; name: string } | null;
+};
+
+export const ORDER_SOURCES = ['Телефон', 'Instagram', 'Прийшли самі'] as const;
+export type OrderSource = (typeof ORDER_SOURCES)[number];
+
+export type ClientSearchResult = {
+  id: string;
+  name: string;
+  phone: string;
+  visitsCount: number;
+  pets: { id: string; name: string; breedId: string | null; breedName: string | null }[];
+};
+
+export type AdminOrderInput = {
+  clientId?: string;
+  clientName?: string;
+  clientPhone?: string;
+  petId?: string;
+  petName?: string;
+  petBreedId?: string;
+  groomerId: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  serviceIds: string[];
+  comment?: string;
+  source: OrderSource;
+};
+
 export type DaySchedule = {
   groomerId: string;
   name: string;
@@ -124,6 +166,14 @@ export const fetchAdminStats = (date: string) => get<AdminStats>(`/admin/stats?d
 export const fetchDaySchedule = (date: string) =>
   get<{ date: string; groomers: DaySchedule[] }>(`/schedule?date=${date}`);
 
+export const searchClients = (query: string) =>
+  get<ClientSearchResult[]>(`/admin/clients?q=${encodeURIComponent(query)}`);
+
+export const createAdminOrder = (input: AdminOrderInput) =>
+  send<{ id: string }>('POST', '/admin/orders', input);
+
+export const fetchAdminEvents = () => get<{ count: number; events: AdminEvent[] }>('/admin/events');
+
 export const fetchGroomerOrder = (id: string) => get<GroomerOrderDetail>(`/groomer/orders/${id}`);
 
 export const setGroomerStatus = (id: string, status: 'came' | 'completed' | 'no_show') =>
@@ -140,6 +190,9 @@ export const cancelAdminOrder = (id: string) =>
 
 export const rescheduleAdminOrder = (id: string, scheduledAt: string) =>
   send<StaffOrder>('PATCH', `/admin/orders/${id}/schedule`, { scheduledAt });
+
+export const remindAdminOrder = (id: string) =>
+  send<{ remindedAt: string }>('POST', `/admin/orders/${id}/remind`);
 
 export const reassignAdminOrder = (id: string, groomerId: string) =>
   send<StaffOrder>('PATCH', `/admin/orders/${id}/groomer`, { groomerId });

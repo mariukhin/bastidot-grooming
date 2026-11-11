@@ -130,47 +130,44 @@ const OrderDetails = ({ orderId, onClose, onUpdated }: OrderDetailsProps) => {
 
       {state === 'ready' && order && (
         <div className={styles.body}>
-          <div className={styles.summary}>
-            <p className={styles.time}>{timeRange(order.scheduledAt, order.durationMinutes)}</p>
+          <div className={styles.petHead}>
+            <span className={styles.petAvatar} aria-hidden="true">
+              {(order.pet?.name ?? order.ownerName ?? '?').trim().charAt(0).toUpperCase()}
+            </span>
+            <div>
+              <h2 className={styles.petName}>{order.pet?.name ?? order.ownerName}</h2>
+              <p className={styles.petMeta}>
+                {[
+                  order.pet?.breedName,
+                  ageLabel(order.pet?.ageMonths ?? null),
+                  order.pet?.weight ? `${order.pet.weight} кг` : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+            </div>
             <span className={classNames(styles.status, styles[`status_${order.status}`])}>
               {STATUS_LABEL[order.status]}
             </span>
           </div>
 
-          <h2 className={styles.petName}>{order.pet?.name ?? order.ownerName}</h2>
-          <p className={styles.petMeta}>
-            {[
-              order.pet?.breedName,
-              order.pet?.weight ? `${order.pet.weight} кг` : null,
-              ageLabel(order.pet?.ageMonths ?? null),
-              order.ownerName ? `Власник: ${order.ownerName}` : null,
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
+          <div className={styles.visitBox}>
+            <p className={styles.time}>{timeRange(order.scheduledAt, order.durationMinutes)}</p>
+            {order.services.length > 0 && (
+              <p className={styles.visitServices}>{order.services.join(' + ')}</p>
+            )}
+            {order.ownerName && <p className={styles.visitOwner}>Власник: {order.ownerName}</p>}
+          </div>
 
           {alarmingTraits(order.pet?.traits).map((trait) => (
             <p key={trait.key} className={styles.alarm}>
-              {alarmText(trait)}
+              ⚠ {alarmText(trait)}
             </p>
           ))}
 
-          {order.services.length > 0 && (
-            <section className={styles.section}>
-              <h3 className={styles.sectionTitle}>Послуги</h3>
-              <ul className={styles.services}>
-                {order.services.map((service) => (
-                  <li key={service} className={styles.service}>
-                    {service}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
           {(order.pet?.wishes || order.comment) && (
             <section className={styles.section}>
-              <h3 className={styles.sectionTitle}>Побажання</h3>
+              <h3 className={styles.sectionTitle}>Побажання власника</h3>
               {order.pet?.wishes && <p className={styles.text}>{order.pet.wishes}</p>}
               {order.comment && <p className={styles.text}>{order.comment}</p>}
             </section>

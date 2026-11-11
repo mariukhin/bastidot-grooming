@@ -6,6 +6,10 @@ import { track } from '@/utils/analytics';
 export type BookingSource = 'button' | 'service' | 'groomer' | 'pet' | 'repeat';
 
 export type BookingIntent = {
+  /** Запис заводить адміністратор: замість контактів — пошук клієнта. */
+  admin?: boolean;
+  /** Готовий час зі слоту в сітці, ISO. */
+  startAt?: string;
   groomer?: Groomer;
   groomerId?: string;
   service?: ServiceProps;
@@ -24,6 +28,8 @@ interface BookingState extends BookingIntent {
 }
 
 const EMPTY: BookingIntent = {
+  admin: undefined,
+  startAt: undefined,
   groomer: undefined,
   groomerId: undefined,
   service: undefined,

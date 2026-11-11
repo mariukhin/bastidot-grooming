@@ -6,6 +6,8 @@ import type { Db } from 'mongodb';
 import { requireRole } from '../../shared/auth-middleware.ts';
 import { logger } from '../../shared/logger.ts';
 import { notifyOrderChanged } from './notification.ts';
+import { listAdminEvents, remindAboutOrder } from './events.ts';
+import { createOrderAsAdmin, searchClients, type AdminOrderInput } from './admin-create.ts';
 import { ORDER_COLLECTION, type Order } from './types.ts';
 import {
   AdminError,
@@ -57,6 +59,35 @@ export function createAdminOrdersRouter(db: Db): Router {
     '/admin/orders',
     route(async (_adminId, req, res) => {
       res.json(await listAdminDay(db, q(req, 'date'), q(req, 'groomerId')));
+    })
+  );
+
+  router.get(
+    '/admin/clients',
+    route(async (_adminId, req, res) => {
+      res.json(await searchClients(db, q(req, 'q')));
+    })
+  );
+
+  router.post(
+    '/admin/orders',
+    route(async (adminId, req, res) => {
+      const body = (req.body ?? {}) as unknown as AdminOrderInput;
+      res.status(201).json(await createOrderAsAdmin(db, adminId, body));
+    })
+  );
+
+  router.get(
+    '/admin/events',
+    route(async (_adminId, _req, res) => {
+      res.json(await listAdminEvents(db));
+    })
+  );
+
+  router.post(
+    '/admin/orders/:id/remind',
+    route(async (_adminId, req, res) => {
+      res.json(await remindAboutOrder(db, String(req.params.id)));
     })
   );
 

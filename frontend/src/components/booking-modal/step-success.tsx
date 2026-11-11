@@ -32,6 +32,8 @@ type StepSuccessProps = {
   orderId: string | null;
   /** Токен є лише у того, хто щойно створив запис у цій вкладці. */
   canManage: boolean;
+  /** Запис завів адміністратор: ні календаря клієнта, ні контактів салону. */
+  isAdmin?: boolean;
   isActionPending: boolean;
   actionError: string | null;
   onBookAgain: () => void;
@@ -105,6 +107,7 @@ const StepSuccess = ({
   petName,
   orderId,
   canManage,
+  isAdmin = false,
   isActionPending,
   actionError,
   onBookAgain,
@@ -151,8 +154,14 @@ const StepSuccess = ({
         <SuccessIllustration />
       </div>
 
-      <h2 className={styles.successTitle}>Ви успішно записались!</h2>
-      <p className={styles.successSubtitle}>Будемо чекати на Вас та Вашого улюбленця</p>
+      <h2 className={styles.successTitle}>
+        {isAdmin ? 'Запис створено' : 'Ви успішно записались!'}
+      </h2>
+      <p className={styles.successSubtitle}>
+        {isAdmin
+          ? 'Клієнт уже в розкладі, статус — підтверджено'
+          : 'Будемо чекати на Вас та Вашого улюбленця'}
+      </p>
 
       <div className={styles.successSummary}>
         <div className={styles.successSummaryRow}>
@@ -181,9 +190,13 @@ const StepSuccess = ({
         )}
       </div>
 
-      <Button text="Записатися ще" size="medium" onClick={onBookAgain} />
+      <Button
+        text={isAdmin ? 'Записати ще' : 'Записатися ще'}
+        size="medium"
+        onClick={onBookAgain}
+      />
 
-      <div className={styles.successActions}>
+      <div className={styles.successActions} hidden={isAdmin}>
         <button
           type="button"
           className={styles.successActionBtn}
@@ -203,7 +216,7 @@ const StepSuccess = ({
         </button>
       </div>
 
-      <div className={styles.successContacts}>
+      <div className={styles.successContacts} hidden={isAdmin}>
         <p className={styles.successContactsTitle}>Контакти Bastidot</p>
         <div className={styles.successContactRow}>
           <Icon id={IconTypes.point} width={16} height={16} color="var(--color-gray)" />

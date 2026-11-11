@@ -98,7 +98,22 @@ const AdminOrderPanel = ({ order, groomers, onClose, onUpdated }: AdminOrderPane
           {[order.pet?.name, order.pet?.breedName].filter(Boolean).join(' · ')}
         </p>
 
+        {order.client?.phone && (
+          <div className={styles.contactRow}>
+            <a className={styles.contactButton} href={`tel:${order.client.phone}`}>
+              Подзвонити
+            </a>
+            <a className={styles.contactGhost} href={`sms:${order.client.phone}`}>
+              Написати
+            </a>
+          </div>
+        )}
+
         <dl className={styles.facts}>
+          <div className={styles.fact}>
+            <dt>Клієнт</dt>
+            <dd>{order.client?.name || '—'}</dd>
+          </div>
           <div className={styles.fact}>
             <dt>Телефон</dt>
             <dd>
@@ -112,16 +127,12 @@ const AdminOrderPanel = ({ order, groomers, onClose, onUpdated }: AdminOrderPane
             </dd>
           </div>
           <div className={styles.fact}>
-            <dt>Вартість</dt>
+            <dt>Послуги</dt>
             <dd>{typeof order.total === 'number' ? `${order.total} грн` : '—'}</dd>
           </div>
           <div className={styles.fact}>
             <dt>Джерело</dt>
-            <dd>{order.source || '—'}</dd>
-          </div>
-          <div className={styles.fact}>
-            <dt>Підтверджено</dt>
-            <dd>{order.confirmedAt ? 'так' : 'ні'}</dd>
+            <dd>{order.source || 'Сайт'}</dd>
           </div>
         </dl>
 
@@ -164,27 +175,15 @@ const AdminOrderPanel = ({ order, groomers, onClose, onUpdated }: AdminOrderPane
         </section>
 
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>Перенести</h3>
-          <div className={styles.rescheduleRow}>
-            <input
-              type="datetime-local"
-              className={styles.select}
-              value={when}
-              disabled={busy || isCancelled}
-              onChange={(event) => setWhen(event.target.value)}
-              aria-label="Новий час"
-            />
-            <Button
-              type="button"
-              text="Перенести"
-              variant="secondary"
-              size="medium"
-              disabled={busy || isCancelled || when === toLocalInput(order.scheduledAt)}
-              onClick={() =>
-                void run(() => rescheduleAdminOrder(order.id, new Date(when).toISOString()))
-              }
-            />
-          </div>
+          <h3 className={styles.sectionTitle}>Перенести на</h3>
+          <input
+            type="datetime-local"
+            className={styles.select}
+            value={when}
+            disabled={busy || isCancelled}
+            onChange={(event) => setWhen(event.target.value)}
+            aria-label="Новий час"
+          />
         </section>
 
         {error && (
@@ -194,23 +193,10 @@ const AdminOrderPanel = ({ order, groomers, onClose, onUpdated }: AdminOrderPane
         )}
 
         {!isCancelled && (
-          <div className={styles.actions}>
-            {!order.confirmedAt && (
-              <Button
-                type="button"
-                text="Підтвердити"
-                size="medium"
-                block
-                disabled={busy}
-                onClick={() => void run(() => confirmAdminOrder(order.id))}
-              />
-            )}
-            <Button
+          <div className={styles.cancelRow}>
+            <button
               type="button"
-              text={armed ? 'Так, скасувати запис' : 'Скасувати запис'}
-              variant="secondary"
-              size="medium"
-              block
+              className={styles.cancelButton}
               disabled={busy}
               onClick={() => {
                 if (!armed) {
@@ -219,8 +205,38 @@ const AdminOrderPanel = ({ order, groomers, onClose, onUpdated }: AdminOrderPane
                 }
                 void run(() => cancelAdminOrder(order.id));
               }}
-            />
+            >
+              {armed ? 'Так, скасувати запис' : 'Скасувати запис'}
+            </button>
             {armed && <p className={styles.hint}>Клієнт отримає сповіщення про скасування.</p>}
+          </div>
+        )}
+
+        {!isCancelled && (
+          <div className={styles.actions}>
+            <div className={styles.actionsRow}>
+              {!order.confirmedAt && (
+                <Button
+                  type="button"
+                  text="Підтвердити"
+                  size="medium"
+                  block
+                  disabled={busy}
+                  onClick={() => void run(() => confirmAdminOrder(order.id))}
+                />
+              )}
+              <Button
+                type="button"
+                text="Перенести"
+                variant="secondary"
+                size="medium"
+                block
+                disabled={busy || when === toLocalInput(order.scheduledAt)}
+                onClick={() =>
+                  void run(() => rescheduleAdminOrder(order.id, new Date(when).toISOString()))
+                }
+              />
+            </div>
           </div>
         )}
       </div>

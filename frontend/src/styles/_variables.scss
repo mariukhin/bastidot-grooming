@@ -20,6 +20,9 @@
   --color-gray: #6c7579;
   --color-gray-chateau: #99a2a5;
   --color-woodsmoke: #0e1314;
+  // Використовувався у стилях, але ніде не був оголошений: такі правила
+  // браузер просто викидав, і текст успадковував чорний.
+  --color-mine-shaft: #1f2425;
   --color-white: #fdfdfd;
   --color-dark-burgundy: #870908;
   --color-iron: #ccd1d2;

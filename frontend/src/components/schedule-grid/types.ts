@@ -2,6 +2,25 @@ import type { ReactNode } from 'react';
 
 export type GridStatus = 'pending' | 'came' | 'completed' | 'cancelled' | 'no_show';
 
+/** Як картка читається у сітці. Не те саме, що статус: «заплановано»
+ *  розпадається на непідтверджений і підтверджений салоном. */
+export type GridTone = 'new' | 'confirmed' | 'came' | 'done' | 'cancelled';
+
+export const TONE_LABEL: Record<GridTone, string> = {
+  new: 'новий',
+  confirmed: 'підтверджено',
+  came: 'прийшли',
+  done: 'завершено',
+  cancelled: 'скасовано',
+};
+
+export const LEGEND: { tone: GridTone; label: string }[] = [
+  { tone: 'new', label: 'Новий (не підтверджений)' },
+  { tone: 'confirmed', label: 'Підтверджений' },
+  { tone: 'came', label: 'Прийшли' },
+  { tone: 'done', label: 'Завершено' },
+];
+
 export type TimeRange = { from: string; to: string };
 
 export type GridColumn = {
@@ -18,7 +37,9 @@ export type GridEvent = {
   /** ISO-час початку. Позиція й висота рахуються з нього й тривалості. */
   scheduledAt: string;
   durationMinutes: number;
-  status: GridStatus;
+  tone: GridTone;
+  /** Підпис пілюлі, коли стандартного мало: «не зʼявився». */
+  label?: string;
   /** Вміст картки готує екран: у грумера й адміна він різний. */
   content: ReactNode;
 };

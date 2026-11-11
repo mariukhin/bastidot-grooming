@@ -24,6 +24,15 @@ function weekStart(value: string): Date {
   return date;
 }
 
+const monthLabel = (date: Date): string => {
+  const formatted = new Intl.DateTimeFormat('uk-UA', { month: 'long', year: 'numeric' }).format(
+    date
+  );
+  // «Листопад 2026 р.» → «Листопад 2026»: у підписі стрипа «р.» зайве.
+  const label = formatted.replace(/\s*р\.$/, '');
+  return label.charAt(0).toUpperCase() + label.slice(1);
+};
+
 const DayStrip = ({ value, onChange }: DayStripProps) => {
   const start = weekStart(value);
   const today = toKey(new Date());
@@ -41,42 +50,46 @@ const DayStrip = ({ value, onChange }: DayStripProps) => {
   };
 
   return (
-    <div className={styles.strip}>
-      <button
-        type="button"
-        className={styles.stripArrow}
-        onClick={() => shiftWeek(-1)}
-        aria-label="Попередній тиждень"
-      >
-        ‹
-      </button>
+    <div className={styles.stripBox}>
+      <p className={styles.stripMonth}>{monthLabel(start)}</p>
 
-      <div className={styles.stripDays}>
-        {days.map((day) => (
-          <button
-            key={day.key}
-            type="button"
-            className={classNames(styles.stripDay, {
-              [styles.stripDayActive]: day.key === value,
-              [styles.stripDayToday]: day.key === today && day.key !== value,
-            })}
-            onClick={() => onChange(day.key)}
-            aria-current={day.key === value ? 'date' : undefined}
-          >
-            <span className={styles.stripWeekday}>{day.label}</span>
-            <span className={styles.stripNumber}>{day.day}</span>
-          </button>
-        ))}
+      <div className={styles.strip}>
+        <button
+          type="button"
+          className={styles.stripArrow}
+          onClick={() => shiftWeek(-1)}
+          aria-label="Попередній тиждень"
+        >
+          ‹
+        </button>
+
+        <div className={styles.stripDays}>
+          {days.map((day) => (
+            <button
+              key={day.key}
+              type="button"
+              className={classNames(styles.stripDay, {
+                [styles.stripDayActive]: day.key === value,
+                [styles.stripDayToday]: day.key === today && day.key !== value,
+              })}
+              onClick={() => onChange(day.key)}
+              aria-current={day.key === value ? 'date' : undefined}
+            >
+              <span className={styles.stripWeekday}>{day.label}</span>
+              <span className={styles.stripNumber}>{day.day}</span>
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          className={styles.stripArrow}
+          onClick={() => shiftWeek(1)}
+          aria-label="Наступний тиждень"
+        >
+          ›
+        </button>
       </div>
-
-      <button
-        type="button"
-        className={styles.stripArrow}
-        onClick={() => shiftWeek(1)}
-        aria-label="Наступний тиждень"
-      >
-        ›
-      </button>
     </div>
   );
 };

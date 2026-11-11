@@ -8,7 +8,7 @@ import {
   DEFAULT_FROM,
   DEFAULT_TO,
   STEP_MINUTES,
-  STATUS_LABEL,
+  TONE_LABEL,
   type GridColumn,
   type GridEvent,
   type TimeRange,
@@ -28,6 +28,8 @@ type ScheduleGridProps = {
   hourHeight?: number;
   /** Шапка з колонками: грумеру свій же аватар показувати нема сенсу. */
   showColumnHeads?: boolean;
+  /** Тап по вільному місцю колонки: хвилини від початку доби, крок 30. */
+  onPickSlot?: (columnId: string, minutes: number) => void;
 };
 
 const toMinutes = (time: string): number => {
@@ -80,6 +82,7 @@ const ScheduleGrid = ({
   to = DEFAULT_TO,
   hourHeight = 96,
   showColumnHeads = true,
+  onPickSlot,
 }: ScheduleGridProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [nowMinutes, setNowMinutes] = useState<number | null>(null);
@@ -133,32 +136,38 @@ const ScheduleGrid = ({
   const height = (toMin - fromMin) * perMinute;
 
   return (
-    <div className={styles.grid} style={{ ['--hour' as string]: `${hourHeight}px` }}>
-      {showColumnHeads && (
-        <div className={styles.head}>
-          <div className={styles.headRuler} aria-hidden="true" />
-          {columns.map((column) => (
-            <div key={column.id} className={styles.headCell}>
-              {column.photoUrl ? (
-                <Image
-                  className={styles.avatar}
-                  src={column.photoUrl}
-                  alt=""
-                  width={64}
-                  height={64}
-                />
-              ) : (
-                <span className={styles.avatarFallback} aria-hidden="true">
-                  {column.title.trim().charAt(0).toUpperCase()}
-                </span>
-              )}
-              <span className={styles.headName}>{column.title}</span>
-            </div>
-          ))}
-        </div>
-      )}
+    <div
+      className={styles.grid}
+      style={{ ['--hour' as string]: `${hourHeight}px` }}
+      ref={scrollRef}
+    >
+      {/* Шапка й тіло загорнуті в один контейнер: він задає спільну ширину,
+          інакше кожен рахує свою і колонки розʼїжджаються із заголовками. */}
+      <div className={styles.inner}>
+        {showColumnHeads && (
+          <div className={styles.head}>
+            <div className={styles.corner} aria-hidden="true" />
+            {columns.map((column) => (
+              <div key={column.id} className={styles.headCell}>
+                {column.photoUrl ? (
+                  <Image
+                    className={styles.avatar}
+                    src={column.photoUrl}
+                    alt=""
+                    width={64}
+                    height={64}
+                  />
+                ) : (
+                  <span className={styles.avatarFallback} aria-hidden="true">
+                    {column.title.trim().charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <span className={styles.headName}>{column.title}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
-      <div className={styles.scroll} ref={scrollRef}>
         <div className={styles.body} style={{ height }}>
           <div className={styles.ruler}>
             {rows.map(({ minutes, isHour }) => (
@@ -174,7 +183,21 @@ const ScheduleGrid = ({
 
           <div className={styles.columns}>
             {columns.map((column) => (
-              <div key={column.id} className={styles.column}>
+              <div
+                key={column.id}
+                className={classNames(styles.column, onPickSlot && styles.columnPickable)}
+                onClick={(event) => {
+                  // Клік по картці спливає сюди ж — порожнє місце впізнаємо
+                  // по тому, що ціль і є сама колонка.
+                  if (!onPickSlot || event.target !== event.currentTarget) return;
+
+                  const box = event.currentTarget.getBoundingClientRect();
+                  const minutes =
+                    fromMin +
+                    Math.floor((event.clientY - box.top) / perMinute / STEP_MINUTES) * STEP_MINUTES;
+                  onPickSlot(column.id, minutes);
+                }}
+              >
                 {rows.map(({ minutes, isHour }) => (
                   <span
                     key={minutes}
@@ -203,14 +226,25 @@ const ScheduleGrid = ({
                       <button
                         key={event.id}
                         type="button"
-                        className={classNames(styles.card, styles[`card_${event.status}`], {
+                        className={classNames(styles.card, styles[`card_${event.tone}`], {
                           [styles.cardSelected]: selectedId === event.id,
                         })}
                         style={{ top, height: cardHeight }}
                         onClick={() => onSelect?.(event)}
                         aria-pressed={selectedId === event.id}
                       >
-                        <span className={styles.cardStatus}>{STATUS_LABEL[event.status]}</span>
+                        <span className={styles.cardHead}>
+                          <span className={styles.cardTime}>
+                            {pad(Math.floor(start / 60))}:{pad(start % 60)} –{' '}
+                            {pad(Math.floor((start + event.durationMinutes) / 60))}:
+                            {pad((start + event.durationMinutes) % 60)}
+                          </span>
+                          <span
+                            className={classNames(styles.cardPill, styles[`pill_${event.tone}`])}
+                          >
+                            {event.label ?? TONE_LABEL[event.tone]}
+                          </span>
+                        </span>
                         <span className={styles.cardBody}>{event.content}</span>
                       </button>
                     );

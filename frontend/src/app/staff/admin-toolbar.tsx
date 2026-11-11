@@ -2,7 +2,7 @@
 
 import classNames from 'classnames';
 
-import { STATUS_LABEL, type GridStatus } from '@/components/schedule-grid';
+import { LEGEND } from '@/components/schedule-grid';
 import type { AdminStats, DaySchedule } from '@/api/staff';
 
 import styles from './staff.module.scss';
@@ -35,9 +35,12 @@ const money = (value: number) => `${value.toLocaleString('uk-UA')} грн`;
 
 export const DayKpi = ({ stats }: { stats: AdminStats | null }) => {
   const tiles = [
-    { label: 'Записи', value: stats ? String(stats.total) : '—' },
+    { label: 'Записів за день', value: stats ? String(stats.total) : '—' },
     { label: 'Чекають підтвердження', value: stats ? String(stats.unconfirmed) : '—' },
-    { label: 'Завантаженість', value: stats ? `${Math.round(stats.utilization * 100)}%` : '—' },
+    {
+      label: 'Завантаженість грумерів',
+      value: stats ? `${Math.round(stats.utilization * 100)}%` : '—',
+    },
     { label: 'Очікувана виручка', value: stats ? money(stats.expectedRevenue) : '—' },
   ];
 
@@ -68,6 +71,7 @@ export const GroomerChips = ({ groomers, selected, onChange }: GroomerChipsProps
 
   return (
     <div className={styles.chips} role="group" aria-label="Грумери">
+      <span className={styles.chipsLabel}>Грумери:</span>
       <button
         type="button"
         className={classNames(styles.chip, selected.length === 0 && styles.chipActive)}
@@ -94,14 +98,13 @@ export const GroomerChips = ({ groomers, selected, onChange }: GroomerChipsProps
   );
 };
 
-const LEGEND: GridStatus[] = ['pending', 'came', 'completed', 'no_show', 'cancelled'];
-
+/** Легенда живе під сіткою — там, де на неї дивляться. */
 export const StatusLegend = () => (
   <ul className={styles.legend}>
-    {LEGEND.map((status) => (
-      <li key={status} className={styles.legendItem}>
-        <span className={classNames(styles.legendDot, styles[`legendDot_${status}`])} />
-        {STATUS_LABEL[status]}
+    {LEGEND.map(({ tone, label }) => (
+      <li key={tone} className={styles.legendItem}>
+        <span className={classNames(styles.legendDot, styles[`legendDot_${tone}`])} />
+        {label}
       </li>
     ))}
   </ul>

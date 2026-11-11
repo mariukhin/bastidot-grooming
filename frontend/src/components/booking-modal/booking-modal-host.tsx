@@ -18,10 +18,36 @@ const BookingModalHost = () => {
   const pet = useBookingStore((state) => state.pet);
   const startStep = useBookingStore((state) => state.startStep);
   const source = useBookingStore((state) => state.source);
+  const admin = useBookingStore((state) => state.admin);
+  const startAt = useBookingStore((state) => state.startAt);
 
   const intent = useMemo(
-    () => ({ groomer, groomerId, service, serviceIds, breedId, breedName, pet, startStep, source }),
-    [groomer, groomerId, service, serviceIds, breedId, breedName, pet, startStep, source]
+    () => ({
+      groomer,
+      groomerId,
+      service,
+      serviceIds,
+      breedId,
+      breedName,
+      pet,
+      startStep,
+      source,
+      admin,
+      startAt,
+    }),
+    [
+      groomer,
+      groomerId,
+      service,
+      serviceIds,
+      breedId,
+      breedName,
+      pet,
+      startStep,
+      source,
+      admin,
+      startAt,
+    ]
   );
 
   return <BookingModal isOpen={isOpen} onClose={closeBooking} intent={intent} />;

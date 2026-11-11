@@ -61,6 +61,12 @@
 .body {
   display: flex;
   flex-direction: column;
+
+  // На телефоні це окремий екран: вміст розтягується, щоб кнопки сиділи
+  // внизу навіть тоді, коли тексту мало і скролу немає.
+  @include breakpoints.md_r {
+    flex: 1;
+  }
 }
 
 .summary {
@@ -68,6 +74,47 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.petHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.petAvatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--color-hint-of-red);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-milano-red);
+}
+
+// Блок візиту: час, послуги й власник одним шматком.
+.visitBox {
+  margin-top: 14px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background-color: var(--color-hint-of-red);
+}
+
+.visitServices {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-mine-shaft);
+}
+
+.visitOwner {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: var(--color-gray);
 }
 
 .time {
@@ -78,6 +125,7 @@
 }
 
 .status {
+  margin-left: auto;
   padding: 3px 9px;
   border-radius: var(--r-pill);
   font-size: 11px;
@@ -107,8 +155,8 @@
 }
 
 .petName {
-  margin: 10px 0 2px;
-  font-size: 22px;
+  margin: 0 0 2px;
+  font-size: 20px;
   color: var(--color-mine-shaft);
 }
 
@@ -303,10 +351,12 @@
 /* ---------- дії ---------- */
 
 .actions {
+  // margin-top: auto притискає блок донизу, коли вмісту мало.
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 20px;
+  margin-top: auto;
 
   // На мобільній кнопки закріплені внизу екрана, щоб не шукати їх у скролі.
   position: sticky;
@@ -316,7 +366,7 @@
 
   @include breakpoints.md {
     position: static;
-    padding: 0;
+    padding: 16px 0 0;
   }
 }
 
@@ -324,22 +374,24 @@
 
 .facts {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 12px;
-  margin: 14px 0 0;
-  font-size: 13.5px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0 0;
 }
 
 .fact {
-  display: contents;
-
   dt {
-    color: var(--color-gray);
+    margin-bottom: 2px;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-gray-chateau);
   }
 
   dd {
     margin: 0;
-    text-align: right;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--color-mine-shaft);
   }
 }
@@ -359,14 +411,58 @@
   color: var(--color-mine-shaft);
 }
 
-.rescheduleRow {
+.contactRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.contactButton,
+.contactGhost {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--color-milano-red);
+  border-radius: var(--r-pill);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.contactButton {
+  background-color: var(--color-milano-red);
+  color: var(--color-white);
+}
+
+.contactGhost {
+  color: var(--color-milano-red);
+}
+
+.cancelRow {
+  order: 2;
+  margin-top: 14px;
+  text-align: center;
+}
+
+// Дві дії поруч, як у макеті; на вузькій панелі лягають одна під одну.
+.actionsRow {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 
-  .select {
-    flex: 1 1 150px;
-    width: auto;
+  > * {
+    flex: 1 1 130px;
+  }
+}
+
+.cancelButton {
+  padding: 6px 4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-milano-red);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
   }
 }
 

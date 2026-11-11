@@ -116,7 +116,7 @@ async function enrich(db: Db, orders: Order[]): Promise<AdminOrderDTO[]> {
       groomer: groomer ? { id: groomer._id!.toHexString(), name: groomer.username } : null,
       services: items,
       total: items.reduce((sum, item) => sum + item.price, 0),
-      source: client?.dateSource ?? '',
+      source: order.source || (client?.dateSource ?? ''),
     };
   });
 }

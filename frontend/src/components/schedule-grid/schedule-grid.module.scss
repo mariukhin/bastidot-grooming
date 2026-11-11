@@ -2,10 +2,10 @@
 
 $ruler: 52px;
 
+// Сам контейнер і є скролом: і шапка, і колонки їдуть у ньому разом.
 .grid {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  overflow: auto;
+  max-height: min(68vh, 700px);
   border: 1px solid var(--color-ebb);
   border-radius: 14px;
   background-color: var(--color-white);
@@ -13,14 +13,30 @@ $ruler: 52px;
 
 /* ---------- заголовки колонок ---------- */
 
+// Спільна ширина для шапки й тіла: обидва — елементи цієї колонки, тож
+// розтягуються однаково, хоч би який вміст був усередині.
+.inner {
+  display: flex;
+  flex-direction: column;
+  min-width: min-content;
+}
+
 .head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
   display: flex;
   border-bottom: 1px solid var(--color-ebb);
   background-color: var(--color-white);
 }
 
-.headRuler {
+// Кут над лінійкою годин: не їде ні вниз, ні вбік.
+.corner {
+  position: sticky;
+  left: 0;
+  z-index: 6;
   flex: 0 0 $ruler;
+  background-color: var(--color-white);
 }
 
 .headCell {
@@ -54,6 +70,9 @@ $ruler: 52px;
 
 .headName {
   overflow: hidden;
+  // Без цього довге імʼя розсовує шапку ширше за колонки сітки:
+  // flex-елемент за замовчуванням не стискається вужче за свій текст.
+  min-width: 0;
   font-size: 14px;
   font-weight: 700;
   text-overflow: ellipsis;
@@ -63,22 +82,20 @@ $ruler: 52px;
 
 /* ---------- полотно ---------- */
 
-.scroll {
-  overflow: auto;
-  max-height: min(68vh, 700px);
-  // Відступ згори й знизу, інакше підпис крайньої години зрізається.
-  padding: 10px 0;
-}
-
 .body {
   position: relative;
   display: flex;
-  min-width: 100%;
+  // Відступи, інакше підписи крайніх годин зрізаються.
+  margin: 10px 0;
 }
 
+// Лінійка годин лишається на місці, коли колонки їдуть убік.
 .ruler {
-  position: relative;
+  position: sticky;
+  left: 0;
+  z-index: 4;
   flex: 0 0 $ruler;
+  background-color: var(--color-white);
 }
 
 .tick {
@@ -110,6 +127,17 @@ $ruler: 52px;
   flex: 1 1 0;
   min-width: 128px;
   border-left: 1px solid var(--color-ebb);
+}
+
+.columnPickable {
+  cursor: copy;
+}
+
+// Розмітка не має перехоплювати тап по вільному слоту.
+.line,
+.offHours,
+.now {
+  pointer-events: none;
 }
 
 .line {
@@ -182,48 +210,98 @@ $ruler: 52px;
   text-align: left;
 }
 
-.cardStatus {
-  font-size: 9.5px;
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.cardTime {
+  overflow: hidden;
+  // Час важливіший за пілюлю: на вузькій колонці різати треба її.
+  flex-shrink: 0;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardPill {
+  overflow: hidden;
+  min-width: 0;
+  padding: 1px 7px;
+  text-overflow: ellipsis;
+  border-radius: var(--r-pill);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  opacity: 0.75;
+  white-space: nowrap;
 }
 
 .cardBody {
   overflow: hidden;
   font-size: 12px;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 .cardSelected {
-  outline: 2px solid var(--color-milano-red);
-  outline-offset: 1px;
+  border-color: var(--color-milano-red);
+  outline: 1px solid var(--color-milano-red);
 }
 
-.card_pending {
-  border-color: var(--color-link-water);
+/* Кольори тонів: ті самі, що в легенді під сіткою. */
+
+.card_new {
+  border-color: #d7e3f2;
   border-left-color: var(--color-pickled-bluewood);
-  background-color: color-mix(in srgb, var(--color-link-water) 55%, var(--color-white));
+  background-color: #eef4fb;
   color: var(--color-pickled-bluewood);
 }
 
-.card_came {
+.pill_new {
+  background-color: #d7e3f2;
+  color: var(--color-pickled-bluewood);
+}
+
+.card_confirmed {
   border-color: #cfe6d6;
-  border-left-color: #1f6b35;
-  background-color: #eaf6ee;
+  border-left-color: #2f7d47;
+  background-color: #eef7f0;
   color: #1f6b35;
 }
 
-.card_completed {
+.pill_confirmed {
+  background-color: #d4ecdb;
+  color: #1f6b35;
+}
+
+.card_came {
+  border-color: #f2e0bf;
+  border-left-color: #c98a1e;
+  background-color: #fdf4e4;
+  color: #8a5d12;
+}
+
+.pill_came {
+  background-color: #f6e4c4;
+  color: #8a5d12;
+}
+
+.card_done {
   border-color: var(--color-ebb);
   border-left-color: var(--color-submarine-blue);
-  background-color: var(--color-hint-of-red);
+  background-color: #f4f3f2;
   color: var(--color-submarine-blue);
 }
 
-.card_cancelled,
-.card_no_show {
+.pill_done {
+  background-color: var(--color-ebb);
+  color: var(--color-submarine-blue);
+}
+
+.card_cancelled {
   border-color: var(--color-ebb);
   border-left-color: var(--color-milano-red);
   background-color: var(--color-white);
@@ -231,19 +309,39 @@ $ruler: 52px;
   text-decoration: line-through;
 }
 
+.pill_cancelled {
+  background-color: var(--color-hint-of-red);
+  color: var(--color-milano-red);
+  text-decoration: none;
+}
+
 /* ---------- стрип днів ---------- */
+
+.stripBox {
+  margin-top: 12px;
+}
+
+.stripMonth {
+  margin: 0 0 4px;
+  font-size: 11.5px;
+  text-align: center;
+  color: var(--color-gray-chateau);
+}
 
 .strip {
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-top: 12px;
 }
 
 .stripArrow {
+  display: flex;
   flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
   width: 32px;
   height: 36px;
+  padding: 0 0 2px;
   border: 1px solid var(--color-ebb);
   border-radius: 9px;
   background-color: var(--color-white);
@@ -265,9 +363,9 @@ $ruler: 52px;
   flex-direction: column;
   align-items: center;
   gap: 1px;
-  padding: 4px 2px;
-  border: 1px solid var(--color-ebb);
-  border-radius: 9px;
+  padding: 5px 2px;
+  border: 1px solid transparent;
+  border-radius: 10px;
   background-color: var(--color-white);
   cursor: pointer;
 }
@@ -287,13 +385,13 @@ $ruler: 52px;
   color: var(--color-milano-red);
 }
 
+// Обраний день підсвічено рожевим, як у макеті, а не залито червоним.
 .stripDayActive {
-  border-color: var(--color-milano-red);
-  background-color: var(--color-milano-red);
+  background-color: var(--color-hint-of-red);
 
   .stripWeekday,
   .stripNumber {
-    color: var(--color-white);
+    color: var(--color-milano-red);
   }
 }
 

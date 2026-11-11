@@ -15,6 +15,8 @@ export interface GroomerOrderDTO {
   scheduledAt: string;
   durationMinutes: number;
   status: Order['status'];
+  /** Салон підтвердив візит: грумер бачить це пілюлею на картці. */
+  confirmedAt: string | null;
   comment: string;
   groomerNote: string;
   services: string[];
@@ -127,6 +129,7 @@ async function buildDTOs(db: Db, orders: Order[]): Promise<GroomerOrderDTO[]> {
       scheduledAt: order.scheduledAt.toISOString(),
       durationMinutes: order.durationMinutes,
       status: order.status,
+      confirmedAt: order.confirmedAt ? order.confirmedAt.toISOString() : null,
       comment: order.comment ?? '',
       groomerNote: order.groomerNote ?? '',
       services: order.serviceIds

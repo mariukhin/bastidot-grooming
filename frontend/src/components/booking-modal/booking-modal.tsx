@@ -13,6 +13,7 @@ import { BreedProps, normalizeBreedList, ServiceProps } from '@/utils/function';
 import { getBreedList } from '@/api/breed';
 import { getServiceList } from '@/api/service';
 import { cancelOrder, getBusySlots, rescheduleOrder } from '@/api/order';
+import { createAdminOrder } from '@/api/staff';
 import { track } from '@/utils/analytics';
 import { PRIVACY_POLICY_VERSION } from '@/utils/privacy';
 
@@ -29,6 +30,7 @@ import StepGroomer from './step-groomer';
 import StepDatetime from './step-datetime';
 import StepExtraServices from './step-extra-services';
 import StepForm from './step-form';
+import StepAdmin, { type AdminBookingData } from './step-admin';
 import StepSuccess from './step-success';
 import StepCancelled from './step-cancelled';
 
@@ -53,6 +55,7 @@ const STEP_LABEL: Record<BookingStep, string> = {
   'extra-services': 'Запис: додаткові послуги',
   datetime: 'Запис: оберіть дату та час',
   form: 'Запис: ваші дані',
+  admin: 'Новий запис: клієнт',
   success: 'Запис підтверджено',
   cancelled: 'Запис скасовано',
 };
@@ -62,6 +65,7 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
   const initialPetName = intent?.pet?.name;
   const initialService = intent?.service;
   const initialGroomer = intent?.groomer;
+  const isAdminBooking = intent?.admin === true;
   const { groomerList, fetchGroomers } = useGroomerStore();
   const { createOrder } = useOrderStore();
   const user = useUserStore((state) => state.user);
@@ -186,6 +190,15 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
     void fetchGroomers();
   }, [isOpen, groomerList.length, fetchGroomers]);
 
+  // Тап по слоту приносить лише id грумера — сам обʼєкт беремо зі стора,
+  // коли список доїде.
+  useEffect(() => {
+    if (!isOpen || !intent?.groomerId || selectedGroomer) return;
+
+    const found = groomerList.find((g) => g.id === intent.groomerId);
+    if (found) setSelectedGroomer(found);
+  }, [isOpen, intent?.groomerId, groomerList, selectedGroomer]);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -195,8 +208,9 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
     setWeekOffset(0);
     const _today = dayjs().startOf('day');
     const _todayHasSlots = generateTimeSlots(_today, dayjs()).some((p) => p.slots.length > 0);
-    setSelectedDate(_todayHasSlots ? _today : _today.add(1, 'day'));
-    setSelectedSlot(null);
+    const prefilled = intent?.startAt ? dayjs(intent.startAt) : null;
+    setSelectedDate(prefilled ?? (_todayHasSlots ? _today : _today.add(1, 'day')));
+    setSelectedSlot(prefilled ? prefilled.format('HH:mm') : null);
     setSelectedExtraServices([]);
     setIsSummaryExpanded(true);
     setRepeatNotice(null);
@@ -382,6 +396,40 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
     }
   };
 
+  const submitAsAdmin = async (data: AdminBookingData) => {
+    if (!selectedGroomer || !selectedSlot) return;
+
+    const [hour, minute] = selectedSlot.split(':').map(Number);
+    const startAt = selectedDate.hour(hour).minute(minute).second(0);
+
+    setIsActionPending(true);
+    setActionError(null);
+
+    const result = await createAdminOrder({
+      ...data,
+      petBreedId: selectedBreed?.id,
+      groomerId: selectedGroomer.id,
+      scheduledAt: startAt.toISOString(),
+      durationMinutes: totalDurationMin,
+      serviceIds: [...selectedServices, ...selectedExtraServices].map((s) => s.id),
+    });
+
+    setIsActionPending(false);
+
+    if (!result.ok) {
+      setActionError(result.message);
+      return;
+    }
+
+    setConfirmed({
+      orderId: result.data.id,
+      token: null,
+      startAt: startAt.toDate(),
+      petName: data.petName?.trim() ?? '',
+    });
+    setStep('success');
+  };
+
   const handleCancelOrder = async () => {
     if (!confirmed?.orderId || !confirmed.token) return;
 
@@ -463,6 +511,7 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
       setStep('success');
     },
     form: () => setStep('datetime'),
+    admin: () => setStep('datetime'),
     success: null,
     cancelled: null,
   };
@@ -586,7 +635,7 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
               slot: selectedSlot ?? undefined,
               days_ahead: selectedDate.startOf('day').diff(dayjs().startOf('day'), 'day'),
             });
-            setStep('form');
+            setStep(isAdminBooking ? 'admin' : 'form');
           }}
           durationMinutes={totalDurationMin}
           nextLabel={isRescheduling ? 'Перенести запис' : 'Далі'}
@@ -623,6 +672,18 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
         />
       )}
 
+      {step === 'admin' && (
+        <StepAdmin
+          selectedServices={selectedServices}
+          selectedExtraServices={selectedExtraServices}
+          selectedGroomer={selectedGroomer}
+          formattedDateTime={formattedDateTime}
+          errorMessage={actionError}
+          isPending={isActionPending}
+          onSubmit={(data) => void submitAsAdmin(data)}
+        />
+      )}
+
       {step === 'success' && (
         <StepSuccess
           selectedServices={selectedServices}
@@ -634,6 +695,7 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
           petName={confirmed?.petName ?? ''}
           orderId={confirmed?.orderId ?? null}
           canManage={Boolean(confirmed?.orderId && confirmed.token)}
+          isAdmin={isAdminBooking}
           isActionPending={isActionPending}
           actionError={actionError}
           onBookAgain={handleBookAgain}

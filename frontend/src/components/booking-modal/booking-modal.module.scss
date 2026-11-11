@@ -1130,3 +1130,81 @@
   line-height: 1.4;
   color: var(--color-milano-red);
 }
+
+/* ---------- крок адміністратора: пошук клієнта ---------- */
+
+.clientResults {
+  display: flex;
+  overflow-y: auto;
+  // Без цього список стискається в нуль усередині колонки кроку.
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 210px;
+  margin-top: 8px;
+}
+
+.clientHint {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--color-gray);
+}
+
+.clientRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 12px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 10px;
+  background-color: var(--color-white);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-milano-red);
+  }
+}
+
+.clientName {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-mine-shaft);
+}
+
+.clientMeta {
+  font-size: 12.5px;
+  color: var(--color-gray);
+}
+
+.petChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.petChip {
+  padding: 7px 13px;
+  border: 1px solid var(--color-ebb);
+  border-radius: var(--r-pill);
+  background-color: var(--color-white);
+  font-size: 13.5px;
+  color: var(--color-submarine-blue);
+  cursor: pointer;
+}
+
+.petChipActive {
+  border-color: var(--color-milano-red);
+  background-color: var(--color-milano-red);
+  color: var(--color-white);
+}
+
+.petChipBreed {
+  opacity: 0.75;
+}
+
+.sourceGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
