@@ -57,10 +57,11 @@ export const metadata: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  // robots: {
+  //   index: true,
+  //   follow: true,
+  // },
+  robots: { index: false, follow: false },
   icons: {
     icon: [{ url: '/favicon.ico' }],
   },
