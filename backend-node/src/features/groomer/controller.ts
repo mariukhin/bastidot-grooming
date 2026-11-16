@@ -9,12 +9,15 @@ function toGroomerDTO(groomer: User): {
   name: string;
   photoUrl: string;
   isVip: boolean;
+  onlineBooking: boolean;
 } {
   return {
     id: groomer._id ? groomer._id.toHexString() : '',
     name: groomer.username,
     photoUrl: groomer.photoUrl,
-    isVip: groomer.isVip ?? false
+    isVip: groomer.isVip ?? false,
+    // Команда на сайті показує всіх, а онлайн-запис — лише тих, у кого true.
+    onlineBooking: groomer.onlineBooking !== false,
   };
 }
 

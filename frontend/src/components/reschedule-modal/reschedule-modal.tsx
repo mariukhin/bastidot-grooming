@@ -44,6 +44,8 @@ const toSummaryGroomer = (visit: AccountVisit): Groomer | null =>
         isVip: false,
         photoSrc: visit.groomer.photoUrl ?? '',
         nearestDate: null,
+        // Перенесення вже існуючого запису — онлайн-запис тут ні до чого.
+        onlineBooking: true,
       }
     : null;
 

@@ -22,6 +22,8 @@ export type GroomerDbProps = {
   name: string;
   isVip: boolean;
   photoUrl: string;
+  /** Старий бекенд поля не віддає — тоді вважаємо, що запис відкритий. */
+  onlineBooking?: boolean;
 };
 
 export type Groomer = {
@@ -30,6 +32,8 @@ export type Groomer = {
   isVip: boolean;
   photoSrc: string | StaticImageData;
   nearestDate: Dayjs | null;
+  /** false — у команді показуємо, а в онлайн-записі не пропонуємо. */
+  onlineBooking: boolean;
 };
 
 export type BookingFormData = {

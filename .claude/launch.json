@@ -7,6 +7,13 @@
       "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
       "port": 3000,
       "autoPort": false
+    },
+    {
+      "name": "backend-node",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "backend-node", "run", "dev"],
+      "port": 8081,
+      "autoPort": false
     }
   ]
 }

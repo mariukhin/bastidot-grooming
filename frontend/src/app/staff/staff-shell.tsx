@@ -97,15 +97,25 @@ const StaffShell = ({ children }: { children: ReactNode }) => {
 
         <nav className={styles.tabs} aria-label="Розділи">
           <ul className={styles.tabsList}>
-            {tabs.map(({ href, label }) => (
+            {tabs.map(({ href, label, disabled }) => (
               <li key={href}>
-                <Link
-                  href={href}
-                  className={classNames(styles.tab, isActive(href) && styles.tabActive)}
-                  aria-current={isActive(href) ? 'page' : undefined}
-                >
-                  {label}
-                </Link>
+                {disabled ? (
+                  <span
+                    className={classNames(styles.tab, styles.tabDisabled)}
+                    aria-disabled="true"
+                    title="Скоро"
+                  >
+                    {label}
+                  </span>
+                ) : (
+                  <Link
+                    href={href}
+                    className={classNames(styles.tab, isActive(href) && styles.tabActive)}
+                    aria-current={isActive(href) ? 'page' : undefined}
+                  >
+                    {label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

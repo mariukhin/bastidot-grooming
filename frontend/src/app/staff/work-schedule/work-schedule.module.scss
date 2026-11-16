@@ -1,0 +1,767 @@
+@use 'src/styles/breakpoints' as breakpoints;
+
+// Кольори типів дня — одні й ті самі для календаря, легенди і перемикачів у панелі.
+$work-bg: #e3f3e7;
+$work-fg: #1f6b35;
+$custom-bg: var(--color-link-water);
+$custom-fg: var(--color-pickled-bluewood);
+$vacation-bg: #f6e4c4;
+$vacation-fg: #8a5d12;
+$off-bg: var(--color-ebb);
+$off-fg: var(--color-gray);
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  // На телефоні назву вже показує компактна шапка кабінету.
+  display: none;
+  margin: 0;
+  font-size: 20px;
+  color: var(--color-mine-shaft);
+
+  @include breakpoints.md {
+    display: block;
+  }
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  color: var(--color-gray);
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-gray);
+}
+
+/* ---------- чипи грумерів ---------- */
+
+.chips {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 8px;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.chip {
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 7px 14px;
+  border: 1px solid var(--color-ebb);
+  border-radius: var(--r-pill);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-submarine-blue);
+  background-color: var(--color-white);
+  cursor: pointer;
+}
+
+.chipActive {
+  border-color: var(--color-milano-red);
+  color: var(--color-white);
+  background-color: var(--color-milano-red);
+}
+
+/* ---------- макет ---------- */
+
+.layout {
+  display: grid;
+  gap: 16px;
+
+  @include breakpoints.md {
+    grid-template-columns: minmax(0, 1.5fr) minmax(360px, 1fr);
+    align-items: start;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 16px;
+  background-color: var(--color-white);
+
+  @include breakpoints.md {
+    padding: 20px;
+  }
+}
+
+.cardTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: var(--color-mine-shaft);
+}
+
+/* ---------- цифри місяця ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 16px;
+  background-color: var(--color-white);
+}
+
+.statValue {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-mine-shaft);
+}
+
+.statLabel {
+  font-size: 13px;
+  color: var(--color-gray);
+}
+
+/* ---------- календар ---------- */
+
+.monthHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.monthTitle {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-mine-shaft);
+}
+
+.monthNav {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 50%;
+  color: var(--color-submarine-blue);
+  background: none;
+  cursor: pointer;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+
+  @include breakpoints.sm {
+    gap: 6px;
+  }
+}
+
+.weekday {
+  padding-bottom: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--color-gray);
+}
+
+.cellEmpty {
+  aspect-ratio: 1;
+
+  @include breakpoints.md {
+    aspect-ratio: auto;
+    height: 56px;
+  }
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 44px;
+  aspect-ratio: 1;
+  padding: 2px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-pickled-bluewood);
+    outline-offset: 2px;
+  }
+
+  // На широкій колонці квадратні клітинки виходять завеликими.
+  @include breakpoints.md {
+    aspect-ratio: auto;
+    height: 56px;
+  }
+}
+
+.cellNumber {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cellHours {
+  display: none;
+  font-size: 10px;
+  line-height: 1.1;
+
+  @include breakpoints.sm {
+    display: block;
+  }
+}
+
+.cell_work {
+  color: $work-fg;
+  background-color: $work-bg;
+}
+
+.cell_custom {
+  color: $custom-fg;
+  background-color: $custom-bg;
+}
+
+.cell_vacation {
+  color: $vacation-fg;
+  background-color: $vacation-bg;
+}
+
+.cell_off {
+  color: $off-fg;
+  background-color: $off-bg;
+}
+
+.cellToday {
+  border-color: var(--color-milano-red);
+}
+
+.cellPast {
+  opacity: 0.55;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-gray);
+}
+
+.legendDot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.absences {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.absence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-mine-shaft);
+}
+
+.absenceNote {
+  color: var(--color-gray);
+}
+
+/* ---------- типовий тиждень ---------- */
+
+.week {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Сітка, а не flex-wrap: інакше довгі назви днів переносили години на
+// новий рядок, а короткі — ні, і тиждень виглядав рваним.
+.weekRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 8px 0;
+
+  & + & {
+    border-top: 1px solid var(--color-ebb);
+  }
+
+  // Години або «Вихідний» — друга клітинка рядка, завжди праворуч.
+  > :nth-child(2) {
+    justify-self: end;
+  }
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.switchTrack {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 24px;
+  border-radius: var(--r-pill);
+  background-color: var(--color-cold-turkey);
+  transition: background-color 0.15s ease;
+
+  &::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--color-white);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 20%);
+    content: '';
+    transition: transform 0.15s ease;
+  }
+
+  input:checked + & {
+    background-color: $work-fg;
+  }
+
+  input:checked + &::after {
+    transform: translateX(16px);
+  }
+
+  input:focus-visible + & {
+    outline: 2px solid var(--color-pickled-bluewood);
+    outline-offset: 2px;
+  }
+}
+
+.weekName {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--color-mine-shaft);
+}
+
+.srOnly {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.weekOff {
+  font-size: 14px;
+  color: var(--color-gray);
+}
+
+.weekActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.timeRange {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-gray);
+}
+
+.timeInput,
+.dateInput,
+.textInput {
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--color-mine-shaft);
+  background-color: var(--color-white);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-pickled-bluewood);
+    outline-offset: 1px;
+  }
+}
+
+.timeInput {
+  // 96px з падінгом 10px обрізало «09:00» поруч з іконкою годинника в Chrome.
+  width: 104px;
+  padding: 6px 8px;
+  font-variant-numeric: tabular-nums;
+
+  // Найвужчі телефони: прибираємо іконку годинника — тап по полю й так
+  // відкриває системний вибір часу.
+  @media (max-width: 379px) {
+    width: 72px;
+    padding: 6px 8px;
+
+    &::-webkit-calendar-picker-indicator {
+      display: none;
+    }
+  }
+}
+
+.dateInput,
+.textInput {
+  width: 100%;
+}
+
+/* ---------- панель знизу ---------- */
+
+.backdrop {
+  position: fixed;
+  // Над нижнім меню кабінету (1001) і панеллю запису (1002).
+  z-index: 1010;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background-color: rgb(20 0 0 / 40%);
+
+  @include breakpoints.md {
+    align-items: center;
+    padding: 24px;
+  }
+}
+
+.sheet {
+  display: flex;
+  overflow-y: auto;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-height: 90dvh;
+  padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
+  border-radius: 20px 20px 0 0;
+  background-color: var(--color-white);
+  outline: none;
+  animation: sheet-in 0.2s ease-out;
+
+  @include breakpoints.md {
+    max-width: 440px;
+    padding: 20px 24px 24px;
+    border-radius: 20px;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+.sheetHandle {
+  align-self: center;
+  width: 40px;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background-color: var(--color-cold-turkey);
+
+  @include breakpoints.md {
+    display: none;
+  }
+}
+
+.sheetHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sheetTitle {
+  margin: 0;
+  font-size: 18px;
+  color: var(--color-mine-shaft);
+}
+
+.sheetClose {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-gray);
+  background-color: var(--color-hint-of-red);
+  cursor: pointer;
+}
+
+.sheetText,
+.sheetHint {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-gray);
+}
+
+.sheetHint {
+  font-size: 13px;
+}
+
+.sheetError {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-milano-red);
+}
+
+.warning {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: $vacation-fg;
+  background-color: $vacation-bg;
+}
+
+.sheetActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 12px;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:focus-within {
+    outline: 2px solid var(--color-pickled-bluewood);
+    outline-offset: 1px;
+  }
+}
+
+.choiceActive {
+  border-color: var(--color-milano-red);
+  box-shadow: inset 0 0 0 1px var(--color-milano-red);
+}
+
+.choiceLabel {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-mine-shaft);
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+}
+
+.swatch_weekly {
+  background-color: $work-bg;
+  box-shadow: inset 0 0 0 1px $work-fg;
+}
+
+.swatch_custom_hours {
+  background-color: $custom-bg;
+  box-shadow: inset 0 0 0 1px $custom-fg;
+}
+
+.swatch_day_off {
+  background-color: $off-bg;
+  box-shadow: inset 0 0 0 1px $off-fg;
+}
+
+.swatch_vacation {
+  background-color: $vacation-bg;
+  box-shadow: inset 0 0 0 1px $vacation-fg;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background-color: var(--color-hint-of-red);
+}
+
+.segment {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  border-radius: 9px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--color-gray);
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:focus-within {
+    outline: 2px solid var(--color-pickled-bluewood);
+  }
+}
+
+.segmentActive {
+  color: var(--color-mine-shaft);
+  background-color: var(--color-white);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray);
+}
+
+/* ---------- перерви в типовому тижні ---------- */
+
+.breakRow {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.breakLabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: lowercase;
+  color: var(--color-gray);
+}
+
+.breakRemove {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-gray);
+  background-color: var(--color-hint-of-red);
+  cursor: pointer;
+}
+
+.addBreak {
+  grid-column: 2;
+  justify-self: end;
+  padding: 2px 0;
+  border: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-milano-red);
+  background: none;
+  cursor: pointer;
+}
+
+.rowError {
+  grid-column: 1 / -1;
+}
+
+.segmented3 {
+  grid-template-columns: repeat(3, 1fr);
+}

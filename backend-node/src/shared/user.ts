@@ -14,6 +14,8 @@ export interface User {
   isAdmin: boolean;
   isGroomer: boolean;
   isVip: boolean;
+  /** false — грумера не пропонують в онлайн-записі на сайті. Немає поля — true. */
+  onlineBooking?: boolean;
   createdAt: Date;
   clientId?: ObjectId;
 }

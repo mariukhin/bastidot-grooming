@@ -4,6 +4,7 @@ import { useState } from 'react';
 import classNames from 'classnames';
 
 import {
+  EXCEPTION_LABEL,
   confirmAdminOrder,
   reassignAdminOrder,
   remindAdminOrder,
@@ -23,6 +24,7 @@ const REASON: Record<AdminEvent['type'], string> = {
   unassigned: 'не призначено',
   unconfirmed: 'підтвердити',
   cancelled: 'слот звільнився',
+  reschedule: 'перенести',
   reminder: 'нагадати',
 };
 
@@ -36,6 +38,10 @@ const describe = (event: AdminEvent): string => {
       return 'Новий запис, салон його ще не підтвердив.';
     case 'cancelled':
       return 'Клієнт скасував — слот вільний, можна комусь запропонувати.';
+    case 'reschedule':
+      return event.exceptionType && event.exceptionType !== 'custom_hours'
+        ? `У грумера ${EXCEPTION_LABEL[event.exceptionType].toLowerCase()} — запис треба перенести.`
+        : 'Запис поза робочими годинами грумера — треба перенести.';
     default:
       return 'Візит завтра, нагадування ще не надсилали.';
   }

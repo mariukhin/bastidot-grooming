@@ -113,7 +113,6 @@
 .tabs {
   display: none;
   margin-bottom: 20px;
-  border-bottom: 1px solid var(--color-ebb);
 
   @include breakpoints.md {
     display: block;
@@ -122,9 +121,15 @@
 
 .tabsList {
   display: flex;
+  // Лише горизонтальний скрол: з одним overflow-x браузер вмикає й
+  // вертикальний, і рядок починає смикатися під колесом миші.
   overflow-x: auto;
+  overflow-y: hidden;
   gap: 4px;
   list-style: none;
+  // Сіра лінія під вкладками — тінню, а не бордером із margin -1px: інакше
+  // overflow-y: hidden обрізав би підкреслення активної вкладки.
+  box-shadow: inset 0 -1px 0 var(--color-ebb);
   scrollbar-width: none;
 
   &::-webkit-scrollbar {
@@ -136,7 +141,6 @@
   display: block;
   padding: 11px 16px;
   border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
   font-size: 14.5px;
   font-weight: 700;
   white-space: nowrap;
@@ -150,6 +154,15 @@
 .tabActive {
   border-bottom-color: var(--color-milano-red);
   color: var(--color-dark-burgundy);
+}
+
+.tabDisabled {
+  cursor: default;
+  opacity: 0.45;
+
+  &:hover {
+    color: var(--color-submarine-blue);
+  }
 }
 
 .panel {
@@ -261,6 +274,62 @@
 
 .logout {
   flex-shrink: 0;
+}
+
+/* ---------- екран «Ще» ---------- */
+
+.moreList {
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--color-ebb);
+  border-radius: 16px;
+  list-style: none;
+  background-color: var(--color-white);
+
+  li + li {
+    border-top: 1px solid var(--color-ebb);
+  }
+}
+
+.moreItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 16px;
+  border: 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--color-mine-shaft);
+  background: none;
+  cursor: pointer;
+}
+
+.moreLabel {
+  flex: 1;
+}
+
+.moreItemDisabled {
+  cursor: default;
+  color: var(--color-gray);
+}
+
+.moreSoon {
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: var(--color-ebb);
+}
+
+.moreLogout {
+  color: var(--color-milano-red);
 }
 
 .scheduleHead {
@@ -760,6 +829,11 @@
 .pill_reminder {
   background-color: #f6e4c4;
   color: #8a5d12;
+}
+
+.pill_reschedule {
+  background-color: var(--color-hint-of-red);
+  color: var(--color-milano-red);
 }
 
 .attentionTime {

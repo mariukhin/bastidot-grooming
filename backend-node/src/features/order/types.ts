@@ -72,6 +72,7 @@ export type OrderActionError =
   | 'not-found'
   | 'forbidden'
   | 'already-cancelled'
+  | 'already-visited'
   | 'too-late'
   | 'slot-taken';
 

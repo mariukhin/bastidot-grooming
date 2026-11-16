@@ -1,0 +1,507 @@
+// Ті самі кольори типів дня, що й у календарі грумера.
+$work-bg: #e3f3e7;
+$work-fg: #1f6b35;
+$custom-bg: var(--color-link-water);
+$custom-fg: var(--color-pickled-bluewood);
+$vacation-bg: #f6e4c4;
+$vacation-fg: #8a5d12;
+$weekend-bg: #faf6f6;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-gray);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  color: var(--color-mine-shaft);
+}
+
+.monthNav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.monthTitle {
+  min-width: 150px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--color-mine-shaft);
+}
+
+.navButton {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 50%;
+  color: var(--color-submarine-blue);
+  background-color: var(--color-white);
+  cursor: pointer;
+}
+
+/* ---------- таблиця місяця ---------- */
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-ebb);
+  border-radius: 16px;
+  background-color: var(--color-white);
+}
+
+.table {
+  width: 100%;
+  // Фіксована розкладка ділить ширину порівну між днями — місяць вміщається
+  // без горизонтального скролу; на вузьких вікнах скрол лишається запасним.
+  table-layout: fixed;
+  min-width: 960px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+}
+
+.headCell,
+.dayHead {
+  padding: 8px 2px;
+  border-bottom: 1px solid var(--color-ebb);
+  font-weight: 700;
+  color: var(--color-gray);
+  background-color: var(--color-white);
+}
+
+.dayHead {
+  text-align: center;
+}
+
+.dayNumber {
+  display: block;
+  font-size: 13px;
+  color: var(--color-mine-shaft);
+}
+
+.dayName {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.todayHead .dayNumber {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: var(--color-white);
+  background-color: var(--color-milano-red);
+}
+
+// Перша колонка з іменем лишається на місці при горизонтальному скролі.
+.nameCol {
+  position: sticky;
+  z-index: 1;
+  left: 0;
+  width: 140px;
+  padding: 0 8px 0 12px;
+  border-right: 1px solid var(--color-ebb);
+  text-align: left;
+  background-color: var(--color-white);
+}
+
+.nameButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  color: var(--color-mine-shaft);
+  background: none;
+  cursor: pointer;
+}
+
+.offlineBadge {
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-gray);
+  background-color: var(--color-ebb);
+}
+
+.rowSelected .nameCol {
+  box-shadow: inset 3px 0 0 var(--color-milano-red);
+  background-color: var(--color-hint-of-red);
+}
+
+.rowSelected .nameButton {
+  color: var(--color-dark-burgundy);
+}
+
+.cell {
+  padding: 3px 1px;
+  border-bottom: 1px solid var(--color-ebb);
+  text-align: center;
+}
+
+tbody tr:last-child .cell,
+tbody tr:last-child .nameCol,
+tbody tr:last-child .total {
+  border-bottom: 0;
+}
+
+.weekend {
+  background-color: $weekend-bg;
+}
+
+.todayCell {
+  box-shadow:
+    inset 1px 0 0 var(--color-milano-red),
+    inset -1px 0 0 var(--color-milano-red);
+}
+
+.cellButton {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 38px;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.15;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  background: none;
+  cursor: pointer;
+
+  &:hover {
+    outline: 1px solid var(--color-cold-turkey);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-pickled-bluewood);
+  }
+}
+
+.kind_work {
+  color: $work-fg;
+  background-color: $work-bg;
+}
+
+.kind_custom {
+  color: $custom-fg;
+  background-color: $custom-bg;
+}
+
+.kind_vacation {
+  font-size: 9.5px;
+  letter-spacing: -0.02em;
+  color: $vacation-fg;
+  background-color: $vacation-bg;
+}
+
+// Вихідний — порожня клітинка, без заливки.
+.kind_off {
+  color: var(--color-gray);
+}
+
+.totalCol {
+  width: 56px;
+  padding: 8px;
+  text-align: right;
+}
+
+.hours {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.05;
+
+  span + span {
+    margin-top: 1px;
+    padding-top: 1px;
+    border-top: 1px solid currentcolor;
+    opacity: 0.85;
+  }
+}
+
+.total {
+  padding: 0 10px;
+  border-bottom: 1px solid var(--color-ebb);
+  border-left: 1px solid var(--color-ebb);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--color-mine-shaft);
+  font-variant-numeric: tabular-nums;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-gray);
+}
+
+.legendSwatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 4px;
+}
+
+.weekendSwatch {
+  background-color: $weekend-bg;
+}
+
+/* ---------- панель вибраного грумера ---------- */
+
+.panel {
+  display: grid;
+  grid-template-columns: minmax(380px, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 16px;
+  background-color: var(--color-white);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-mine-shaft);
+}
+
+.onlineToggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background-color: var(--color-hint-of-red);
+  cursor: pointer;
+}
+
+.onlineLabel {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-mine-shaft);
+}
+
+.onlineHint {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--color-gray);
+}
+
+.switch {
+  display: flex;
+  padding-top: 2px;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.switchTrack {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 24px;
+  border-radius: var(--r-pill);
+  background-color: var(--color-cold-turkey);
+  transition: background-color 0.15s ease;
+
+  &::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--color-white);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 20%);
+    content: '';
+    transition: transform 0.15s ease;
+  }
+
+  input:checked + & {
+    background-color: $work-fg;
+  }
+
+  input:checked + &::after {
+    transform: translateX(16px);
+  }
+
+  input:focus-visible + & {
+    outline: 2px solid var(--color-pickled-bluewood);
+    outline-offset: 2px;
+  }
+}
+
+.saveRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.hint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-gray);
+}
+
+.error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-milano-red);
+}
+
+.absences {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.absence {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+
+  & + & {
+    border-top: 1px solid var(--color-ebb);
+  }
+}
+
+.absenceMain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.typePill {
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.type_vacation,
+.type_sick {
+  color: $vacation-fg;
+  background-color: $vacation-bg;
+}
+
+.type_custom_hours {
+  color: $custom-fg;
+  background-color: $custom-bg;
+}
+
+.type_day_off {
+  color: var(--color-gray);
+  background-color: var(--color-ebb);
+}
+
+.absenceWhen {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--color-mine-shaft);
+}
+
+.absenceNote {
+  font-size: 13.5px;
+  color: var(--color-gray);
+}
+
+.absenceMeta {
+  flex-basis: 100%;
+  font-size: 12.5px;
+  color: var(--color-gray);
+}
+
+.warning {
+  flex-basis: 100%;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: $vacation-fg;
+  background-color: $vacation-bg;
+}
+
+.removeButton {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-ebb);
+  border-radius: 50%;
+  color: var(--color-gray);
+  background-color: var(--color-white);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-milano-red);
+  }
+}

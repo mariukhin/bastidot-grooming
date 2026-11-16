@@ -67,6 +67,12 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
   const initialGroomer = intent?.groomer;
   const isAdminBooking = intent?.admin === true;
   const { groomerList, fetchGroomers } = useGroomerStore();
+  // Грумерів із вимкненим онлайн-записом клієнт не бачить; адмін, що записує
+  // по телефону, — бачить усіх.
+  const bookableGroomers = useMemo(
+    () => (isAdminBooking ? groomerList : groomerList.filter((g) => g.onlineBooking)),
+    [isAdminBooking, groomerList]
+  );
   const { createOrder } = useOrderStore();
   const user = useUserStore((state) => state.user);
   const [step, setStep] = useState<BookingStep>('services');
@@ -195,9 +201,9 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
   useEffect(() => {
     if (!isOpen || !intent?.groomerId || selectedGroomer) return;
 
-    const found = groomerList.find((g) => g.id === intent.groomerId);
+    const found = bookableGroomers.find((g) => g.id === intent.groomerId);
     if (found) setSelectedGroomer(found);
-  }, [isOpen, intent?.groomerId, groomerList, selectedGroomer]);
+  }, [isOpen, intent?.groomerId, bookableGroomers, selectedGroomer]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -279,7 +285,8 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
     }
 
     const groomer = intent?.groomerId
-      ? (groomers.find((g) => g.id === intent.groomerId) ?? null)
+      ? (groomers.find((g) => g.id === intent.groomerId && (isAdminBooking || g.onlineBooking)) ??
+        null)
       : null;
     if (groomer) setSelectedGroomer(groomer);
 
@@ -580,7 +587,7 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
 
       {step === 'groomer' && (
         <StepGroomer
-          groomers={groomerList}
+          groomers={bookableGroomers}
           selectedGroomer={selectedGroomer}
           selectedServices={selectedServices}
           selectedExtraServices={selectedExtraServices}

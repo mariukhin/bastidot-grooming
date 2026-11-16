@@ -2,21 +2,39 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import type { Db } from 'mongodb';
 
-import { requireRole } from '../../shared/auth-middleware.ts';
 import {
+  addException,
+  describeExceptions,
   getSchedule,
   parseException,
   parseWeekly,
   removeException,
-  saveException,
   saveWeekly,
   scheduleForDate,
+  setOnlineBooking,
+  type ScheduleActor,
 } from './service.ts';
 import { dateInZone } from './time.ts';
 import { ScheduleError } from './types.ts';
 
+/**
+ * Маршрути графіка під /staff (requireAuth + роль admin|groomer уже перевірені).
+ *
+ * :groomerId може бути «me» — тоді це той, чий токен. Грумер змінює лише свій
+ * графік (перевірка в service.ts), адмін — будь-чий.
+ */
 export function createScheduleRouter(db: Db): Router {
   const router = Router();
+
+  const actorOf = (req: Request): ScheduleActor => ({
+    id: req.userId!,
+    role: req.userRole === 'admin' ? 'admin' : 'groomer',
+  });
+
+  const groomerIdOf = (req: Request): string => {
+    const raw = String(req.params.groomerId ?? '');
+    return raw === 'me' ? req.userId! : raw;
+  };
 
   const route =
     (handler: (req: Request, res: Response) => Promise<void>) =>
@@ -41,51 +59,94 @@ export function createScheduleRouter(db: Db): Router {
     })
   );
 
-  // GET /staff/schedule/:groomerId — шаблон і винятки одного грумера.
+  // GET /staff/schedule/:groomerId — шаблон, винятки і прапорець онлайн-запису.
   router.get(
     '/schedule/:groomerId',
     route(async (req, res) => {
-      const schedule = await getSchedule(db, String(req.params.groomerId));
+      const schedule = await getSchedule(db, groomerIdOf(req));
+      const exceptions = await describeExceptions(db, schedule);
+      const pending = schedule.pendingWeekly;
+
       res.json({
         groomerId: schedule.groomerId.toHexString(),
+        name: schedule.name,
+        onlineBooking: schedule.onlineBooking,
         weekly: schedule.weekly,
-        exceptions: [...schedule.exceptions].sort((a, b) => a.date.localeCompare(b.date)),
+        // Збережений шаблон, що набуде чинності з effectiveFrom (наступний понеділок).
+        pendingWeekly: pending
+          ? { effectiveFrom: pending.effectiveFrom, weekly: pending.weekly }
+          : null,
+        exceptions: exceptions.map(({ changedBy, changedAt, ...rest }) => ({
+          ...rest,
+          changedBy: changedBy ? changedBy.toHexString() : null,
+          changedAt: changedAt ? changedAt.toISOString() : null,
+        })),
       });
     })
   );
 
-  const adminOnly = requireRole('admin');
-
+  // PUT /staff/schedule/:groomerId  { weekly: [...] }
   router.put(
     '/schedule/:groomerId',
-    adminOnly,
     route(async (req, res) => {
       const weekly = parseWeekly((req.body as { weekly?: unknown } | null)?.weekly);
-      await saveWeekly(db, String(req.params.groomerId), weekly);
-      res.json({ ok: true, weekly });
+      const result = await saveWeekly(db, actorOf(req), groomerIdOf(req), weekly);
+      res.json({ ok: true, weekly, ...result });
     })
   );
 
-  router.put(
-    '/schedule/:groomerId/exceptions/:date',
-    adminOnly,
+  // POST /staff/schedule/:groomerId/exceptions  { type, dateFrom, dateTo?, from?, to?, note? }
+  router.post(
+    '/schedule/:groomerId/exceptions',
     route(async (req, res) => {
-      const exception = parseException(String(req.params.date), req.body);
-      await saveException(db, String(req.params.groomerId), exception);
-      res.json({ ok: true, exception });
+      const input = parseException(req.body);
+      const { exception, affectedOrders } = await addException(
+        db,
+        actorOf(req),
+        groomerIdOf(req),
+        input
+      );
+      res.status(201).json({
+        ok: true,
+        exception: {
+          ...exception,
+          changedBy: exception.changedBy?.toHexString() ?? null,
+          changedAt: exception.changedAt?.toISOString() ?? null,
+        },
+        affectedOrders,
+      });
     })
   );
 
+  // DELETE /staff/schedule/:groomerId/exceptions/:id
   router.delete(
-    '/schedule/:groomerId/exceptions/:date',
-    adminOnly,
+    '/schedule/:groomerId/exceptions/:id',
     route(async (req, res) => {
-      const removed = await removeException(db, String(req.params.groomerId), String(req.params.date));
-      if (!removed) {
-        res.status(404).json({ error: 'Винятку на цю дату немає', code: 'no-exception' });
+      const result = await removeException(
+        db,
+        actorOf(req),
+        groomerIdOf(req),
+        String(req.params.id)
+      );
+      if (!result) {
+        res.status(404).json({ error: 'Такого винятку немає', code: 'no-exception' });
         return;
       }
-      res.status(204).end();
+      res.json({ ok: true, ...result });
+    })
+  );
+
+  // PUT /staff/schedule/:groomerId/online-booking  { onlineBooking: boolean } — лише адмін.
+  router.put(
+    '/schedule/:groomerId/online-booking',
+    route(async (req, res) => {
+      const value = (req.body as { onlineBooking?: unknown } | null)?.onlineBooking;
+      if (typeof value !== 'boolean') {
+        res.status(400).json({ error: 'onlineBooking має бути true або false', code: 'bad-flag' });
+        return;
+      }
+      await setOnlineBooking(db, actorOf(req), groomerIdOf(req), value);
+      res.json({ ok: true, onlineBooking: value });
     })
   );
 

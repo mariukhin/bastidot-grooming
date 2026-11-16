@@ -72,7 +72,7 @@ export type AdminStats = {
   expectedRevenue: number;
 };
 
-export type AdminEventType = 'unassigned' | 'unconfirmed' | 'cancelled' | 'reminder';
+export type AdminEventType = 'unassigned' | 'unconfirmed' | 'cancelled' | 'reminder' | 'reschedule';
 
 export type AdminEvent = {
   id: string;
@@ -86,6 +86,8 @@ export type AdminEvent = {
   groomer: { id: string; name: string } | null;
   /** Вільний на цей час грумер — кого підставить кнопка «Призначити». */
   suggestedGroomer: { id: string; name: string } | null;
+  /** Для reschedule: через що грумер не працює в цей час. */
+  exceptionType?: ExceptionType;
 };
 
 export const ORDER_SOURCES = ['Телефон', 'Instagram', 'Прийшли самі'] as const;
@@ -119,13 +121,56 @@ export type DaySchedule = {
   name: string;
   intervals: { from: string; to: string }[];
   source: 'weekly' | 'exception' | 'default';
+  exceptionType?: ExceptionType;
 };
+
+export type ExceptionType = 'vacation' | 'sick' | 'day_off' | 'custom_hours';
+
+export const EXCEPTION_LABEL: Record<ExceptionType, string> = {
+  vacation: 'Відпустка',
+  sick: 'Лікарняний',
+  day_off: 'Вихідний',
+  custom_hours: 'Інші години',
+};
+
+export type WeeklyRule = { weekday: number; from: string; to: string };
+
+export type ScheduleException = {
+  id: string;
+  type: ExceptionType;
+  dateFrom: string;
+  dateTo: string;
+  from?: string;
+  to?: string;
+  note?: string;
+  changedBy: string | null;
+  changedAt: string | null;
+  /** Імʼя того, хто додав виняток (адмін чи сам грумер). */
+  changedByName?: string | null;
+  /** Скільки майбутніх записів опинились поза графіком через цей виняток. */
+  affectedOrders?: number;
+};
+
+/** Збережений шаблон, що діє з найближчого понеділка. */
+export type PendingWeekly = { effectiveFrom: string; weekly: WeeklyRule[] };
+
+export type GroomerScheduleDetail = {
+  groomerId: string;
+  name: string;
+  onlineBooking: boolean;
+  weekly: WeeklyRule[];
+  pendingWeekly: PendingWeekly | null;
+  exceptions: ScheduleException[];
+};
+
+export type ExceptionInput = Pick<ScheduleException, 'type' | 'dateFrom' | 'dateTo'> &
+  Partial<Pick<ScheduleException, 'from' | 'to' | 'note'>>;
 
 const NETWORK = "Немає зв'язку з сервером. Перевірте інтернет";
 const FALLBACK = 'Не вдалося завантажити дані';
 
 async function send<T>(
-  method: 'GET' | 'POST' | 'PATCH',
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
   path: string,
   body?: unknown
 ): Promise<AccountResult<T>> {
@@ -158,8 +203,10 @@ const get = <T>(path: string) => send<T>('GET', path);
 export const fetchGroomerDay = (date: string) =>
   get<{ date: string; orders: StaffOrder[] }>(`/groomer/orders?date=${date}`);
 
-export const fetchAdminDay = (date: string) =>
-  get<{ date: string; orders: StaffOrder[] }>(`/admin/orders?date=${date}`);
+export const fetchAdminDay = (date: string, groomerId?: string) =>
+  get<{ date: string; orders: StaffOrder[] }>(
+    `/admin/orders?date=${date}${groomerId ? `&groomerId=${groomerId}` : ''}`
+  );
 
 export const fetchAdminStats = (date: string) => get<AdminStats>(`/admin/stats?date=${date}`);
 
@@ -196,3 +243,30 @@ export const remindAdminOrder = (id: string) =>
 
 export const reassignAdminOrder = (id: string, groomerId: string) =>
   send<StaffOrder>('PATCH', `/admin/orders/${id}/groomer`, { groomerId });
+
+/** groomerId — «me» для власного графіка грумера. */
+export const fetchGroomerSchedule = (groomerId: string) =>
+  get<GroomerScheduleDetail>(`/schedule/${groomerId}`);
+
+/** affectedOrders — скільки вже існуючих записів опинились поза графіком. */
+export const saveWeeklySchedule = (groomerId: string, weekly: WeeklyRule[]) =>
+  send<{ ok: true; weekly: WeeklyRule[]; affectedOrders: number; effectiveFrom: string }>(
+    'PUT',
+    `/schedule/${groomerId}`,
+    { weekly }
+  );
+
+export const addScheduleException = (groomerId: string, input: ExceptionInput) =>
+  send<{ ok: true; exception: ScheduleException; affectedOrders: number }>(
+    'POST',
+    `/schedule/${groomerId}/exceptions`,
+    input
+  );
+
+export const removeScheduleException = (groomerId: string, id: string) =>
+  send<{ ok: true; affectedOrders: number }>('DELETE', `/schedule/${groomerId}/exceptions/${id}`);
+
+export const setGroomerOnlineBooking = (groomerId: string, onlineBooking: boolean) =>
+  send<{ ok: true; onlineBooking: boolean }>('PUT', `/schedule/${groomerId}/online-booking`, {
+    onlineBooking,
+  });

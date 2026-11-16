@@ -46,6 +46,7 @@ const ACTION_STATUS: Record<OrderActionError, number> = {
   'not-found': 404,
   forbidden: 403,
   'already-cancelled': 409,
+  'already-visited': 409,
   'too-late': 409,
   'slot-taken': 409,
 };
@@ -54,6 +55,7 @@ const ACTION_MESSAGE: Record<OrderActionError, string> = {
   'not-found': 'Запис не знайдено',
   forbidden: 'Немає доступу до цього запису',
   'already-cancelled': 'Запис уже скасовано',
+  'already-visited': 'Цей візит уже відбувся — змінити його онлайн не можна. Зателефонуйте нам',
   'too-late': `Змінити запис онлайн можна не пізніше ніж за ${config.orderSelfServiceCutoffHours} год до візиту. Зателефонуйте нам`,
   'slot-taken': 'Цей час щойно зайняли. Оберіть інший',
 };

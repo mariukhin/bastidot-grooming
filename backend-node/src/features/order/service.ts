@@ -102,6 +102,11 @@ async function createOrder(db: Db, input: CreateOrderInput): Promise<Order> {
   if (!groomer.isGroomer) {
     throw new Error('specified user is not a groomer');
   }
+  // Сайт такого грумера не показує, але старий кеш чи ручний запит можуть
+  // прислати його id — запис усе одно не приймаємо.
+  if (groomer.onlineBooking === false) {
+    throw new Error('Цей майстер зараз не приймає онлайн-записи. Оберіть іншого або зателефонуйте нам');
+  }
 
   // 2. Клієнт і тваринка — find-or-create.
   const client = await findOrCreateClient(db, input);
@@ -214,6 +219,11 @@ async function loadOwnOrder(
 function assertChangeable(order: Order, now: Date): void {
   if (order.status === 'cancelled') {
     throw new OrderActionFailure('already-cancelled');
+  }
+  // came/completed/no_show виставляє салон: клієнт не має права ні скасувати
+  // такий візит, ні перенести його — інакше перепише факт візиту.
+  if (order.status !== 'pending') {
+    throw new OrderActionFailure('already-visited');
   }
   if (order.scheduledAt.getTime() - now.getTime() < SELF_SERVICE_CUTOFF_MS) {
     throw new OrderActionFailure('too-late');

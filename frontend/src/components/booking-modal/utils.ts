@@ -13,6 +13,7 @@ export const normalizeGroomerList = (groomerList: GroomerDbProps[]): Groomer[] =
     isVip: groomer.isVip,
     photoSrc: groomer.photoUrl || groomerPreview,
     nearestDate: null,
+    onlineBooking: groomer.onlineBooking !== false,
   }));
 
 export const capitalize = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);

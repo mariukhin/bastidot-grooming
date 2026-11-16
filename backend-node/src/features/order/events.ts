@@ -7,14 +7,19 @@ import { PET_COLLECTION, type Pet } from '../pet/types.ts';
 import { canSendTelegram, escapeHtml, sendTelegramMessage } from '../../shared/telegram.ts';
 import { logger } from '../../shared/logger.ts';
 import { config } from '../../shared/config.ts';
-import { intervalsFor } from '../schedule/service.ts';
+import { fitsSchedule, intervalsFor } from '../schedule/service.ts';
 import { SCHEDULE_COLLECTION, type GroomerSchedule } from '../schedule/types.ts';
 import { dateInZone, minutesOf } from '../schedule/time.ts';
 import { AdminError } from './admin-day.ts';
 import { hasConflict } from './service.ts';
 import { ORDER_COLLECTION, type Order } from './types.ts';
 
-export type AdminEventType = 'unassigned' | 'unconfirmed' | 'cancelled' | 'reminder';
+/**
+ * reschedule — запис опинився поза графіком грумера (відпустка, лікарняний,
+ * вихідний, інші години; SCRUM-62). Подія не зберігається окремо, а
+ * виводиться з поточного стану: щойно запис перенесуть чи скасують, вона зникне.
+ */
+export type AdminEventType = 'unassigned' | 'unconfirmed' | 'cancelled' | 'reminder' | 'reschedule';
 export type AdminEventAction = 'assign' | 'confirm' | 'remind' | null;
 
 export interface AdminEvent {
@@ -30,7 +35,14 @@ export interface AdminEvent {
   groomer: { id: string; name: string } | null;
   /** Хто вільний на цей час — підказка для кнопки «Призначити». */
   suggestedGroomer: { id: string; name: string } | null;
+  /** Для reschedule: чому грумер не працює — vacation, sick, day_off, custom_hours. */
+  exceptionType?: string;
 }
+
+/** Звичайні події — на два тижні вперед. */
+const HORIZON_DAYS = 14;
+/** «Перенести» — далі: про відпустку за місяць адміну краще знати одразу. */
+const RESCHEDULE_HORIZON_DAYS = 90;
 
 /** Скасування показуємо лише поки слот свіжий: день по тому його вже не продати. */
 const CANCELLED_WINDOW_HOURS = 24;
@@ -90,13 +102,14 @@ async function suggestGroomer(
 
 export async function listAdminEvents(db: Db): Promise<{ count: number; events: AdminEvent[] }> {
   const now = new Date();
-  const horizon = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  const horizon = new Date(now.getTime() + HORIZON_DAYS * 24 * 60 * 60 * 1000);
+  const rescheduleHorizon = new Date(now.getTime() + RESCHEDULE_HORIZON_DAYS * 24 * 60 * 60 * 1000);
   const cancelledSince = new Date(now.getTime() - CANCELLED_WINDOW_HOURS * 60 * 60 * 1000);
   const tomorrow = dateInZone(new Date(now.getTime() + 24 * 60 * 60 * 1000));
 
   const orders = await db
     .collection<Order>(ORDER_COLLECTION)
-    .find({ scheduledAt: { $gte: now, $lt: horizon } })
+    .find({ scheduledAt: { $gte: now, $lt: rescheduleHorizon } })
     .sort({ scheduledAt: 1 })
     .toArray();
 
@@ -146,7 +159,10 @@ export async function listAdminEvents(db: Db): Promise<{ count: number; events: 
       suggestedGroomer: null,
     };
 
+    const withinHorizon = order.scheduledAt < horizon;
+
     if (order.status === 'cancelled') {
+      if (!withinHorizon) continue;
       const at = cancelledAt(order);
       if (at && at >= cancelledSince) {
         events.push({ ...base, id: `cancelled:${base.orderId}`, type: 'cancelled', action: null });
@@ -156,6 +172,7 @@ export async function listAdminEvents(db: Db): Promise<{ count: number; events: 
 
     // Запис без майстра: або «будь-який грумер», або майстер більше не працює.
     if (!groomer) {
+      if (!withinHorizon) continue;
       const free = await suggestGroomer(db, groomers, scheduleById, order);
       events.push({
         ...base,
@@ -166,6 +183,21 @@ export async function listAdminEvents(db: Db): Promise<{ count: number; events: 
       });
       continue;
     }
+
+    const schedule = scheduleById.get(order.groomerId.toHexString());
+    if (order.status === 'pending' && schedule && !fitsSchedule(schedule, order)) {
+      const { exceptionType } = intervalsFor(schedule, dateInZone(order.scheduledAt));
+      events.push({
+        ...base,
+        id: `reschedule:${base.orderId}`,
+        type: 'reschedule',
+        action: null,
+        ...(exceptionType ? { exceptionType } : {}),
+      });
+    }
+
+    // Далі за два тижні цікавить лише «перенести».
+    if (!withinHorizon) continue;
 
     if (!order.confirmedAt) {
       events.push({
