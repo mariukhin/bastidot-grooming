@@ -9,6 +9,7 @@ import { PET_COLLECTION, type Pet } from '../pet/types.ts';
 import { fetchActiveTraits } from '../pet/traits.ts';
 import { dateInZone, isDateString, zonedToUtc } from '../schedule/time.ts';
 import { ORDER_COLLECTION, type Order, type OrderStatus } from './types.ts';
+import { priceOf } from './price.ts';
 
 export interface GroomerOrderDTO {
   id: string;
@@ -289,6 +290,7 @@ export async function setOrderStatus(
   const change = { status: next, changedAt: new Date(), changedBy: groomerId };
   const patch: Partial<Order> = { status: next };
   if (note !== undefined) patch.groomerNote = note;
+  if (next === 'completed') patch.total = await priceOf(db, order);
 
   await orders.updateOne({ _id: order._id! }, { $set: patch, $push: { statusHistory: change } });
 

@@ -26,7 +26,7 @@ type SheetProps = {
 };
 
 /** Панель знизу на телефоні, діалог по центру на десктопі. */
-const BottomSheet = ({ title, onClose, children }: SheetProps) => {
+export const BottomSheet = ({ title, onClose, children }: SheetProps) => {
   const ref = useRef<HTMLDivElement>(null);
   useFocusTrapping({ ref, open: true, onEscape: onClose });
 

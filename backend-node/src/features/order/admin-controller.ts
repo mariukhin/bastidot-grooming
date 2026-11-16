@@ -63,7 +63,7 @@ export function createAdminOrdersRouter(db: Db): Router {
   );
 
   router.get(
-    '/admin/clients',
+    '/admin/clients/search',
     route(async (_adminId, req, res) => {
       res.json(await searchClients(db, q(req, 'q')));
     })

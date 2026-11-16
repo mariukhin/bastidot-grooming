@@ -15,6 +15,7 @@ import { createUploadRouter } from './features/upload/controller.ts';
 import { createScheduleRouter } from './features/schedule/controller.ts';
 import { createGroomerOrdersRouter } from './features/order/groomer-controller.ts';
 import { createAdminOrdersRouter } from './features/order/admin-controller.ts';
+import { createAdminClientsRouter } from './features/client/controller.ts';
 import { LOCAL_UPLOAD_DIR } from './features/upload/storage.ts';
 import { optionalAuth, requireAuth, requireRole } from './shared/auth-middleware.ts';
 import { config } from './shared/config.ts';
@@ -66,6 +67,13 @@ export function createApp(db: Db) {
     requireAuth(config.accessTokenSecret),
     requireRole('admin', 'groomer'),
     createAdminOrdersRouter(db)
+  );
+  // Після адмінських записів: там /admin/clients/search, який інакше впіймав би /:id.
+  app.use(
+    '/staff',
+    requireAuth(config.accessTokenSecret),
+    requireRole('admin', 'groomer'),
+    createAdminClientsRouter(db)
   );
 
   // Без ключів R2 фото лежать поруч із сервером — роздаємо їх самі, щоб

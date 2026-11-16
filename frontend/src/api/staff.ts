@@ -189,8 +189,8 @@ async function send<T>(
     const data: unknown = await response.json().catch(() => null);
 
     if (!response.ok) {
-      const message = (data as { error?: string } | null)?.error;
-      return { ok: false, message: message ?? FALLBACK };
+      const body = (data ?? {}) as { error?: string; code?: string } & Record<string, unknown>;
+      return { ok: false, message: body.error ?? FALLBACK, code: body.code, details: body };
     }
     return { ok: true, data: data as T };
   } catch {
@@ -214,7 +214,7 @@ export const fetchDaySchedule = (date: string) =>
   get<{ date: string; groomers: DaySchedule[] }>(`/schedule?date=${date}`);
 
 export const searchClients = (query: string) =>
-  get<ClientSearchResult[]>(`/admin/clients?q=${encodeURIComponent(query)}`);
+  get<ClientSearchResult[]>(`/admin/clients/search?q=${encodeURIComponent(query)}`);
 
 export const createAdminOrder = (input: AdminOrderInput) =>
   send<{ id: string }>('POST', '/admin/orders', input);
@@ -270,3 +270,120 @@ export const setGroomerOnlineBooking = (groomerId: string, onlineBooking: boolea
   send<{ ok: true; onlineBooking: boolean }>('PUT', `/schedule/${groomerId}/online-booking`, {
     onlineBooking,
   });
+
+/* ---------- клієнти (адмін) ---------- */
+
+export type ClientSegment = 'regular' | 'new' | 'lapsed' | 'no_visits';
+
+export const SEGMENT_LABEL: Record<ClientSegment, string> = {
+  regular: 'Постійні',
+  new: 'Нові',
+  lapsed: 'Давно не були',
+  no_visits: 'Без візитів',
+};
+
+export type AdminClient = {
+  id: string;
+  name: string;
+  phone: string;
+  pets: { id: string; name: string }[];
+  visitsCount: number;
+  spent: number;
+  firstVisitAt: string | null;
+  lastVisitAt: string | null;
+  avgIntervalDays: number | null;
+  hasOrders: boolean;
+  segments: ClientSegment[];
+};
+
+export type AdminClientsPage = {
+  items: AdminClient[];
+  page: number;
+  pageSize: number;
+  total: number;
+  counts: { all: number } & Record<ClientSegment, number>;
+};
+
+export type ClientPetTrait = {
+  key: string;
+  label: string;
+  minLabel: string;
+  maxLabel: string;
+  value: number;
+};
+
+export type ClientCard = {
+  id: string;
+  name: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  doNotContact: boolean;
+  source: string;
+  since: string | null;
+  adminNote: string;
+  segments: ClientSegment[];
+  stats: {
+    visitsCount: number;
+    spent: number;
+    firstVisitAt: string | null;
+    lastVisitAt: string | null;
+    avgIntervalDays: number | null;
+    hasOrders: boolean;
+    hasUpcoming: boolean;
+  };
+  rebookHint: { text: string; dueAt: string } | null;
+  nextVisit: { id: string; scheduledAt: string; groomer: { id: string; name: string } } | null;
+  pets: {
+    id: string;
+    name: string;
+    breedId: string | null;
+    breedName: string | null;
+    breedCustom: string | null;
+    species: string;
+    weight: number;
+    birthDate: string | null;
+    photoUrl: string | null;
+    photoPreviewUrl: string | null;
+    wishes: string;
+    traits: ClientPetTrait[];
+  }[];
+  visits: {
+    id: string;
+    scheduledAt: string;
+    status: StaffOrder['status'];
+    petName: string | null;
+    groomer: { id: string; name: string };
+    services: string[];
+    total: number;
+  }[];
+};
+
+export type ClientInput = {
+  name: string;
+  phone: string;
+  lastName?: string;
+  email?: string;
+  adminNote?: string;
+};
+
+export const fetchAdminClients = (params: {
+  q?: string;
+  segment?: ClientSegment | null;
+  page?: number;
+}) => {
+  const search = new URLSearchParams();
+  if (params.q) search.set('q', params.q);
+  if (params.segment) search.set('segment', params.segment);
+  if (params.page && params.page > 1) search.set('page', String(params.page));
+  const query = search.toString();
+  return get<AdminClientsPage>(`/admin/clients${query ? `?${query}` : ''}`);
+};
+
+export const fetchClientCard = (id: string) => get<ClientCard>(`/admin/clients/${id}`);
+
+export const createAdminClient = (input: ClientInput) =>
+  send<ClientCard>('POST', '/admin/clients', input);
+
+export const updateAdminClient = (id: string, patch: Partial<ClientInput>) =>
+  send<ClientCard>('PATCH', `/admin/clients/${id}`, patch);

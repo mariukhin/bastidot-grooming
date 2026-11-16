@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ServiceProps } from '@/utils/function';
 import { BookingStep, Groomer } from '@/components/booking-modal/types';
 import { track } from '@/utils/analytics';
+import type { ClientSearchResult } from '@/api/staff';
 
 export type BookingSource = 'button' | 'service' | 'groomer' | 'pet' | 'repeat';
 
@@ -19,6 +20,8 @@ export type BookingIntent = {
   pet?: { id?: string; name: string };
   startStep?: BookingStep;
   source?: BookingSource;
+  /** Адмін відкрив запис з картки клієнта — клієнт уже обраний. */
+  client?: ClientSearchResult;
 };
 
 interface BookingState extends BookingIntent {
@@ -39,6 +42,7 @@ const EMPTY: BookingIntent = {
   pet: undefined,
   startStep: undefined,
   source: undefined,
+  client: undefined,
 };
 
 function resolveSource(intent?: BookingIntent): BookingSource {

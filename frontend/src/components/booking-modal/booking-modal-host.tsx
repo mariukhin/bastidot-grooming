@@ -20,6 +20,7 @@ const BookingModalHost = () => {
   const source = useBookingStore((state) => state.source);
   const admin = useBookingStore((state) => state.admin);
   const startAt = useBookingStore((state) => state.startAt);
+  const client = useBookingStore((state) => state.client);
 
   const intent = useMemo(
     () => ({
@@ -34,6 +35,7 @@ const BookingModalHost = () => {
       source,
       admin,
       startAt,
+      client,
     }),
     [
       groomer,
@@ -47,6 +49,7 @@ const BookingModalHost = () => {
       source,
       admin,
       startAt,
+      client,
     ]
   );
 

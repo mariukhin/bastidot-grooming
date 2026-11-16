@@ -687,6 +687,8 @@ const BookingModal = ({ isOpen, onClose, intent }: BookingModalProps) => {
           formattedDateTime={formattedDateTime}
           errorMessage={actionError}
           isPending={isActionPending}
+          initialClient={intent?.client}
+          initialPetId={intent?.pet?.id}
           onSubmit={(data) => void submitAsAdmin(data)}
         />
       )}

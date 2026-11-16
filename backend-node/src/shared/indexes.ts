@@ -38,6 +38,7 @@ export async function ensureIndexes(db: Db): Promise<void> {
     ]),
     db.collection('pet').createIndexes([
       { key: { userId: 1 } },
+      { key: { name: 1 } },
       { key: { userId: 1, archivedAt: 1 } },
     ]),
     db.collection(OTP_COLLECTION).createIndexes([
@@ -52,6 +53,7 @@ export async function ensureIndexes(db: Db): Promise<void> {
       { key: { lastNotifiedAt: 1 } },
       { key: { phone: 1 } },
       { key: { phoneRaw: 1 } },
+      { key: { name: 1 } },
     ]),
   ]);
 

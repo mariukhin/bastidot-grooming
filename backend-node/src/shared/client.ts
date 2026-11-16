@@ -44,4 +44,9 @@ export interface Client {
   _importNote?: string;
   note?: string;
   tags?: string;
+  /**
+   * Нотатка персоналу про клієнта («кусається на кігтях», «просить без парфуму»).
+   * Лише для /staff/admin: у кабінет клієнта й будь-які публічні відповіді не віддається.
+   */
+  adminNote?: string;
 }

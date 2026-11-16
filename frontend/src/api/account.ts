@@ -60,7 +60,15 @@ export type AccountVisit = {
 
 export type OrdersPage = { items: AccountVisit[]; nextCursor: string | null };
 
-export type AccountResult<T> = { ok: true; data: T } | { ok: false; message: string };
+export type AccountResult<T> =
+  | { ok: true; data: T }
+  | {
+      ok: false;
+      message: string;
+      /** Машинний код помилки й решта полів відповіді (field, existingId…). */
+      code?: string;
+      details?: Record<string, unknown>;
+    };
 
 const NETWORK_MESSAGE = "Немає зв'язку з сервером. Перевірте інтернет";
 const FALLBACK_MESSAGE = 'Не вдалося завантажити дані. Спробуйте ще раз';

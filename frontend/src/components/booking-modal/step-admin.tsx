@@ -38,6 +38,9 @@ type StepAdminProps = {
   errorMessage?: string | null;
   isPending?: boolean;
   onSubmit: (data: AdminBookingData) => void;
+  /** Клієнт, обраний заздалегідь (запис з картки клієнта). */
+  initialClient?: ClientSearchResult;
+  initialPetId?: string;
 };
 
 const OTHER_PET = '__other__';
@@ -50,13 +53,19 @@ const StepAdmin = ({
   errorMessage,
   isPending,
   onSubmit,
+  initialClient,
+  initialPetId,
 }: StepAdminProps) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ClientSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
-  const [client, setClient] = useState<ClientSearchResult | null>(null);
+  const [client, setClient] = useState<ClientSearchResult | null>(initialClient ?? null);
 
-  const [petId, setPetId] = useState<string>(OTHER_PET);
+  const [petId, setPetId] = useState<string>(
+    initialClient?.pets.find((p) => p.id === initialPetId)?.id ??
+      initialClient?.pets[0]?.id ??
+      OTHER_PET
+  );
   const [petName, setPetName] = useState('');
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
